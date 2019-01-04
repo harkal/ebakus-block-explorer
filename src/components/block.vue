@@ -72,6 +72,16 @@
         <td class="headcol">Parent Hash</td>
         <td class="long">{{blockData.parentHash}}</td>
       </tr>
+      <tr>
+        <td class="headcol">Delegates</td>
+        <td class="long">
+          <ul class="unstyled">
+            <li v-for="delegate in blockData.delegates" class="account">
+              <router-link  :to="{ name: 'searchTerm', params: {query: delegate} }">{{delegate}}</router-link>
+            </li>
+          </ul>
+        </td>
+      </tr>
     </table>
     </div>  
    
