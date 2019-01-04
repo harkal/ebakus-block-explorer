@@ -13,7 +13,7 @@
      
     </div>
     <div class="chart_wrapper">
-      <Chart :chartData="balanceData" :height="300"></Chart>
+      <Chart v-if="chartDataLoaded" :chartData="balanceData" :height="300"></Chart>
     </div>
      
   </div>
@@ -72,7 +72,7 @@ export default {
   data () {
     return {
       address:"",
-  
+      chartDataLoaded: false,
     }
   },
   methods:{
@@ -91,10 +91,10 @@ export default {
 
   },
   watch:{
-   addressData:function(){
-     
-   }
-
+   addressData:function(){},
+   txs:function(){
+     this.chartDataLoaded = true;
+   },
   },
   computed:{
     balance: function(){
