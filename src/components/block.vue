@@ -46,7 +46,7 @@
       </tr>
       <tr>
         <td class="headcol">Produced by</td>
-        <td class="long"><span class="account"><router-link  :to="{ name: 'searchTerm', params: {query: '0x52bc44d5378309ee2abf1539bf71de1b7d7be3b5'} }">0x52bc44d5378309ee2abf1539bf71de1b7d7be3b5</router-link></span></td>
+        <td class="long"><span class="account"><router-link  :to="{ name: 'searchTerm', params: {query: blockData.producer} }">{{blockData.producer}}</router-link></span></td>
       </tr>
       <tr>
         <td class="headcol"></td>
