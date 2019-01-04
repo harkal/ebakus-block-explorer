@@ -59,8 +59,8 @@ export default {
        selectedByRoute=""
        this.tabbarRouter()
      }
-     else if(this.selected!=e.target.id) {
-      
+     else if(e && this.selected!=e.target.id) {
+
        this.selected =e.currentTarget.id
 
        this.$root.$data.sharedState.contentActive = true
