@@ -73,7 +73,7 @@ export default {
       var offset_tmp = this.offset+20
       var self = this
       if(typeof this.address!=="undefined" && this.address!="" ){
-        this.$http.get('https://explorersrv.ebakus.com/transaction/all/'+this.address+'?offset='+offset_tmp+'&limit=20&order=desc')
+        this.$http.get(process.env.API_ENDPOINT + '/transaction/all/'+this.address+'?offset='+offset_tmp+'&limit=20&order=desc')
             .then(function(response){
               var new_txs = response.data;
               console.log(new_txs)
@@ -86,7 +86,7 @@ export default {
             });
       }
       if(typeof this.blockHash!=="undefined" && this.blockHash!="" ){
-        this.$http.get('https://explorersrv.ebakus.com/transaction/block/'+this.blockHash)
+        this.$http.get(process.env.API_ENDPOINT + '/transaction/block/'+this.blockHash)
               .then(function(response){
                 var new_txs = response.data;
                 console.log(new_txs)

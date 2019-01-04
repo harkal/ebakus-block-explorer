@@ -124,12 +124,12 @@ export default {
     getBlock: function(blockID){
       this.hasLoaded=false;
       this.txs=[]
-        this.$http.get('https://explorersrv.ebakus.com/block/'+blockID)
+        this.$http.get(process.env.API_ENDPOINT + '/block/'+blockID)
           .then(function(response){
             this.block = response.data;
             this.hasLoaded=true;
             if(this.block.number>= 0){
-             this.$http.get('https://explorersrv.ebakus.com/transaction/block/'+this.block.hash)
+             this.$http.get(process.env.API_ENDPOINT + '/transaction/block/'+this.block.hash)
               .then(function(response){
                 this.txs = response.data;
                 this.hasLoaded=true;
@@ -156,11 +156,11 @@ export default {
 
      
           console.log(this.transaction)
-        this.$http.get('https://explorersrv.ebakus.com/block/-1?range=10')
+        this.$http.get(process.env.API_ENDPOINT + '/block/-1?range=10')
           .then(function(response){
             this.$root.$data.sharedState.blockHeight = response.data[0].number;
             this.hasLoaded=true;
-            this.$http.get('https://explorersrv.ebakus.com/transaction/'+txHash)
+            this.$http.get(process.env.API_ENDPOINT + '/transaction/'+txHash)
               .then(function(response){
                 this.transaction = response.data;
                 this.hasLoaded=true;
@@ -184,7 +184,7 @@ export default {
       this.txs=[]
 
       this.hasLoaded=false;
-        this.$http.get('https://explorersrv.ebakus.com/address/'+address)
+        this.$http.get(process.env.API_ENDPOINT + '/address/'+address)
           .then(function(response){
             this.address = response.data;
             this.hasLoaded=true;
@@ -194,7 +194,7 @@ export default {
           this.hasLoaded=true;
           });
 
-        this.$http.get('https://explorersrv.ebakus.com/transaction/all/'+address+'?offset=0&limit=20&order=desc')
+        this.$http.get(process.env.API_ENDPOINT + '/transaction/all/'+address+'?offset=0&limit=20&order=desc')
           .then(function(response){
             this.txs = response.data;
             this.hasLoaded=true;
