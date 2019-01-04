@@ -139,7 +139,7 @@ export default {
     },
     fromRpcSig: function(sig){
         //sig = util.toBuffer(sig)
-        console.log(sig)
+        console.log('fromRpcSig input: ', sig, 'length: ', sig.length)
       if (sig.length !== 65) {
         throw new Error('Invalid signature length')
       }
@@ -166,16 +166,35 @@ export default {
   },
   watch:{
     blockData: function(){
-      if(this.blockData.number>0) 
+      if(this.blockData.number>0) {
         this.previousBlock = (this.blockData.number-1).toString();
+      }
       this.nextBlock = (this.blockData.number+1).toString();
 
-      var sig = Buffer.from(this.blockData.signature, "base64")
-      
-      console.log(sig.length)
-      var sig = this.fromRpcSig(sig)
-      console.log(sig)
-      console.log(util.ecrecover(this.blockData.hash,sig.v,sig.r,sig.s))
+      if (process.env.NODE_ENV === 'development') {
+        var hash = this.blockData.hash;
+        if (hash.indexOf('0x') === 0) {
+          hash = this.blockData.hash.slice(2)
+        }
+        var msg = Buffer.from(hash.toLowerCase(), 'hex')
+        var sig = Buffer.from(this.blockData.signature, "base64")
+
+        var sig = this.fromRpcSig(sig)
+        // var sig = util.fromRpcSig(sig)
+        console.log('sig: ', sig)
+
+        // var prefix = new Buffer("\x19Ethereum Signed Message:\n");
+        // var prefixedMsg = util.sha3(
+        //   Buffer.concat([prefix, new Buffer(String(msg.length)), msg])
+        // );
+
+        var pubKey = util.ecrecover(msg,sig.v,sig.r,sig.s);
+        console.log('pubKey: ', pubKey);
+
+        var addrBuf = util.pubToAddress(pubKey);
+        var addr    = util.bufferToHex(addrBuf);
+        console.log('addr: ', addr);
+      }
     },
     txs: function(){
       this.countTx()
@@ -197,10 +216,6 @@ export default {
         return this.blockData.size/1048576+'MB'
       else return this.blockData.size+" Bytes"
     },
-    producer(){
-     // console.log(util.fromRPCSig(atob(this.blockData.signature)))
-      return 0
-    }
 
   
 
