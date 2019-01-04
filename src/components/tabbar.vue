@@ -59,8 +59,8 @@ export default {
        selectedByRoute=""
        this.tabbarRouter()
      }
-     else if(this.selected!=e.target.id) {
-      
+     else if(e && this.selected!=e.target.id) {
+
        this.selected =e.currentTarget.id
 
        this.$root.$data.sharedState.contentActive = true
@@ -115,7 +115,7 @@ export default {
    },
    getLatestTransactions: function(){
 
-      this.$http.get('https://explorersrv.ebakus.com/transaction/from/0x53e5182e798c5d2a93c526f7c9745a6937a71fcf')
+      this.$http.get(process.env.API_ENDPOINT + '/transaction/from/0x53e5182e798c5d2a93c526f7c9745a6937a71fcf')
         .then(function(response){
           this.txs = response.data;
           this.hasLoaded=true;
@@ -127,7 +127,7 @@ export default {
       console.log(this.txs)
    },
    getLatestBlocks: function(){
-      this.$http.get('https://explorersrv.ebakus.com/block/-1?range=10')
+      this.$http.get(process.env.API_ENDPOINT + '/block/-1?range=10')
         .then(function(response){
           this.blocks = response.data;
           this.hasLoaded=true;

@@ -20,6 +20,8 @@
 </template>
 
 <script>
+import { timeConverter, weiToEbk } from '../utils';
+
 export default {
    props:{
     isTransactions: {
@@ -47,33 +49,13 @@ export default {
     }
   },
   methods:{
-        timeConverter: function(UNIX_timestamp){
-      var b =  new Date(Date.now())
-      var a = new Date(UNIX_timestamp * 1000);
-      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      var year = a.getFullYear();
-      var month = months[a.getMonth()];
-      var date = a.getDate();
-      var hour = a.getHours();
-      var min = a.getMinutes();
-      if (parseInt(min)<10) min= '0'+min
-      var sec = a.getSeconds();
-      if (parseInt(sec)<10) sec= '0'+sec
-      if(a.getFullYear() == b.getFullYear() && a.getMonth() ==b.getMonth() && a.getDate() ==b.getDate()){
-          var time = 'Today ' + hour + ':' + min + ':' + sec ;
-      }else var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
-      
-      return time;
-    },
-     
-    weiToEbk(value){
-     return (value*0.000000000000000001).toFixed(5)
-    },
+    timeConverter: timeConverter,
+    weiToEbk: (val) => weiToEbk(val).toFixed(5),
     loadMoreTransactions(){
       var offset_tmp = this.offset+20
       var self = this
       if(typeof this.address!=="undefined" && this.address!="" ){
-        this.$http.get('https://explorersrv.ebakus.com/transaction/all/'+this.address+'?offset='+offset_tmp+'&limit=20&order=desc')
+        this.$http.get(process.env.API_ENDPOINT + '/transaction/all/'+this.address+'?offset='+offset_tmp+'&limit=20&order=desc')
             .then(function(response){
               var new_txs = response.data;
               console.log(new_txs)
@@ -86,7 +68,7 @@ export default {
             });
       }
       if(typeof this.blockHash!=="undefined" && this.blockHash!="" ){
-        this.$http.get('https://explorersrv.ebakus.com/transaction/block/'+this.blockHash)
+        this.$http.get(process.env.API_ENDPOINT + '/transaction/block/'+this.blockHash)
               .then(function(response){
                 var new_txs = response.data;
                 console.log(new_txs)

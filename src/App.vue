@@ -191,6 +191,10 @@ th,td{
 td:nth-child(2){
   font-weight: 500;
 }
+
+td.headcol{
+  vertical-align: top;
+}
 .tabResults{
   list-style: none;
   margin: 30px 0;
@@ -205,6 +209,17 @@ td:nth-child(2){
   height: calc(100% - 150px) !important;
 }
 
+ul.unstyled {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+ul.unstyled li {
+  margin-bottom: 8px;
+}
+ul.unstyled li:last-child {
+  margin-bottom: 0;
+}
 
 @media (max-width: 960px) {
   .container{

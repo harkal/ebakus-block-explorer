@@ -44,29 +44,54 @@
     <h2>Details</h2>
     <div class="tablewrapper">
       <table>
-      <tr>
-        <td class="headcol">TxHash</td>
-        <td class="long"><router-link class="transaction" :to="{ name: 'searchTerm', params: {query: transactionData.hash}}">{{transactionData.hash}}</router-link></td>
-      </tr><tr>
-        <td class="headcol">Timestamp</td>
-        <td class="long"><strong> -</strong></td>
-      </tr><tr>
-        <td class="headcol">Blockheight</td>
-        <td class="long"><strong><router-link class="block" :to="{ name: 'searchTerm', params: {query: blockHeight}}">{{transactionData.blockNumber}}</router-link></strong></td>
-      </tr>
-      <tr>
-        <td class="headcol">Produced by</td>
-        <td class="long">-</td>
-      </tr>
-      <tr>
-        <td class="headcol">Gas limit</td>
-        <td class="long">{{transactionData.gasLimit}}</td>
-      </tr>
-      <tr>
-        <td class="headcol">Gas used</td>
-        <td class="long">{{transactionData.gasUsed}}</td>
-      </tr>
-    </table>
+        <tr>
+          <td class="headcol">TxHash</td>
+          <td class="long"><router-link class="transaction" :to="{ name: 'searchTerm', params: {query: transactionData.hash}}">{{transactionData.hash}}</router-link></td>
+        </tr><tr>
+          <td class="headcol">Timestamp</td>
+          <td class="long">{{timeConverter(transactionData.timestamp)}}</td>
+        </tr>
+        <tr>
+          <td class="headcol">Block hash</td>
+          <td class="long"><router-link class="account" :to="{ name: 'searchTerm', params: {query: transactionData.blockHash}}">{{transactionData.blockHash}}</router-link></td>
+        </tr>
+        <tr>
+          <td class="headcol">Block number</td>
+          <td class="long"><strong><router-link class="block" :to="{ name: 'searchTerm', params: {query: transactionData.blockNumber}}">{{transactionData.blockNumber}}</router-link></strong></td>
+        </tr>
+        <tr>
+          <td class="headcol">Produced by</td>
+          <td class="long"><router-link class="account" :to="{ name: 'searchTerm', params: {query: transactionData.producer}}">{{transactionData.producer}}</router-link></td>
+        </tr>
+        <tr>
+          <td class="headcol">Gas limit</td>
+          <td class="long">{{transactionData.gasLimit}}</td>
+        </tr>
+        <tr>
+          <td class="headcol">Gas used</td>
+          <td class="long">{{transactionData.gasUsed}}</td>
+        </tr>
+        <tr>
+          <td class="headcol">Nonce</td>
+          <td class="long">{{transactionData.nonce}}</td>
+        </tr>
+        <tr>
+          <td class="headcol">Work nonce</td>
+          <td class="long">{{transactionData.workNonce}}</td>
+        </tr>
+        <tr>
+          <td class="headcol">Transaction index</td>
+          <td class="long">{{transactionData.transactionIndex}}</td>
+        </tr>
+        <tr>
+          <td class="headcol">Input</td>
+          <td class="long">{{transactionData.input}}</td>
+        </tr>
+        <tr>
+          <td class="headcol">Cumulative gas used</td>
+          <td class="long">{{transactionData.cumulativeGasUsed}}</td>
+        </tr>
+      </table>
     </div>
     
   </div>
@@ -75,6 +100,7 @@
 </template>
 
 <script>
+import { timeConverter, weiToEbk } from '../utils';
 export default {
    props:{
     isTransactionActive: {
@@ -93,24 +119,8 @@ export default {
     }
   },
   methods:{
-        timeConverter: function(UNIX_timestamp){
-          var b =  new Date(Date.now())
-          var a = new Date(UNIX_timestamp * 1000);
-          var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-          var year = a.getFullYear();
-          var month = months[a.getMonth()];
-          var date = a.getDate();
-          var hour = a.getHours();
-          var min = a.getMinutes();
-          var sec = a.getSeconds();
-          if(a.getFullYear() == b.getFullYear() && a.getMonth() ==b.getMonth() && a.getDate() ==b.getDate()){
-              var time = 'Today ' + hour + ':' + min + ':' + sec ;
-          }else var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
-          return time;
-        },
-          weiToEbk(value){
-     return value*0.000000000000000001
-    }
+    timeConverter: timeConverter,
+    weiToEbk: weiToEbk,
   },
   created: function(){
     

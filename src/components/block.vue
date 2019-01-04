@@ -46,7 +46,7 @@
       </tr>
       <tr>
         <td class="headcol">Produced by</td>
-        <td class="long"><span class="account"><router-link  :to="{ name: 'searchTerm', params: {query: '0x52bc44d5378309ee2abf1539bf71de1b7d7be3b5'} }">0x52bc44d5378309ee2abf1539bf71de1b7d7be3b5</router-link></span></td>
+        <td class="long"><span class="account"><router-link  :to="{ name: 'searchTerm', params: {query: blockData.producer} }">{{blockData.producer}}</router-link></span></td>
       </tr>
       <tr>
         <td class="headcol"></td>
@@ -72,6 +72,16 @@
         <td class="headcol">Parent Hash</td>
         <td class="long">{{blockData.parentHash}}</td>
       </tr>
+      <tr>
+        <td class="headcol">Delegates</td>
+        <td class="long">
+          <ul class="unstyled">
+            <li v-for="delegate in blockData.delegates" class="account">
+              <router-link  :to="{ name: 'searchTerm', params: {query: delegate} }">{{delegate}}</router-link>
+            </li>
+          </ul>
+        </td>
+      </tr>
     </table>
     </div>  
    
@@ -90,6 +100,7 @@
 <script>
 import transactions from './transactions'
 import util from 'ethereumjs-util'
+import { timeConverter } from '../utils';
 
 export default {
    props:{
@@ -117,29 +128,13 @@ export default {
     transactions
   },
   methods:{
-   countTx: function(){
+    timeConverter: timeConverter,
+    countTx: function(){
       this.txcount = this.txs.length
-    },
-     timeConverter: function(UNIX_timestamp){
-      var b =  new Date(Date.now())
-      var a = new Date(UNIX_timestamp * 1000);
-      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      var year = a.getFullYear();
-      var month = months[a.getMonth()];
-      var date = a.getDate();
-      var hour = a.getHours();
-      var min = a.getMinutes();
-      if (parseInt(min)<10) min= '0'+min
-      var sec = a.getSeconds();
-      if (parseInt(sec)<10) sec= '0'+sec
-      if(a.getFullYear() == b.getFullYear() && a.getMonth() ==b.getMonth() && a.getDate() ==b.getDate()){
-          var time = 'Today ' + hour + ':' + min + ':' + sec ;
-      }else var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
-      return time;
     },
     fromRpcSig: function(sig){
         //sig = util.toBuffer(sig)
-        console.log(sig)
+        console.log('fromRpcSig input: ', sig, 'length: ', sig.length)
       if (sig.length !== 65) {
         throw new Error('Invalid signature length')
       }
@@ -156,26 +151,41 @@ export default {
         s: sig.slice(32, 64)
       }
     },
-
-     
-     
-    
   },
   created: function(){
    
   },
   watch:{
     blockData: function(){
-      if(this.blockData.number>0) 
+      if(this.blockData.number>0) {
         this.previousBlock = (this.blockData.number-1).toString();
+      }
       this.nextBlock = (this.blockData.number+1).toString();
 
-      var sig = Buffer.from(this.blockData.signature, "base64")
-      
-      console.log(sig.length)
-      var sig = this.fromRpcSig(sig)
-      console.log(sig)
-      console.log(util.ecrecover(this.blockData.hash,sig.v,sig.r,sig.s))
+      if (process.env.NODE_ENV === 'development') {
+        var hash = this.blockData.hash;
+        if (hash.indexOf('0x') === 0) {
+          hash = this.blockData.hash.slice(2)
+        }
+        var msg = Buffer.from(hash.toLowerCase(), 'hex')
+        var sig = Buffer.from(this.blockData.signature, "base64")
+
+        var sig = this.fromRpcSig(sig)
+        // var sig = util.fromRpcSig(sig)
+        console.log('sig: ', sig)
+
+        // var prefix = new Buffer("\x19Ethereum Signed Message:\n");
+        // var prefixedMsg = util.sha3(
+        //   Buffer.concat([prefix, new Buffer(String(msg.length)), msg])
+        // );
+
+        var pubKey = util.ecrecover(msg,sig.v,sig.r,sig.s);
+        console.log('pubKey: ', pubKey);
+
+        var addrBuf = util.pubToAddress(pubKey);
+        var addr    = util.bufferToHex(addrBuf);
+        console.log('addr: ', addr);
+      }
     },
     txs: function(){
       this.countTx()
@@ -197,10 +207,6 @@ export default {
         return this.blockData.size/1048576+'MB'
       else return this.blockData.size+" Bytes"
     },
-    producer(){
-     // console.log(util.fromRPCSig(atob(this.blockData.signature)))
-      return 0
-    }
 
   
 
