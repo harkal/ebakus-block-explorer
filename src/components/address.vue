@@ -1,0 +1,255 @@
+<template>
+<div id="block_wrapper" v-bind:class="{ active: isAddressActive }">
+  <h1>Address</h1> 
+  
+  <div class="panel">
+    <div class="twocol">
+      <span class="address">{{addressData.address}}</span>
+    </div>
+     <div class="twocol right">
+      <span class="balanceLabel">Balance</span>
+      <span class="balance">{{balance}}</span>
+      <small>ebakus</small>
+     
+    </div>
+    <div class="chart_wrapper">
+      <Chart :chartData="balanceData" :height="300"></Chart>
+    </div>
+     
+  </div>
+  <div class="panel">
+    <h2>Details</h2>
+        <table>
+      <tr>
+        <td>Balance</td>
+        <td> {{balance}} </td>
+      </tr>
+      <tr>
+        <td>Total in</td>
+        <td>{{weiToEbk(addressData.total_in)}}</td>
+      </tr>
+      <tr>
+        <td>Total out</td>
+        <td >{{weiToEbk(addressData.total_out)}}</td>
+      </tr>
+      <tr>
+        <td>Total txs</td>
+        <td >{{totalTx}}</td>
+      </tr>
+    </table>
+  </div>
+   <div class="panel">
+    <h2>Transactions</h2>
+        <transactions v-bind:txs="txs" v-bind:address="addressData.address" v-bind:maxOffset="totalTx" v-bind:isTransactions="{active:true }" />
+
+  </div>
+</div>
+    
+</template>
+
+<script>
+
+import Chart from './chart'
+
+export default {
+   props:{
+    isAddressActive: {
+      type: Boolean,
+      default: false
+    },
+    addressData:{
+      type: Object
+    },
+    txs:{
+      type: Array
+    }
+   
+  },
+  components:{
+    Chart
+  },
+  data () {
+    return {
+      address:"",
+  
+    }
+  },
+  methods:{
+   getBalance: function(){
+     var balance= 0
+     var i = 0;
+     console.log("from: "+this.addressData.from.length)
+     console.log("to: "+this.addressData.space-top1.length)
+     console.log(i);
+   },
+   weiToEbk(value){
+     return value*0.000000000000000001
+   },
+    timeConverter: function(UNIX_timestamp){
+      var b =  new Date(Date.now())
+      var a = new Date(UNIX_timestamp * 1000);
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var year = a.getFullYear();
+      var month = months[a.getMonth()];
+      var date = a.getDate();
+      var hour = a.getHours();
+      var min = a.getMinutes();
+      if (parseInt(min)<10) min= '0'+min
+      var sec = a.getSeconds();
+      if (parseInt(sec)<10) sec= '0'+sec
+      if(a.getFullYear() == b.getFullYear() && a.getMonth() ==b.getMonth() && a.getDate() ==b.getDate()){
+          var time = 'Today ' + hour + ':' + min + ':' + sec ;
+      }else var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+      return time;
+    }
+     
+     
+    
+     
+    
+  },
+  created: function(){
+
+
+  },
+  watch:{
+   addressData:function(){
+     
+   }
+
+  },
+  computed:{
+    balance: function(){
+      var balance = (this.addressData.total_in - this.addressData.total_out)
+      return this.weiToEbk(balance).toFixed(5)
+      
+    },
+    totalTx: function(){
+      return this.addressData.count_in + this.addressData.count_out
+    },
+    balanceData: function(){
+      var i
+      var balance = 0
+      var balanceData ={}
+      var _data= []
+      var _datasets= []
+      var _labels= []
+      var txs = this.txs.slice().reverse()
+ 
+      for(i=0;i<txs.length;i++) {
+        _labels.push(this.timeConverter(txs[i].timestamp))
+        if(txs[i].from == "this" && txs[i].to!="this"){
+          balance -= this.weiToEbk(txs[i].value) 
+        }
+    
+        else if(txs[i].from != "this" && txs[i].to=="this"){
+          balance += this.weiToEbk(txs[i].value)
+        }
+       
+        _data.push(balance)
+      }
+        _labels.unshift("")
+        balance = this.balance -_data[txs.length-1]
+        for(i=0;i<txs.length;i++) {
+           _data[i]+= balance
+        }
+        _data.unshift(balance)
+      
+    
+      _datasets = [
+        {
+        label: 'Balance',
+        backgroundColor: '#E4F5FD',
+        borderColor: '#31BAF3',
+        data: _data,
+      }
+      ]
+
+      balanceData= {
+        labels: _labels,
+        datasets: _datasets,
+      }
+      
+      return balanceData
+
+    }
+  }
+}
+</script>
+
+
+
+
+
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+
+table{
+  text-align: left;
+}
+tr:nth-child(odd){
+  background: #fff;
+}
+
+#block_wrapper{
+  opacity:0;
+}
+#block_wrapper.active{
+  opacity:1;
+  display: block;
+}
+h3.address{
+  font-size: 22px;
+}
+.twocol{
+  display: inline-block;
+  width: 49%;
+  padding-bottom: 40px;
+}
+.twocol>span.address{
+  padding-left: 7px;
+}
+.twocol.right{
+  text-align: right;
+}
+.balanceLabel{
+  font-weight: 400;
+  color: #ACB4C9;
+  margin-right: 10px;
+}
+.balance{
+  font-size: 24px;
+  font-weight: 600;
+}
+.chart_wrapper{
+  position:relative;
+  width:100% !important;
+  }
+
+@media (max-width: 560px) {
+  .twocol{
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    padding:0px;
+    margin:0px;
+    padding:8px 0px;
+  
+  }
+  div.twocol span.address{
+    font-size: 14px;
+    padding-left: 0px;
+    
+  }
+ .twocol.right{
+  text-align: left;
+  
+  } 
+  .chart_wrapper{
+    padding-top: 10px;
+  }
+ 
+
+}
+</style>
