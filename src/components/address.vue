@@ -50,6 +50,7 @@
 <script>
 
 import Chart from './chart'
+import { timeConverter, weiToEbk } from '../utils';
 
 export default {
    props:{
@@ -82,31 +83,8 @@ export default {
      console.log("to: "+this.addressData.space-top1.length)
      console.log(i);
    },
-   weiToEbk(value){
-     return value*0.000000000000000001
-   },
-    timeConverter: function(UNIX_timestamp){
-      var b =  new Date(Date.now())
-      var a = new Date(UNIX_timestamp * 1000);
-      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      var year = a.getFullYear();
-      var month = months[a.getMonth()];
-      var date = a.getDate();
-      var hour = a.getHours();
-      var min = a.getMinutes();
-      if (parseInt(min)<10) min= '0'+min
-      var sec = a.getSeconds();
-      if (parseInt(sec)<10) sec= '0'+sec
-      if(a.getFullYear() == b.getFullYear() && a.getMonth() ==b.getMonth() && a.getDate() ==b.getDate()){
-          var time = 'Today ' + hour + ':' + min + ':' + sec ;
-      }else var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
-      return time;
-    }
-     
-     
-    
-     
-    
+    timeConverter: timeConverter,
+    weiToEbk: (val) => weiToEbk(val).toFixed(5),
   },
   created: function(){
 
@@ -121,8 +99,8 @@ export default {
   computed:{
     balance: function(){
       var balance = (this.addressData.total_in - this.addressData.total_out)
-      return this.weiToEbk(balance).toFixed(5)
-      
+      return this.weiToEbk(balance)
+
     },
     totalTx: function(){
       return this.addressData.count_in + this.addressData.count_out

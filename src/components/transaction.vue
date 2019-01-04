@@ -75,6 +75,7 @@
 </template>
 
 <script>
+import { timeConverter, weiToEbk } from '../utils';
 export default {
    props:{
     isTransactionActive: {
@@ -93,24 +94,8 @@ export default {
     }
   },
   methods:{
-        timeConverter: function(UNIX_timestamp){
-          var b =  new Date(Date.now())
-          var a = new Date(UNIX_timestamp * 1000);
-          var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-          var year = a.getFullYear();
-          var month = months[a.getMonth()];
-          var date = a.getDate();
-          var hour = a.getHours();
-          var min = a.getMinutes();
-          var sec = a.getSeconds();
-          if(a.getFullYear() == b.getFullYear() && a.getMonth() ==b.getMonth() && a.getDate() ==b.getDate()){
-              var time = 'Today ' + hour + ':' + min + ':' + sec ;
-          }else var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
-          return time;
-        },
-          weiToEbk(value){
-     return value*0.000000000000000001
-    }
+    timeConverter: timeConverter,
+    weiToEbk: weiToEbk,
   },
   created: function(){
     
