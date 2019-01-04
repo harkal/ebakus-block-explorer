@@ -164,6 +164,17 @@ export default {
               .then(function(response){
                 this.transaction = response.data;
                 this.hasLoaded=true;
+
+                // extra API call to retrieve block producer, later this will be returned by the API tx call itself
+                this.$http.get(process.env.API_ENDPOINT + '/block/' + this.transaction.blockNumber)
+                  .then(function(response){
+                    this.$set(this.transaction, 'producer', response.data.producer);
+                    this.hasLoaded=true;
+                },
+                (err) => {
+                  console.log(err);
+                  this.hasLoaded=true;
+                });
               },
               (err) => {
                 console.log(err);
