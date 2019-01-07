@@ -75,7 +75,13 @@ export default {
             this.isBlockActive= false;
             this.isTransactionActive = true;
             this.isAddressActive = false;
-            this.getTransaction(queryStr)
+            this.getTransaction(queryStr).then(function(){},
+              (err) => {
+                console.log('err getTransaction: ', err);
+                this.isBlockActive= true;
+                this.isTransactionActive = false;
+                this.getBlock(queryStr);
+              });
 
             break
           default: 
@@ -154,41 +160,41 @@ export default {
      getTransaction: function(txHash){
       this.hasLoaded=false;
 
-     
-          console.log(this.transaction)
-        this.$http.get(process.env.API_ENDPOINT + '/block/-1?range=10')
-          .then(function(response){
-            this.$root.$data.sharedState.blockHeight = response.data[0].number;
-            this.hasLoaded=true;
-            this.$http.get(process.env.API_ENDPOINT + '/transaction/'+txHash)
-              .then(function(response){
-                this.transaction = response.data;
-                this.hasLoaded=true;
+        return new Promise((resolve, reject) => {
+          this.$http.get(process.env.API_ENDPOINT + '/block/-1?range=10')
+            .then(function(response){
+              this.$root.$data.sharedState.blockHeight = response.data[0].number;
+              this.hasLoaded=true;
+              this.$http.get(process.env.API_ENDPOINT + '/transaction/'+txHash)
+                .then(function(response){
+                  this.transaction = response.data;
+                  this.hasLoaded=true;
 
-                // extra API call to retrieve block producer, later this will be returned by the API tx call itself
-                this.$http.get(process.env.API_ENDPOINT + '/block/' + this.transaction.blockNumber)
-                  .then(function(response){
-                    this.$set(this.transaction, 'producer', response.data.producer);
+                  // extra API call to retrieve block producer, later this will be returned by the API tx call itself
+                  this.$http.get(process.env.API_ENDPOINT + '/block/' + this.transaction.blockNumber)
+                    .then(function(response){
+                      this.$set(this.transaction, 'producer', response.data.producer);
+                      this.hasLoaded=true;
+                      resolve(response);
+                  },
+                  (err) => {
+                    console.log('err txBlock: ', err);
                     this.hasLoaded=true;
+                    reject(err);
+                  });
                 },
                 (err) => {
-                  console.log(err);
-                  this.hasLoaded=true;
+                  console.log('err txByHash: ', err);
+                this.hasLoaded=false;
+                reject(err);
                 });
-              },
-              (err) => {
-                console.log(err);
-              this.hasLoaded=true;
-              });
-          },
-          (err) => {
-            console.log(err);
-            this.hasLoaded=true;
-          });
-      console.log(this.blocks)
-          
-          
-
+            },
+            (err) => {
+              console.log('err blocks: ', err);
+              this.hasLoaded=false;
+              reject(err);
+            });
+        });
     },
     getAddress: function(address){
       console.log("fetching address")
