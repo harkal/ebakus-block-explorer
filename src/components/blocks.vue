@@ -6,7 +6,7 @@
     </ul>
     <div class="scroll">
       <ul class="tabResults main">
-      <li v-for="block in blocks"> <router-link :to="{  path: '/search/' + block.number}">  <span class=" mobileLabel">Block #</span> <span class="blockID">{{block.number}}</span> <span class=" mobileLabel">Tx count</span> <span class="transaction"><strong> {{block.transactionCount}} </strong>  transactions</span>  <span class="mobileLabel">Gas used</span><progress :value="block.gasUsed" max="100">70 %</progress> <span class="mobileLabel">Produced</span><span class="producer"> by Producer 1</span> <span class="mobileLabel">Timestamp</span> <span class="time">{{timeConverter(block.timestamp)}}</span> </router-link> </li>
+      <li v-for="block in blocks"> <router-link :to="{  path: '/search/' + block.number}">  <span class=" mobileLabel">Block #</span> <span class="blockID">{{block.number}}</span> <span class=" mobileLabel">Tx count</span> <span class="transaction"><strong> {{block.transactionCount}} </strong>  transactions</span>  <span class="mobileLabel">Gas used</span><progress :value="block.gasUsed" max="100">70 %</progress> <span class="mobileLabel">Produced by</span><span class="producer">{{block.producer}}</span> <span class="mobileLabel">Timestamp</span> <span class="time">{{timeConverter(block.timestamp)}}</span> </router-link> </li>
     </ul>
     </div>
      
@@ -152,6 +152,10 @@ progress::-moz-progress-bar {
 }
 span.blockID{
   font-weight: 600;
+}
+span.producer{
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 span.producer, span.time{
   font-size: 13px;
