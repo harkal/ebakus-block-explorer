@@ -115,7 +115,7 @@ export default {
    },
    getLatestTransactions: function(){
 
-      this.$http.get(process.env.API_ENDPOINT + '/transaction/from/0x53e5182e798c5d2a93c526f7c9745a6937a71fcf')
+      this.$http.get(process.env.API_ENDPOINT + '/transaction/-1?range=10')
         .then(function(response){
           this.txs = response.data;
           this.hasLoaded=true;
