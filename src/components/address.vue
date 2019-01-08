@@ -33,6 +33,10 @@
         <td >{{weiToEbk(addressData.total_out)}}</td>
       </tr>
       <tr>
+        <td>Ebakus produced</td>
+        <td>{{weiToEbk(addressData.mining_rewards)}}</td>
+      </tr>
+      <tr>
         <td>Total txs</td>
         <td >{{totalTx}}</td>
       </tr>
@@ -98,7 +102,7 @@ export default {
   },
   computed:{
     balance: function(){
-      var balance = (this.addressData.total_in - this.addressData.total_out)
+      var balance = (this.addressData.total_in - this.addressData.total_out + this.addressData.mining_rewards)
       return this.weiToEbk(balance)
 
     },
