@@ -67,9 +67,9 @@ export default {
        this.isActive = true
       // this.tHeight = "height:calc(100% - 215px);";
        this.tabbarRouter()
-       
-       
-    
+
+
+
      }
      else {
        this.selected =""
@@ -84,7 +84,7 @@ export default {
         }
         else {
           this.$router.push({
-          path: '/' 
+          path: '/'
         })
      }
 
@@ -93,7 +93,7 @@ export default {
    tabbarRouter: function(){
       console.log(this.selected)
        switch(this.selected){
-          case "blocksTab": 
+          case "blocksTab":
             this.getLatestBlocks()
             this.$router.push({
             path: '/blocks/'
@@ -104,18 +104,18 @@ export default {
             this.$router.push({
             path: '/transactions/'
             })
-            
+
             break
-          default: 
+          default:
           this.$router.push({
             path: '/'
             })
-       
+
         }
    },
    getLatestTransactions: function(){
 
-      this.$http.get(process.env.API_ENDPOINT + '/transaction/-1?range=10')
+      this.$http.get(process.env.API_ENDPOINT + '/transaction/latest?limit=10&order=desc')
         .then(function(response){
           this.txs = response.data;
           this.hasLoaded=true;
