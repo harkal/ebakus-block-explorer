@@ -1,6 +1,6 @@
 <template>
   <div id="topbar" v-bind:class="{ inactive: isActive }">
-      <img src="../assets/blockExplorer_logo_2.png" alt="" v-bind:class="{ inactive: isActive }">
+      <img src="../assets/blockExplorer_logo_2.png" alt="" v-bind:class="{ inactive: isActive }" v-on:click="$router.push('/')">
       <img id="logo" alt="New block produced" src="../assets/blockExplorer_logo.png" v-bind:class="{ inactive: isActive }">
       <div id="search_wrapper" v-bind:class="{ inactive: isActive }">
           <input type="text" placeholder="Search by txid, block number or address" ref="searchField" v-on:keyup.enter="searchWithQuery('searchBtn')"  v-model="searchInput">
@@ -274,6 +274,7 @@ export default {
   height: 60px;
   float: right;
   transition:0.2s all ease;
+  z-index: 1;
 }
 #topbar img:first-child{
     position: relative;
