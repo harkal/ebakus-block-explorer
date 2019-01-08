@@ -1,6 +1,6 @@
 <template>
 <div id="block_wrapper" v-bind:class="{ active: isTransactionActive }">
-  <h1> <img src="../assets/ic_transactions.png" class="title_img" alt=""> Transaction  </h1> 
+  <h1> <img src="../assets/ic_transactions.png" class="title_img" alt=""> <span v-if="isContractCreation">Contract Creation</span><span v-else>Transaction</span></h1>
   <div class="panel">
     <div class="widget_wrapper">
     <div class="tablewrapper">
@@ -13,9 +13,13 @@
           <td class=""></td>
           <td ><img class="ic_to absolute" src="../assets/ic_from_to.png" alt=""></td>
         </tr>
-          <tr>
+        <tr v-if="!isContractCreation">
           <td class="absolute"><h3>TO</h3></td>
           <td class=""><router-link class="address lon" :to="{ name: 'searchTerm', params: {query: transactionData.to}}">{{transactionData.to}}</router-link></td>
+        </tr>
+        <tr v-if="isContractCreation">
+          <td class="absolute"><h3>CONTRACT ADDRESS</h3></td>
+          <td class=""><router-link class="address lon" :to="{ name: 'searchTerm', params: {query: transactionData.contractAddress}}">{{transactionData.contractAddress}}</router-link></td>
         </tr>
       </table>
     </div>
@@ -100,7 +104,7 @@
 </template>
 
 <script>
-import { timeConverter, weiToEbk } from '../utils';
+import { timeConverter, weiToEbk, isZeroHash } from '../utils';
 export default {
    props:{
     isTransactionActive: {
@@ -140,6 +144,9 @@ export default {
     blockHeight: function(){
       if(typeof this.transactionData.blockNumber === "number")
       return this.transactionData.blockNumber.toString()
+    },
+    isContractCreation: function(){
+      return !isZeroHash(this.transactionData.contractAddress)
     }
   }
 }

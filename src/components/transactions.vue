@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { timeConverter, weiToEbk } from '../utils';
+import { timeConverter, weiToEbk, isZeroHash } from '../utils';
 
 export default {
    props:{
@@ -98,10 +98,10 @@ export default {
     }
   },
   computed:{
-     txs_: function(){
+    txs_: function(){
+      var txs = this.txs
       if(typeof this.address!=="undefined" && this.address!="" ){
         var i
-        var txs = this.txs
         var address= this.address.toLowerCase();
         for(i=0;i<txs.length;i++){
           if(txs[i].from == address)
@@ -109,8 +109,13 @@ export default {
           if(txs[i].to == address)
             txs[i].to="this"
         }
-        return txs
-      } else return this.txs
+      }
+      return txs.map(tx => {
+        if(!isZeroHash(tx.contractAddress)) {
+          tx.to="contract creation";
+        }
+        return tx;
+      })
      },
      txLeft(){
        var remaining = this.maxOffset-20-this.offset
