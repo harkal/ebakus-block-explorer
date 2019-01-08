@@ -194,6 +194,10 @@ td:nth-child(2){
 
 td.headcol{
   vertical-align: top;
+  white-space: nowrap;
+}
+td.long{
+  word-break: break-all;
 }
 .tabResults{
   list-style: none;

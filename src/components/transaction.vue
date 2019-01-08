@@ -279,29 +279,28 @@ ul.status.active{
   position: absolute;
   background: #fff;
   top:auto;
-  width: 40px;
+  width: 66px;
+}
+td.absolute + td{
+  padding-left: 66px;
 }
 img.ic_to.absolute{
   display: none;
 }
 .lon{
-  padding-left: 40px;
+    display: inline-block;
+    word-break: break-all;
 }
 @media (max-width: 560px) {
   .absolute{
     position: absolute;
     background: #fff;
     top:auto;
-    width: 40px;
     left:15px;
   }
   img.ic_to.absolute{
     display: none;
   }
-  .lon{
-    padding-left: 40px;
-  }
-
   .widget_wrapper li:first-child{
     margin-left: 20px;
   }
