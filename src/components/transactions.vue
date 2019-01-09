@@ -69,7 +69,7 @@ export default {
   },
   methods: {
     timeConverter: timeConverter,
-    weiToEbk: val => weiToEbk(val).toFixed(5),
+    weiToEbk: val => weiToEbk(val).toFixed(4),
     loadMoreTransactions() {
       var offset_tmp = this.offset + 20;
       var self = this;

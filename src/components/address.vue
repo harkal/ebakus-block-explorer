@@ -87,7 +87,7 @@ export default {
       console.log(i);
     },
     timeConverter: timeConverter,
-    weiToEbk: val => weiToEbk(val).toFixed(5)
+    weiToEbk: val => weiToEbk(val).toFixed(4)
   },
   created: function() {},
   watch: {
