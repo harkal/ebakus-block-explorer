@@ -8,7 +8,7 @@
       </div>
       <div class="twocol right">
         <span class="balanceLabel">Balance</span>
-        <span class="balance">{{balance}}</span>
+        <span class="balance">{{balance.toFixed(4)}}</span>
         <small>ebakus</small>
       </div>
       <div class="chart_wrapper">
@@ -20,19 +20,19 @@
       <table>
         <tr>
           <td>Balance</td>
-          <td>{{balance}}</td>
+          <td>{{balance.toFixed(4)}}</td>
         </tr>
         <tr>
           <td>Total in</td>
-          <td>{{weiToEbk(addressData.total_in)}}</td>
+          <td>{{weiToEbk(addressData.total_in).toFixed(4)}}</td>
         </tr>
         <tr>
           <td>Total out</td>
-          <td>{{weiToEbk(addressData.total_out)}}</td>
+          <td>{{weiToEbk(addressData.total_out).toFixed(4)}}</td>
         </tr>
         <tr>
           <td>Block rewards</td>
-          <td>{{weiToEbk(addressData.block_rewards)}}</td>
+          <td>{{weiToEbk(addressData.block_rewards).toFixed(4)}}</td>
         </tr>
         <tr>
           <td>Total txs</td>
@@ -87,7 +87,7 @@ export default {
       console.log(i);
     },
     timeConverter: timeConverter,
-    weiToEbk: val => weiToEbk(val).toFixed(4)
+    weiToEbk: weiToEbk
   },
   created: function() {},
   watch: {
@@ -132,6 +132,9 @@ export default {
         _data[i] += balance;
       }
       _data.unshift(balance);
+
+      // now that we finished with number calcs, keep 4 decimals (converts to string)
+      _data=_data.map(data => data.toFixed(4));
 
       _datasets = [
         {

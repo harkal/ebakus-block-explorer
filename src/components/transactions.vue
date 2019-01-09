@@ -28,7 +28,7 @@
             <span
               class="amount_"
               v-bind:class="{ outgoing: tx.from=='this' && tx.to!='this', incoming: tx.from!=='this' && tx.to=='this' }"
-            >{{weiToEbk(tx.value)}} ebakus</span>
+            >{{weiToEbk(tx.value).toFixed(4)}} ebakus</span>
             <span class="mobileLabel timestamp">Timestamp</span>
             <span class="time">{{timeConverter(tx.timestamp)}}</span>
           </router-link>
@@ -69,7 +69,7 @@ export default {
   },
   methods: {
     timeConverter: timeConverter,
-    weiToEbk: val => weiToEbk(val).toFixed(4),
+    weiToEbk: weiToEbk,
     loadMoreTransactions() {
       var offset_tmp = this.offset + 20;
       var self = this;
