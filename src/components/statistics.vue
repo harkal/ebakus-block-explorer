@@ -37,7 +37,7 @@
             </span>
             <span class="time">
               <p v-for="(data, idxData) in delegate.data" :key="idxData">
-                <small>{{data.timeExamined}}</small>
+                <small>({{data.timeExamined}})</small>
               </p>
             </span>
           </router-link>
