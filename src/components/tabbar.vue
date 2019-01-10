@@ -29,6 +29,7 @@
     <div class="container">
       <blocks v-bind:isBlocks="{active:selected == 'blocksTab' }" :blocks="blocks"/>
       <transactions v-bind:isTransactions="{active:selected == 'transactionsTab' }" :txs="txs"/>
+      <statistics v-bind:isStatistics="{active:selected == 'statisticsTab' }" :stats="stats"/>
     </div>
   </div>
 </template>
@@ -53,8 +54,10 @@ export default {
       selected: "",
       isBlocksActive: false,
       isTransactionsActive: false,
+      isStatisticsActive: false,
       txs: [],
-      blocks: []
+      blocks: [],
+      stats: {}
     };
   },
   components: {},
@@ -107,6 +110,13 @@ export default {
           });
 
           break;
+        case "statisticsTab":
+          this.getStatistics();
+          this.$router.push({
+            path: "/statistics/"
+          });
+
+          break;
         default:
           this.$router.push({
             path: "/"
@@ -142,6 +152,18 @@ export default {
         }
       );
       console.log(this.blocks);
+    },
+    getStatistics: function() {
+      this.$http.get(process.env.API_ENDPOINT + "/stats").then(
+        function(response) {
+          this.stats = response.data;
+          this.hasLoaded = true;
+        },
+        err => {
+          console.log(err);
+          this.hasLoaded = true;
+        }
+      );
     }
   },
   created: function() {

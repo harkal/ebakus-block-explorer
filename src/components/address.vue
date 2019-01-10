@@ -31,12 +31,39 @@
           <td>{{weiToEbk(addressData.total_out).toFixed(4)}}</td>
         </tr>
         <tr>
+          <td>Total txs</td>
+          <td>{{totalTx}}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="panel" v-if="addressData.stats">
+      <h2>Producer Info</h2>
+      <table>
+        <tr>
           <td>Block rewards</td>
           <td>{{weiToEbk(addressData.block_rewards).toFixed(4)}}</td>
         </tr>
         <tr>
-          <td>Total txs</td>
-          <td>{{totalTx}}</td>
+          <td colspan="2">
+            <table class="missedBlocks">
+              <tr>
+                <th>&nbsp;</th>
+                <th v-for="(label, idx) in statsData.labels" :key="idx">{{label}}</th>
+              </tr>
+              <tr>
+                <td>Missed blocks</td>
+                <td
+                  v-for="(stats, idx) in statsData.data"
+                  :key="idx"
+                  v-bind:class="{ danger: stats.missedBlocks > 0 }"
+                >{{stats.missedBlocks}}</td>
+              </tr>
+              <tr>
+                <td>Density</td>
+                <td v-for="(stats, idx) in statsData.data" :key="idx">{{stats.density.toFixed(2)}}%</td>
+              </tr>
+            </table>
+          </td>
         </tr>
       </table>
     </div>
@@ -134,7 +161,7 @@ export default {
       _data.unshift(balance);
 
       // now that we finished with number calcs, keep 4 decimals (converts to string)
-      _data=_data.map(data => data.toFixed(4));
+      _data = _data.map(data => data.toFixed(4));
 
       _datasets = [
         {
@@ -151,6 +178,36 @@ export default {
       };
 
       return balanceData;
+    },
+    statsData: function() {
+      const delegateInfo = this.addressData.stats.delegates_info[
+        this.addressData.address
+      ];
+
+      if (!delegateInfo) {
+        return;
+      }
+
+      const labels = [];
+      const data = delegateInfo.map(period => {
+        let label = "minutes";
+        let time = period.seconds_examined / 60;
+        if (time >= 60) {
+          label = "hour";
+          time = 60 / 60;
+        }
+        labels.push(`${time} ${label}`);
+
+        return {
+          missedBlocks: period.missed_blocks,
+          density: period.density * 100
+        };
+      });
+
+      return {
+        labels,
+        data
+      };
     }
   }
 };
@@ -161,10 +218,13 @@ export default {
 table {
   text-align: left;
 }
+
 tr:nth-child(odd) {
   background: #fff;
 }
-
+td:nth-child(2) {
+  font-weight: inherit;
+}
 #block_wrapper {
   opacity: 0;
 }
@@ -200,6 +260,23 @@ h3.address {
   width: 100% !important;
 }
 
+.panel h2:not(:first-child) {
+  margin-top: 22px;
+}
+
+.missedBlocks {
+  margin: -4px -6px;
+}
+.missedBlocks th:first-child {
+  min-width: 150px;
+}
+.missedBlocks th:not(:first-child),
+.missedBlocks td:not(:first-child) {
+  text-align: right;
+}
+.danger {
+  color: #f44336;
+}
 @media (max-width: 560px) {
   .twocol {
     display: block;
@@ -218,6 +295,9 @@ h3.address {
   }
   .chart_wrapper {
     padding-top: 10px;
+  }
+  .missedBlocks th:first-child {
+    min-width: auto;
   }
 }
 </style>

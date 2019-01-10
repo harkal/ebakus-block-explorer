@@ -11,7 +11,7 @@
     </ul>
     <div class="scroll tx">
       <ul class="tabResults main">
-        <li v-for="tx in txs_">
+        <li v-for="tx in txs_" :key="tx.hash">
           <router-link :to="{  path: '/search/'+tx.hash}">
             <span class="mobileLabel">Tx hash</span>
             <span class="txID transaction">{{tx.hash}}</span>
@@ -176,9 +176,9 @@ button:hover {
   transform: scale(0.98);
 }
 #transactions_wrapper {
-  opacity: 0;
+  display: none;
+  height: 50px;
   height: 100%;
-  width: 100%;
 }
 #transactions_wrapper.active {
   opacity: 1;

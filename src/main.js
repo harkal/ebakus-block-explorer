@@ -9,11 +9,13 @@ import Transaction from './components/transaction';
 import Address from './components/address';
 import Blocks from './components/blocks';
 import Transactions from './components/transactions';
+import Statistics from './components/statistics';
 
 Vue.component('address_', Address);
 Vue.component('transaction', Transaction);
 Vue.component('blocks', Blocks);
 Vue.component('transactions', Transactions);
+Vue.component('statistics', Statistics);
 
 Vue.use(vueResource);
 Vue.use(VueRouter);
@@ -68,6 +70,12 @@ const router = new VueRouter({
       name: 'transactionsList',
       component: App,
       props: { selected: 'transactionsTab' },
+    },
+    {
+      path: '/statistics',
+      name: 'statisticsList',
+      component: App,
+      props: { selected: 'statisticsTab' },
     },
   ],
 });
