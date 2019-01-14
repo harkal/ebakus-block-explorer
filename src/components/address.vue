@@ -11,7 +11,7 @@
         <span class="balance">{{balance.toFixed(4)}}</span>
         <small>ebakus</small>
       </div>
-      <div class="chart_wrapper">
+      <div class="chart_wrapper" v-if="addressData.block_rewards == 0">
         <Chart v-if="chartDataLoaded" :chartData="balanceData" :height="300"></Chart>
       </div>
     </div>
@@ -238,7 +238,6 @@ h3.address {
 .twocol {
   display: inline-block;
   width: 49%;
-  padding-bottom: 40px;
 }
 .twocol > span.address {
   padding-left: 7px;
@@ -258,6 +257,7 @@ h3.address {
 .chart_wrapper {
   position: relative;
   width: 100% !important;
+  padding-top: 40px;
 }
 
 .panel h2:not(:first-child) {
