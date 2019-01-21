@@ -44,6 +44,10 @@
           <td>{{weiToEbk(addressData.block_rewards).toFixed(4)}}</td>
         </tr>
         <tr>
+          <td>Stake</td>
+          <td>{{weiToEbk(statsData.stake).toFixed(4)}}</td>
+        </tr>
+        <tr>
           <td colspan="2">
             <table class="missedBlocks">
               <tr>
@@ -180,9 +184,10 @@ export default {
       return balanceData;
     },
     statsData: function() {
-      const delegateInfo = this.addressData.stats.delegates_info[
-        this.addressData.address
-      ];
+      const [delegateInfo, ...rest] = this.addressData.stats.delegates.filter(delegate => {
+        const lastPeriod = delegate[delegate.length - 1];
+        return lastPeriod.address === this.addressData.address;
+      });
 
       if (!delegateInfo) {
         return;
@@ -206,7 +211,9 @@ export default {
 
       return {
         labels,
-        data
+        data,
+        // get stake from any period, it's the same
+        stake: delegateInfo[delegateInfo.length - 1].stake
       };
     }
   }

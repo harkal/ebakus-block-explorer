@@ -4,6 +4,7 @@
       <li v-if="showTitle" id="list_title">
         <span class="delegateID">#</span>
         <span class="producer">Producer</span>
+        <span class="stake">Stake</span>
         <span class="missedBlocks">Missed blocks</span>
         <span class="density">Density</span>
         <span class="time">Period</span>
@@ -17,6 +18,8 @@
             <span class="delegateID">{{idx}}</span>
             <span class="mobileLabel">Produced by</span>
             <span class="producer address">{{delegate.address}}</span>
+            <span class="mobileLabel">Stake</span>
+            <span class="stake">{{weiToEbk(delegate.stake).toFixed(4)}}</span>
             <span class="mobileLabel">Missed blocks</span>
             <span class="missedBlocks">
               <p
@@ -49,6 +52,8 @@
 </template>
 
 <script>
+import { weiToEbk } from "../utils";
+
 export default {
   props: {
     isStatistics: {
@@ -64,7 +69,9 @@ export default {
       isLoaded: false
     };
   },
-  methods: {},
+  methods: {
+    weiToEbk: weiToEbk
+  },
   created: function() {},
   watch: {
     stats: function() {
@@ -75,8 +82,7 @@ export default {
   computed: {
     delegates_: function() {
       return this.stats.delegates.map(delegate => {
-        const delegateInfo = this.stats.delegates_info[delegate];
-        const data = delegateInfo.map(period => {
+        const data = delegate.map(period => {
           let label = "minutes";
           let time = period.seconds_examined / 60;
           if (time >= 60) {
@@ -92,8 +98,12 @@ export default {
           };
         });
 
+        const delegateInfo = delegate[delegate.length - 1];
+
         return {
-          address: delegate,
+          address: delegateInfo.address,
+          // get stake from any period, it's the same
+          stake: delegateInfo.stake,
           data
         };
       });
@@ -135,7 +145,7 @@ li a:hover {
 }
 li span {
   display: inline-block;
-  width: 12%;
+  width: 10%;
   margin: 0 1%;
   text-align: center;
   vertical-align: middle;
@@ -149,7 +159,7 @@ span.delegateID {
   font-weight: 600;
 }
 span.producer {
-  width: 48%;
+  width: 42%;
   margin: 0;
   text-overflow: ellipsis;
   overflow: hidden;
