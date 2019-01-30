@@ -1,191 +1,200 @@
 <template>
-  <div id="tabbar" v-bind:class="{ active: selected }">
+  <div id="tabbar" :class="{ active: selected }">
     <div class="scroll">
       <ul id="tabbarOptions">
         <li
           id="blocksTab"
-          :class="{active:selected == 'blocksTab' }"
-          v-on:click="activateTab($event,txt)"
+          :class="{ active: selected == 'blocksTab' }"
+          @click="activateTab($event, txt)"
         >
-          <img src="../assets/ic_blocks.png" alt> Blocks
+          <img src="../assets/ic_blocks.png" alt /> Blocks
         </li>
         <li
           id="transactionsTab"
-          :class="{active:selected=='transactionsTab' }"
-          v-on:click="activateTab($event,txt)"
+          :class="{ active: selected == 'transactionsTab' }"
+          @click="activateTab($event, txt)"
         >
-          <img src="../assets/ic_transactions.png" alt> Transactions
+          <img src="../assets/ic_transactions.png" alt /> Transactions
         </li>
         <li
           id="statisticsTab"
-          :class="{active:selected=='statisticsTab'}"
-          v-on:click="activateTab($event,txt)"
+          :class="{ active: selected == 'statisticsTab' }"
+          @click="activateTab($event, txt)"
         >
-          <img src="../assets/ic_stats.png" alt> Statistics
+          <img src="../assets/ic_stats.png" alt /> Statistics
         </li>
       </ul>
     </div>
 
     <div class="container">
-      <blocks v-bind:isBlocks="{active:selected == 'blocksTab' }" :blocks="blocks"/>
-      <transactions v-bind:isTransactions="{active:selected == 'transactionsTab' }" :txs="txs"/>
-      <statistics v-bind:isStatistics="{active:selected == 'statisticsTab' }" :stats="stats"/>
+      <blocks
+        :is-blocks="{ active: selected == 'blocksTab' }"
+        :blocks="blocks"
+      />
+      <transactions
+        :is-transactions="{ active: selected == 'transactionsTab' }"
+        :txs="txs"
+      />
+      <statistics
+        :is-statistics="{ active: selected == 'statisticsTab' }"
+        :stats="stats"
+      />
     </div>
   </div>
 </template>
 
 <script>
 export default {
+  components: {},
   props: {
     tabbarActive: {
       type: Boolean,
-      default: false
+      default: false,
     },
     selectedByRoute: {
       type: String,
-      default: ""
-    }
+      default: '',
+    },
   },
   data() {
     return {
-      txt: "",
+      txt: '',
       isActive: false,
-      tHeight: "",
-      selected: "",
+      tHeight: '',
+      selected: '',
       isBlocksActive: false,
       isTransactionsActive: false,
       isStatisticsActive: false,
       txs: [],
       blocks: [],
-      stats: {}
-    };
+      stats: {},
+    }
   },
-  components: {},
+  computed: {},
+  watch: {
+    tabbarActive: function() {
+      if (!this.tabbarActive) {
+        this.tHeight = 'height: 76px;'
+        this.selected = ''
+      }
+    },
+    selectedByRoute: function() {
+      if (typeof this.selectedByRoute != null)
+        this.activateTab(null, this.selectedByRoute)
+    },
+  },
+  created: function() {
+    if (this.selectedByRoute != '') {
+      this.activateTab(null, this.selectedByRoute)
+      this.selected = this.selectedByRoute
+    }
+  },
   methods: {
     activateTab: function(e, selectedByRoute) {
-      if (selectedByRoute != "") {
-        this.$root.$data.sharedState.contentActive = true;
-        this.selected = selectedByRoute;
-        this.isActive = true;
+      if (selectedByRoute != '') {
+        this.$root.$data.sharedState.contentActive = true
+        this.selected = selectedByRoute
+        this.isActive = true
         // this.tHeight = "height: calc(100% - 215px);";
-        selectedByRoute = "";
-        this.tabbarRouter();
+        selectedByRoute = ''
+        this.tabbarRouter()
       } else if (e && this.selected != e.target.id) {
-        this.selected = e.currentTarget.id;
+        this.selected = e.currentTarget.id
 
-        this.$root.$data.sharedState.contentActive = true;
-        this.isActive = true;
+        this.$root.$data.sharedState.contentActive = true
+        this.isActive = true
         // this.tHeight = "height:calc(100% - 215px);";
-        this.tabbarRouter();
+        this.tabbarRouter()
       } else {
-        this.selected = "";
-        this.$root.$data.sharedState.contentActive = false;
-        this.isActive = false;
+        this.selected = ''
+        this.$root.$data.sharedState.contentActive = false
+        this.isActive = false
         // this.tHeight = "height: 76px;";
-        var lastQuery = this.$root.$data.sharedState.query;
-        if (lastQuery != "") {
+        var lastQuery = this.$root.$data.sharedState.query
+        if (lastQuery != '') {
           this.$router.push({
-            path: "/search/" + this.$root.$data.sharedState.query
-          });
+            path: '/search/' + this.$root.$data.sharedState.query,
+          })
         } else {
           this.$router.push({
-            path: "/"
-          });
+            path: '/',
+          })
         }
       }
     },
     tabbarRouter: function() {
-      console.log(this.selected);
+      console.log(this.selected)
       switch (this.selected) {
-        case "blocksTab":
-          this.getLatestBlocks();
+        case 'blocksTab':
+          this.getLatestBlocks()
           this.$router.push({
-            path: "/blocks/"
-          });
-          break;
-        case "transactionsTab":
-          this.getLatestTransactions();
+            path: '/blocks/',
+          })
+          break
+        case 'transactionsTab':
+          this.getLatestTransactions()
           this.$router.push({
-            path: "/transactions/"
-          });
+            path: '/transactions/',
+          })
 
-          break;
-        case "statisticsTab":
-          this.getStatistics();
+          break
+        case 'statisticsTab':
+          this.getStatistics()
           this.$router.push({
-            path: "/statistics/"
-          });
+            path: '/statistics/',
+          })
 
-          break;
+          break
         default:
           this.$router.push({
-            path: "/"
-          });
+            path: '/',
+          })
       }
     },
     getLatestTransactions: function() {
       this.$http
         .get(
-          process.env.API_ENDPOINT + "/transaction/latest?limit=10&order=desc"
+          process.env.API_ENDPOINT + '/transaction/latest?limit=10&order=desc'
         )
         .then(
           function(response) {
-            this.txs = response.data;
-            this.hasLoaded = true;
+            this.txs = response.data
+            this.hasLoaded = true
           },
           err => {
-            console.log(err);
-            this.hasLoaded = true;
+            console.log(err)
+            this.hasLoaded = true
           }
-        );
-      console.log(this.txs);
+        )
+      console.log(this.txs)
     },
     getLatestBlocks: function() {
-      this.$http.get(process.env.API_ENDPOINT + "/block/-1?range=10").then(
+      this.$http.get(process.env.API_ENDPOINT + '/block/-1?range=10').then(
         function(response) {
-          this.blocks = response.data;
-          this.hasLoaded = true;
+          this.blocks = response.data
+          this.hasLoaded = true
         },
         err => {
-          console.log(err);
-          this.hasLoaded = true;
+          console.log(err)
+          this.hasLoaded = true
         }
-      );
-      console.log(this.blocks);
+      )
+      console.log(this.blocks)
     },
     getStatistics: function() {
-      this.$http.get(process.env.API_ENDPOINT + "/stats").then(
+      this.$http.get(process.env.API_ENDPOINT + '/stats').then(
         function(response) {
-          this.stats = response.data;
-          this.hasLoaded = true;
+          this.stats = response.data
+          this.hasLoaded = true
         },
         err => {
-          console.log(err);
-          this.hasLoaded = true;
+          console.log(err)
+          this.hasLoaded = true
         }
-      );
-    }
-  },
-  created: function() {
-    if (this.selectedByRoute != "") {
-      this.activateTab(null, this.selectedByRoute);
-      this.selected = this.selectedByRoute;
-    }
-  },
-  watch: {
-    tabbarActive: function() {
-      if (!this.tabbarActive) {
-        this.tHeight = "height: 76px;";
-        this.selected = "";
-      }
+      )
     },
-    selectedByRoute: function() {
-      if (typeof this.selectedByRoute != null)
-        this.activateTab(null, this.selectedByRoute);
-    }
   },
-  computed: {}
-};
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

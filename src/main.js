@@ -1,26 +1,26 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import Vue from 'vue';
-import App from './App';
-import vueResource from 'vue-resource';
-import VueRouter from 'vue-router';
+import Vue from 'vue'
+import App from './App'
+import vueResource from 'vue-resource'
+import VueRouter from 'vue-router'
 
-import Transaction from './components/transaction';
-import Address from './components/address';
-import Blocks from './components/blocks';
-import Transactions from './components/transactions';
-import Statistics from './components/statistics';
+import Transaction from './components/transaction'
+import Address from './components/address'
+import Blocks from './components/blocks'
+import Transactions from './components/transactions'
+import Statistics from './components/statistics'
 
-Vue.component('address_', Address);
-Vue.component('transaction', Transaction);
-Vue.component('blocks', Blocks);
-Vue.component('transactions', Transactions);
-Vue.component('statistics', Statistics);
+Vue.component('address_', Address)
+Vue.component('transaction', Transaction)
+Vue.component('blocks', Blocks)
+Vue.component('transactions', Transactions)
+Vue.component('statistics', Statistics)
 
-Vue.use(vueResource);
-Vue.use(VueRouter);
+Vue.use(vueResource)
+Vue.use(VueRouter)
 
-Vue.config.productionTip = false;
+Vue.config.productionTip = false
 
 var store = {
   debug: true,
@@ -32,17 +32,17 @@ var store = {
     blockHeight: '',
   },
   setLogedIn() {
-    if (this.debug) console.log('setLogedIn triggered');
-    this.state.loggedIn = true;
+    if (this.debug) console.log('setLogedIn triggered')
+    this.state.loggedIn = true
   },
   setLogedOut() {
-    if (this.debug) console.log('setLogedOut triggered');
-    this.state.loggedIn = false;
+    if (this.debug) console.log('setLogedOut triggered')
+    this.state.loggedIn = false
   },
   isLogedIn() {
-    return this.state.loggedIn;
+    return this.state.loggedIn
   },
-};
+}
 
 const router = new VueRouter({
   mode: 'history',
@@ -78,7 +78,7 @@ const router = new VueRouter({
       props: { selected: 'statisticsTab' },
     },
   ],
-});
+})
 
 new Vue({
   router,
@@ -87,4 +87,4 @@ new Vue({
   },
   template:
     '<div id="app" class="container"> <router-view>  </router-view> </div>',
-}).$mount('#app');
+}).$mount('#app')

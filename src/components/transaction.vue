@@ -1,7 +1,7 @@
 <template>
-  <div id="block_wrapper" v-bind:class="{ active: isTransactionActive }">
+  <div id="block_wrapper" :class="{ active: isTransactionActive }">
     <h1>
-      <img src="../assets/ic_transactions.png" class="title_img" alt>
+      <img src="../assets/ic_transactions.png" class="title_img" alt />
       <span v-if="isContractCreation">Contract Creation</span>
       <span v-else>Transaction</span>
     </h1>
@@ -16,14 +16,22 @@
               <td class>
                 <router-link
                   class="address lon"
-                  :to="{ name: 'searchTerm', params: {query: transactionData.from}}"
-                >{{transactionData.from}}</router-link>
+                  :to="{
+                    name: 'searchTerm',
+                    params: { query: transactionData.from },
+                  }"
+                  >{{ transactionData.from }}</router-link
+                >
               </td>
             </tr>
             <tr>
               <td class></td>
               <td>
-                <img class="ic_to absolute" src="../assets/ic_from_to.png" alt>
+                <img
+                  class="ic_to absolute"
+                  src="../assets/ic_from_to.png"
+                  alt
+                />
               </td>
             </tr>
             <tr v-if="!isContractCreation">
@@ -33,8 +41,12 @@
               <td class>
                 <router-link
                   class="address lon"
-                  :to="{ name: 'searchTerm', params: {query: transactionData.to}}"
-                >{{transactionData.to}}</router-link>
+                  :to="{
+                    name: 'searchTerm',
+                    params: { query: transactionData.to },
+                  }"
+                  >{{ transactionData.to }}</router-link
+                >
               </td>
             </tr>
             <tr v-if="isContractCreation">
@@ -44,25 +56,34 @@
               <td class>
                 <router-link
                   class="address lon"
-                  :to="{ name: 'searchTerm', params: {query: transactionData.contractAddress}}"
-                >{{transactionData.contractAddress}}</router-link>
+                  :to="{
+                    name: 'searchTerm',
+                    params: { query: transactionData.contractAddress },
+                  }"
+                  >{{ transactionData.contractAddress }}</router-link
+                >
               </td>
             </tr>
           </table>
         </div>
-        <ul class="status" v-bind:class="{ active: txstatus }">
+        <ul class="status" :class="{ active: txstatus }">
           <li>
             <h3>AMOUNT</h3>
           </li>
           <li>
-            <h1>{{weiToEbk(transactionData.value)}}</h1>
+            <h1>{{ weiToEbk(transactionData.value) }}</h1>
           </li>
           <li>
             <span>ebakus</span>
           </li>
           <li>
-            <img v-if="txstatus" class="ic_check" src="../assets/ic_check.png" alt>
-            <img v-else class="ic_check" src alt>
+            <img
+              v-if="txstatus"
+              class="ic_check"
+              src="../assets/ic_check.png"
+              alt
+            />
+            <img v-else class="ic_check" src alt />
           </li>
         </ul>
       </div>
@@ -77,21 +98,29 @@
             <td class="long">
               <router-link
                 class="transaction"
-                :to="{ name: 'searchTerm', params: {query: transactionData.hash}}"
-              >{{transactionData.hash}}</router-link>
+                :to="{
+                  name: 'searchTerm',
+                  params: { query: transactionData.hash },
+                }"
+                >{{ transactionData.hash }}</router-link
+              >
             </td>
           </tr>
           <tr>
             <td class="headcol">Timestamp</td>
-            <td class="long">{{timeConverter(transactionData.timestamp)}}</td>
+            <td class="long">{{ timeConverter(transactionData.timestamp) }}</td>
           </tr>
           <tr>
             <td class="headcol">Block hash</td>
             <td class="long">
               <router-link
                 class="account"
-                :to="{ name: 'searchTerm', params: {query: transactionData.blockHash}}"
-              >{{transactionData.blockHash}}</router-link>
+                :to="{
+                  name: 'searchTerm',
+                  params: { query: transactionData.blockHash },
+                }"
+                >{{ transactionData.blockHash }}</router-link
+              >
             </td>
           </tr>
           <tr>
@@ -100,8 +129,12 @@
               <strong>
                 <router-link
                   class="block"
-                  :to="{ name: 'searchTerm', params: {query: transactionData.blockNumber}}"
-                >{{transactionData.blockNumber}}</router-link>
+                  :to="{
+                    name: 'searchTerm',
+                    params: { query: transactionData.blockNumber },
+                  }"
+                  >{{ transactionData.blockNumber }}</router-link
+                >
               </strong>
             </td>
           </tr>
@@ -110,37 +143,41 @@
             <td class="long">
               <router-link
                 class="account"
-                :to="{ name: 'searchTerm', params: {query: transactionData.producer}}"
-              >{{transactionData.producer}}</router-link>
+                :to="{
+                  name: 'searchTerm',
+                  params: { query: transactionData.producer },
+                }"
+                >{{ transactionData.producer }}</router-link
+              >
             </td>
           </tr>
           <tr>
             <td class="headcol">Gas limit</td>
-            <td class="long">{{transactionData.gasLimit}}</td>
+            <td class="long">{{ transactionData.gasLimit }}</td>
           </tr>
           <tr>
             <td class="headcol">Gas used</td>
-            <td class="long">{{transactionData.gasUsed}}</td>
+            <td class="long">{{ transactionData.gasUsed }}</td>
           </tr>
           <tr>
             <td class="headcol">Nonce</td>
-            <td class="long">{{transactionData.nonce}}</td>
+            <td class="long">{{ transactionData.nonce }}</td>
           </tr>
           <tr>
             <td class="headcol">Work nonce</td>
-            <td class="long">{{transactionData.workNonce}}</td>
+            <td class="long">{{ transactionData.workNonce }}</td>
           </tr>
           <tr>
             <td class="headcol">Transaction index</td>
-            <td class="long">{{transactionData.transactionIndex}}</td>
+            <td class="long">{{ transactionData.transactionIndex }}</td>
           </tr>
           <tr>
             <td class="headcol">Input</td>
-            <td class="long">{{transactionData.input}}</td>
+            <td class="long">{{ transactionData.input }}</td>
           </tr>
           <tr>
             <td class="headcol">Cumulative gas used</td>
-            <td class="long">{{transactionData.cumulativeGasUsed}}</td>
+            <td class="long">{{ transactionData.cumulativeGasUsed }}</td>
           </tr>
         </table>
       </div>
@@ -149,51 +186,55 @@
 </template>
 
 <script>
-import { timeConverter, weiToEbk, isZeroHash } from "../utils";
+import { timeConverter, weiToEbk, isZeroHash } from '../utils'
 export default {
   props: {
     isTransactionActive: {
       type: Boolean,
-      default: false
+      default: false,
     },
     transactionData: {
-      type: Object
-    }
+      type: Object,
+      default: () => ({}),
+    },
   },
   data() {
     return {
       txstatus: false,
-      confirmationsCount: 0
-    };
+      confirmationsCount: 0,
+    }
   },
-  methods: {
-    timeConverter: timeConverter,
-    weiToEbk: weiToEbk
+  computed: {
+    blockHeight: function() {
+      let blockNumber = this.transactionData.blockNumber
+      if (typeof blockNumber === 'number') {
+        blockNumber = blockNumber.toString()
+      }
+      return blockNumber
+    },
+    isContractCreation: function() {
+      return !isZeroHash(this.transactionData.contractAddress)
+    },
   },
-  created: function() {},
   watch: {
     transactionData: function() {
       if (
         this.$root.$data.sharedState.blockHeight >
         this.transactionData.blockNumber
       ) {
-        this.txstatus = true;
+        this.txstatus = true
         this.confirmationsCount =
           this.$root.$data.sharedState.blockHeight -
-          this.transactionData.blockNumber;
+          this.transactionData.blockNumber
       }
-    }
-  },
-  computed: {
-    blockHeight: function() {
-      if (typeof this.transactionData.blockNumber === "number")
-        return this.transactionData.blockNumber.toString();
     },
-    isContractCreation: function() {
-      return !isZeroHash(this.transactionData.contractAddress);
-    }
-  }
-};
+  },
+  created: function() {},
+  methods: {
+    timeConverter: timeConverter,
+    weiToEbk: weiToEbk,
+  },
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -242,7 +283,7 @@ span.txstatus_badge {
   margin-left: 4px;
 }
 span.txstatus_badge.success {
-  background: url("../assets/ic_check.png") no-repeat #fff;
+  background: url('../assets/ic_check.png') no-repeat #fff;
   background-size: 16px;
   background-position: right 6px center;
 }

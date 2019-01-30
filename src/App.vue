@@ -1,84 +1,87 @@
 <template>
   <div>
-    <search v-bind:rQueryStr="query" :tabbarActive="contentActive"></search>
-    <tabbar :tabbarActive="contentActive" :selectedByRoute="selected"></tabbar>
+    <search :r-query-str="query" :tabbar-active="contentActive"></search>
+    <tabbar
+      :tabbar-active="contentActive"
+      :selected-by-route="selected"
+    ></tabbar>
   </div>
 </template>
 
 <script>
-import search from "./components/search";
-import tabbar from "./components/tabbar";
+import search from './components/search'
+import tabbar from './components/tabbar'
 
 export default {
-  name: "App",
+  name: 'App',
+  components: {
+    search,
+    tabbar,
+  },
   props: {
     query: {
       type: String,
-      default: ""
+      default: '',
     },
     selected: {
       type: String,
-      default: ""
-    }
+      default: '',
+    },
   },
   data() {
     return {
-      contentActive: false
-    };
-  },
-  components: {
-    search,
-    tabbar
-  },
-  methods: {
-    back() {
-      console.log("back");
-      back = back ? back : this.$route.meta.back;
-      back ? this.$router.replace(back) : this.$router.replace("/");
-    }
-  },
-  created: function() {
-    //console.log(this.vueSharedState.contentActive)
-    //document.addEventListener('backbutton', this.back(), false);
-    this.contentActive = this.$root.$data.sharedState.contentActive;
-    if (this.query != "") this.$root.$data.sharedState.query = this.query;
-  },
-  watch: {
-    vueContentActive: function() {
-      this.contentActive = this.vueContentActive;
-    },
-    query: function() {
-      console.log("test");
-      if (this.query != "") this.$root.$data.sharedState.query = this.query;
+      contentActive: false,
     }
   },
   computed: {
     vueContentActive() {
-      return this.$root.$data.sharedState.contentActive;
-    }
+      return this.$root.$data.sharedState.contentActive
+    },
   },
-
-  beforeRouteLeave: (to, from, next) => {
-    console.log(to);
-    console.log(from);
-    if (!to.meta.back) {
-      to.meta.back = from.fullpath;
-    }
-    next();
+  watch: {
+    vueContentActive: function() {
+      this.contentActive = this.vueContentActive
+    },
+    query: function() {
+      console.log('test')
+      if (this.query != '') this.$root.$data.sharedState.query = this.query
+    },
   },
-  beforeRouteEnter: (to, from, next) => {
-    console.log(to);
-    console.log(from);
-    if (!to.meta.back) {
-      to.meta.back = from.fullpath;
-    }
-    next();
-    // ...
+  created: function() {
+    //console.log(this.vueSharedState.contentActive)
+    //document.addEventListener('backbutton', this.back(), false);
+    this.contentActive = this.$root.$data.sharedState.contentActive
+    if (this.query != '') this.$root.$data.sharedState.query = this.query
   },
   beforeDestroy() {
     //document.removeEventListener("backbutton", this.back);
-  }
-};
+  },
+  methods: {
+    back() {
+      console.log('back')
+      back = back ? back : this.$route.meta.back
+      back ? this.$router.replace(back) : this.$router.replace('/')
+    },
+  },
+
+  beforeRouteLeave: (to, from, next) => {
+    console.log(to)
+    console.log(from)
+    if (!to.meta.back) {
+      to.meta.back = from.fullpath
+    }
+    next()
+  },
+  beforeRouteEnter: (to, from, next) => {
+    console.log(to)
+    console.log(from)
+    if (!to.meta.back) {
+      to.meta.back = from.fullpath
+    }
+    next()
+    // ...
+  },
+}
 </script>
 
 <style>
@@ -94,7 +97,7 @@ body {
 
 #app {
   position: relative;
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

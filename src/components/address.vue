@@ -1,18 +1,22 @@
 <template>
-  <div id="block_wrapper" v-bind:class="{ active: isAddressActive }">
+  <div id="block_wrapper" :class="{ active: isAddressActive }">
     <h1>Address</h1>
 
     <div class="panel">
       <div class="twocol">
-        <span class="address">{{addressData.address}}</span>
+        <span class="address">{{ addressData.address }}</span>
       </div>
       <div class="twocol right">
         <span class="balanceLabel">Balance</span>
-        <span class="balance">{{balance.toFixed(4)}}</span>
+        <span class="balance">{{ balance.toFixed(4) }}</span>
         <small>ebakus</small>
       </div>
-      <div class="chart_wrapper" v-if="addressData.block_rewards == 0">
-        <Chart v-if="chartDataLoaded" :chartData="balanceData" :height="300"></Chart>
+      <div v-if="addressData.block_rewards == 0" class="chart_wrapper">
+        <Chart
+          v-if="chartDataLoaded"
+          :chart-data="balanceData"
+          :height="300"
+        ></Chart>
       </div>
     </div>
     <div class="panel">
@@ -20,51 +24,57 @@
       <table>
         <tr>
           <td>Balance</td>
-          <td>{{balance.toFixed(4)}}</td>
+          <td>{{ balance.toFixed(4) }}</td>
         </tr>
         <tr>
           <td>Total in</td>
-          <td>{{weiToEbk(addressData.total_in).toFixed(4)}}</td>
+          <td>{{ weiToEbk(addressData.total_in).toFixed(4) }}</td>
         </tr>
         <tr>
           <td>Total out</td>
-          <td>{{weiToEbk(addressData.total_out).toFixed(4)}}</td>
+          <td>{{ weiToEbk(addressData.total_out).toFixed(4) }}</td>
         </tr>
         <tr>
           <td>Total txs</td>
-          <td>{{totalTx}}</td>
+          <td>{{ totalTx }}</td>
         </tr>
       </table>
     </div>
-    <div class="panel" v-if="addressData.stats">
+    <div v-if="addressData.stats" class="panel">
       <h2>Producer Info</h2>
       <table>
         <tr>
           <td>Block rewards</td>
-          <td>{{weiToEbk(addressData.block_rewards).toFixed(4)}}</td>
+          <td>{{ weiToEbk(addressData.block_rewards).toFixed(4) }}</td>
         </tr>
         <tr>
           <td>Stake</td>
-          <td>{{weiToEbk(statsData.stake).toFixed(4)}}</td>
+          <td>{{ weiToEbk(statsData.stake).toFixed(4) }}</td>
         </tr>
         <tr>
           <td colspan="2">
             <table class="missedBlocks">
               <tr>
                 <th>&nbsp;</th>
-                <th v-for="(label, idx) in statsData.labels" :key="idx">{{label}}</th>
+                <th v-for="(label, idx) in statsData.labels" :key="idx">
+                  {{ label }}
+                </th>
               </tr>
               <tr>
                 <td>Missed blocks</td>
                 <td
                   v-for="(stats, idx) in statsData.data"
                   :key="idx"
-                  v-bind:class="{ danger: stats.missedBlocks > 0 }"
-                >{{stats.missedBlocks}}</td>
+                  :class="{ danger: stats.missedBlocks > 0 }"
+                >
+                  {{ stats.missedBlocks }}
+                </td>
               </tr>
               <tr>
                 <td>Density</td>
-                <td v-for="(stats, idx) in statsData.data" :key="idx">{{stats.density.toFixed(2)}}%</td>
+                <td v-for="(stats, idx) in statsData.data" :key="idx">
+                  {{ stats.density.toFixed(2) }}%
+                </td>
               </tr>
             </table>
           </td>
@@ -74,57 +84,41 @@
     <div class="panel">
       <h2>Transactions</h2>
       <transactions
-        v-bind:txs="txs"
-        v-bind:address="addressData.address"
-        v-bind:maxOffset="totalTx"
-        v-bind:isTransactions="{active:true }"
+        :txs="txs"
+        :address="addressData.address"
+        :max-offset="totalTx"
+        :is-transactions="{ active: true }"
       />
     </div>
   </div>
 </template>
 
 <script>
-import Chart from "./chart";
-import { timeConverter, weiToEbk } from "../utils";
+import Chart from './chart'
+import { timeConverter, weiToEbk } from '../utils'
 
 export default {
+  components: {
+    Chart,
+  },
   props: {
     isAddressActive: {
       type: Boolean,
-      default: false
+      default: false,
     },
     addressData: {
-      type: Object
+      type: Object,
+      default: () => ({}),
     },
     txs: {
-      type: Array
-    }
-  },
-  components: {
-    Chart
+      type: Array,
+      default: () => [],
+    },
   },
   data() {
     return {
-      address: "",
-      chartDataLoaded: false
-    };
-  },
-  methods: {
-    getBalance: function() {
-      var balance = 0;
-      var i = 0;
-      console.log("from: " + this.addressData.from.length);
-      console.log("to: " + this.addressData.space - top1.length);
-      console.log(i);
-    },
-    timeConverter: timeConverter,
-    weiToEbk: weiToEbk
-  },
-  created: function() {},
-  watch: {
-    addressData: function() {},
-    txs: function() {
-      this.chartDataLoaded = true;
+      address: '',
+      chartDataLoaded: false,
     }
   },
   computed: {
@@ -132,92 +126,112 @@ export default {
       var balance =
         this.addressData.total_in -
         this.addressData.total_out +
-        this.addressData.block_rewards;
-      return this.weiToEbk(balance);
+        this.addressData.block_rewards
+      return this.weiToEbk(balance)
     },
     totalTx: function() {
-      return this.addressData.count_in + this.addressData.count_out;
+      return this.addressData.count_in + this.addressData.count_out
     },
     balanceData: function() {
-      var i;
-      var balance = 0;
-      var balanceData = {};
-      var _data = [];
-      var _datasets = [];
-      var _labels = [];
-      var txs = this.txs.slice().reverse();
+      var i
+      var balance = 0
+      var balanceData = {}
+      var _data = []
+      var _datasets = []
+      var _labels = []
+      var txs = this.txs.slice().reverse()
 
       for (i = 0; i < txs.length; i++) {
-        _labels.push(this.timeConverter(txs[i].timestamp));
-        if (txs[i].from == "this" && txs[i].to != "this") {
-          balance -= this.weiToEbk(txs[i].value);
-        } else if (txs[i].from != "this" && txs[i].to == "this") {
-          balance += this.weiToEbk(txs[i].value);
+        _labels.push(this.timeConverter(txs[i].timestamp))
+        if (txs[i].from == 'this' && txs[i].to != 'this') {
+          balance -= this.weiToEbk(txs[i].value)
+        } else if (txs[i].from != 'this' && txs[i].to == 'this') {
+          balance += this.weiToEbk(txs[i].value)
         }
 
-        _data.push(balance);
+        _data.push(balance)
       }
-      _labels.unshift("");
-      balance = this.balance - _data[txs.length - 1];
+      _labels.unshift('')
+      balance = this.balance - _data[txs.length - 1]
       for (i = 0; i < txs.length; i++) {
-        _data[i] += balance;
+        _data[i] += balance
       }
-      _data.unshift(balance);
+      _data.unshift(balance)
 
       // now that we finished with number calcs, keep 4 decimals (converts to string)
-      _data = _data.map(data => data.toFixed(4));
+      _data = _data.map(data => data.toFixed(4))
 
       _datasets = [
         {
-          label: "Balance",
-          backgroundColor: "#E4F5FD",
-          borderColor: "#31BAF3",
-          data: _data
-        }
-      ];
+          label: 'Balance',
+          backgroundColor: '#E4F5FD',
+          borderColor: '#31BAF3',
+          data: _data,
+        },
+      ]
 
       balanceData = {
         labels: _labels,
-        datasets: _datasets
-      };
-
-      return balanceData;
-    },
-    statsData: function() {
-      const [delegateInfo, ...rest] = this.addressData.stats.delegates.filter(delegate => {
-        const lastPeriod = delegate[delegate.length - 1];
-        return lastPeriod.address === this.addressData.address;
-      });
-
-      if (!delegateInfo) {
-        return;
+        datasets: _datasets,
       }
 
-      const labels = [];
-      const data = delegateInfo.map(period => {
-        let label = "minutes";
-        let time = period.seconds_examined / 60;
-        if (time >= 60) {
-          label = "hour";
-          time = 60 / 60;
+      return balanceData
+    },
+    statsData: function() {
+      const [delegateInfo, ...rest] = this.addressData.stats.delegates.filter(
+        delegate => {
+          const lastPeriod = delegate[delegate.length - 1]
+          return lastPeriod.address === this.addressData.address
         }
-        labels.push(`${time} ${label}`);
+      )
+
+      if (!delegateInfo) {
+        return
+      }
+
+      const labels = []
+      const data = delegateInfo.map(period => {
+        let label = 'minutes'
+        let time = period.seconds_examined / 60
+        if (time >= 60) {
+          label = 'hour'
+          time = 60 / 60
+        }
+        labels.push(`${time} ${label}`)
 
         return {
           missedBlocks: period.missed_blocks,
-          density: period.density * 100
-        };
-      });
+          density: period.density * 100,
+        }
+      })
 
       return {
         labels,
         data,
         // get stake from any period, it's the same
-        stake: delegateInfo[delegateInfo.length - 1].stake
-      };
-    }
-  }
-};
+        stake: delegateInfo[delegateInfo.length - 1].stake,
+      }
+    },
+  },
+  watch: {
+    addressData: function() {},
+    txs: function() {
+      this.chartDataLoaded = true
+    },
+  },
+  created: function() {},
+  methods: {
+    getBalance: function() {
+      var balance = 0
+      var i = 0
+      console.log('from: ' + this.addressData.from.length)
+      console.log('to: ' + this.addressData.space - top1.length)
+      console.log(i)
+    },
+    timeConverter: timeConverter,
+    weiToEbk: weiToEbk,
+  },
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

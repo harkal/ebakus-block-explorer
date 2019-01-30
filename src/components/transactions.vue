@@ -1,5 +1,5 @@
 <template>
-  <div id="transactions_wrapper" v-bind:class="{ active: isTransactions.active }">
+  <div id="transactions_wrapper" :class="{ active: isTransactions.active }">
     <ul class="tabResults labels">
       <li v-if="showTitle" id="list_title">
         <span class="txID">Tx hash</span>
@@ -12,142 +12,153 @@
     <div class="scroll tx">
       <ul class="tabResults main">
         <li v-for="tx in txs_" :key="tx.hash">
-          <router-link :to="{  path: '/search/'+tx.hash}">
+          <router-link :to="{ path: '/search/' + tx.hash }">
             <span class="mobileLabel">Tx hash</span>
-            <span class="txID transaction">{{tx.hash}}</span>
+            <span class="txID transaction">{{ tx.hash }}</span>
             <span class="mobileLabel">From</span>
-            <span class="address">{{tx.from}}</span>
+            <span class="address">{{ tx.from }}</span>
             <img
               src="../assets/ic_from_to.png"
               alt
-              v-bind:class="{ outgoing: tx.from=='this' && tx.to!='this' }"
-            >
+              :class="{ outgoing: tx.from == 'this' && tx.to != 'this' }"
+            />
             <span class="mobileLabel">To</span>
-            <span class="address">{{tx.to}}</span>
+            <span class="address">{{ tx.to }}</span>
             <span class="mobileLabel">Amount</span>
             <span
               class="amount_"
-              v-bind:class="{ outgoing: tx.from=='this' && tx.to!='this', incoming: tx.from!=='this' && tx.to=='this' }"
-            >{{weiToEbk(tx.value).toFixed(4)}} ebakus</span>
+              :class="{
+                outgoing: tx.from == 'this' && tx.to != 'this',
+                incoming: tx.from !== 'this' && tx.to == 'this',
+              }"
+              >{{ weiToEbk(tx.value).toFixed(4) }} ebakus</span
+            >
             <span class="mobileLabel timestamp">Timestamp</span>
-            <span class="time">{{timeConverter(tx.timestamp)}}</span>
+            <span class="time">{{ timeConverter(tx.timestamp) }}</span>
           </router-link>
         </li>
       </ul>
 
-      <button v-if="txLeft>0" v-on:click="loadMoreTransactions()">Show {{txLeft}} More</button>
+      <button v-if="txLeft > 0" @click="loadMoreTransactions()">
+        Show {{ txLeft }} More
+      </button>
     </div>
   </div>
 </template>
 
 <script>
-import { timeConverter, weiToEbk, isZeroHash } from "../utils";
+import { timeConverter, weiToEbk, isZeroHash } from '../utils'
 
 export default {
   props: {
     isTransactions: {
-      type: Object
+      type: Object,
+      default: () => ({}),
     },
     txs: {
-      type: Array
+      type: Array,
+      default: () => [],
     },
     address: {
-      type: String
+      type: String,
+      default: '',
     },
     blockHash: {
-      type: String
+      type: String,
+      default: '',
     },
+    // eslint-disable-next-line  vue/require-default-prop
     maxOffset: {
-      type: Number
-    }
+      type: Number,
+    },
   },
   data() {
     return {
       showTitle: false,
-      offset: 0
-    };
-  },
-  methods: {
-    timeConverter: timeConverter,
-    weiToEbk: weiToEbk,
-    loadMoreTransactions() {
-      var offset_tmp = this.offset + 20;
-      var self = this;
-      if (typeof this.address !== "undefined" && this.address != "") {
-        this.$http
-          .get(
-            process.env.API_ENDPOINT +
-              "/transaction/all/" +
-              this.address +
-              "?offset=" +
-              offset_tmp +
-              "&limit=20&order=desc"
-          )
-          .then(
-            function(response) {
-              var new_txs = response.data;
-              console.log(new_txs);
-              self.txs.push.apply(self.txs, new_txs);
-              self.offset += 20;
-            },
-            err => {
-              console.log(err);
-              this.hasLoaded = true;
-            }
-          );
-      }
-      if (typeof this.blockHash !== "undefined" && this.blockHash != "") {
-        this.$http
-          .get(
-            process.env.API_ENDPOINT + "/transaction/block/" + this.blockHash
-          )
-          .then(
-            function(response) {
-              var new_txs = response.data;
-              console.log(new_txs);
-              self.txs.push.apply(self.txs, new_txs);
-              self.offset += 20;
-            },
-            err => {
-              console.log(err);
-            }
-          );
-      }
-    }
-  },
-  created: function() {},
-  watch: {
-    txs: function() {
-      if (this.txs.length > 0) {
-        this.showTitle = true;
-      }
+      offset: 0,
     }
   },
   computed: {
     txs_: function() {
-      var txs = this.txs;
-      if (typeof this.address !== "undefined" && this.address != "") {
-        var i;
-        var address = this.address.toLowerCase();
+      var txs = this.txs
+      if (typeof this.address !== 'undefined' && this.address != '') {
+        var i
+        var address = this.address.toLowerCase()
         for (i = 0; i < txs.length; i++) {
-          if (txs[i].from == address) txs[i].from = "this";
-          if (txs[i].to == address) txs[i].to = "this";
+          if (txs[i].from == address) txs[i].from = 'this'
+          if (txs[i].to == address) txs[i].to = 'this'
         }
       }
       return txs.map(tx => {
         if (!isZeroHash(tx.contractAddress)) {
-          tx.to = "contract creation";
+          tx.to = 'contract creation'
         }
-        return tx;
-      });
+        return tx
+      })
     },
     txLeft() {
-      var remaining = this.maxOffset - 20 - this.offset;
-      if (remaining > 0) return remaining;
-      return 0;
-    }
-  }
-};
+      var remaining = this.maxOffset - 20 - this.offset
+      if (remaining > 0) return remaining
+      return 0
+    },
+  },
+  watch: {
+    txs: function() {
+      if (this.txs.length > 0) {
+        this.showTitle = true
+      }
+    },
+  },
+  created: function() {},
+  methods: {
+    timeConverter: timeConverter,
+    weiToEbk: weiToEbk,
+    loadMoreTransactions() {
+      var offset_tmp = this.offset + 20
+      var self = this
+      if (typeof this.address !== 'undefined' && this.address != '') {
+        this.$http
+          .get(
+            process.env.API_ENDPOINT +
+              '/transaction/all/' +
+              this.address +
+              '?offset=' +
+              offset_tmp +
+              '&limit=20&order=desc'
+          )
+          .then(
+            function(response) {
+              var new_txs = response.data
+              console.log(new_txs)
+              self.txs.push.apply(self.txs, new_txs)
+              self.offset += 20
+            },
+            err => {
+              console.log(err)
+              this.hasLoaded = true
+            }
+          )
+      }
+      if (typeof this.blockHash !== 'undefined' && this.blockHash != '') {
+        this.$http
+          .get(
+            process.env.API_ENDPOINT + '/transaction/block/' + this.blockHash
+          )
+          .then(
+            function(response) {
+              var new_txs = response.data
+              console.log(new_txs)
+              self.txs.push.apply(self.txs, new_txs)
+              self.offset += 20
+            },
+            err => {
+              console.log(err)
+            }
+          )
+      }
+    },
+  },
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

@@ -1,5 +1,5 @@
 <template>
-  <div id="blocks_wrapper" v-bind:class="{ active: isBlocks.active }">
+  <div id="blocks_wrapper" :class="{ active: isBlocks.active }">
     <ul class="tabResults labels">
       <li v-if="showTitle" id="list_title">
         <span class="blockID">Block #</span>
@@ -12,19 +12,19 @@
     <div class="scroll">
       <ul class="tabResults main">
         <li v-for="block in blocks" :key="block.number">
-          <router-link :to="{  path: '/search/' + block.number}">
+          <router-link :to="{ path: '/search/' + block.number }">
             <span class="mobileLabel">Block #</span>
-            <span class="blockID">{{block.number}}</span>
+            <span class="blockID">{{ block.number }}</span>
             <span class="mobileLabel">Tx count</span>
             <span class="transaction">
-              <strong>{{block.transactionCount}}</strong> transactions
+              <strong>{{ block.transactionCount }}</strong> transactions
             </span>
             <span class="mobileLabel">Gas used</span>
             <progress :value="block.gasUsed" max="100">70 %</progress>
             <span class="mobileLabel">Produced by</span>
-            <span class="producer">{{block.producer}}</span>
+            <span class="producer">{{ block.producer }}</span>
             <span class="mobileLabel">Timestamp</span>
-            <span class="time">{{timeConverter(block.timestamp)}}</span>
+            <span class="time">{{ timeConverter(block.timestamp) }}</span>
           </router-link>
         </li>
       </ul>
@@ -33,40 +33,42 @@
 </template>
 
 <script>
-import { timeConverter } from "../utils";
+import { timeConverter } from '../utils'
 export default {
   props: {
     isBlocks: {
-      type: Object
+      type: Object,
+      default: () => ({}),
     },
     blocks: {
-      type: Array
-    }
+      type: Array,
+      default: () => [],
+    },
   },
   data() {
     return {
-      showTitle: false
-    };
+      showTitle: false,
+    }
   },
-  methods: {
-    timeConverter: timeConverter
-  },
-  created: function() {},
+  computed: {},
   watch: {
     blocks: function() {
       if (this.blocks.length > 0) {
-        this.showTitle = true;
-        var i = 0;
-        console.log(this.timeConverter(this.blocks[0].timestamp));
+        this.showTitle = true
+        var i = 0
+        console.log(this.timeConverter(this.blocks[0].timestamp))
         for (i = 0; i++; i < this.blocks.length) {
           //this.blocks[i].timestamp = this.timeConverter(this.blocks[i].timestamp)
-          console.log(this.timeConverter(this.blocks[i].timestamp));
+          console.log(this.timeConverter(this.blocks[i].timestamp))
         }
       }
-    }
+    },
   },
-  computed: {}
-};
+  created: function() {},
+  methods: {
+    timeConverter: timeConverter,
+  },
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -123,23 +125,17 @@ progress {
   height: 4px;
   border-radius: 2px;
 }
-progress {
-  /* style rules */
-}
 progress::-webkit-progress-bar {
-  /* style rules */
   background: #f0f0f0;
   height: 4px;
   border-radius: 2px;
 }
 progress::-webkit-progress-value {
-  /* style rules */
   background: #95a0a7;
   height: 4px;
   border-radius: 2px;
 }
 progress::-moz-progress-bar {
-  /* style rules */
   background: #fff;
 }
 span.blockID {
