@@ -35,7 +35,23 @@ const webpackConfig = merge(baseWebpackConfig, {
     new UglifyJsPlugin({
       uglifyOptions: {
         compress: {
+          global_defs: {
+            // false, means that it will be removed from Production build
+            __DEV__: false,
+            __DISABLED_FEATURE__: false,
+          },
           warnings: false,
+          sequences: true,
+          conditionals: true,
+          booleans: true,
+          unused: true,
+          if_return: true,
+          join_vars: true,
+          dead_code: true,
+          drop_debugger: true,
+          drop_console: true,
+          passes: 2,
+          pure_funcs: ['console', 'window.console'],
         },
       },
       sourceMap: config.build.productionSourceMap,
