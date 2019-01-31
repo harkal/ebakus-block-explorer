@@ -1,0 +1,31 @@
+{
+  "parserOptions": {
+    "parser": "babel-eslint",
+    "ecmaVersion": 2017,
+    "sourceType": "module"
+  },
+
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
+  },
+
+  "extends": ["plugin:vue/recommended", "prettier", "prettier/vue"],
+
+  "plugins": ["prettier", "vue"],
+
+  "rules": {
+    "prettier/prettier": "error"
+  },
+  "globals": {
+    "__DEV__": true,
+    "__DISABLED_FEATURE__": true,
+    "__dirname": true,
+    "REMOVE_FROM_PRODUCTION": true,
+    "require": true,
+    "module": true,
+    "process": true,
+    "web3": true
+  }
+}

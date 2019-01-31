@@ -1,5 +1,5 @@
 <template>
-  <div id="statistics_wrapper" v-bind:class="{ active: isStatistics.active }">
+  <div id="statistics_wrapper" :class="{ active: isStatistics.active }">
     <ul class="tabResults labels">
       <li v-if="showTitle" id="list_title">
         <span class="delegateID">#</span>
@@ -10,37 +10,37 @@
         <span class="time">Period</span>
       </li>
     </ul>
-    <div class="scroll" v-if="isLoaded">
+    <div v-if="isLoaded" class="scroll">
       <ul class="tabResults main">
         <li v-for="(delegate, idx) in delegates_" :key="idx">
-          <router-link :to="{  path: '/search/' + delegate.address}">
+          <router-link :to="{ path: '/search/' + delegate.address }">
             <span class="mobileLabel">#</span>
-            <span class="delegateID">{{idx}}</span>
+            <span class="delegateID">{{ idx }}</span>
             <span class="mobileLabel">Produced by</span>
-            <span class="producer address">{{delegate.address}}</span>
+            <span class="producer address">{{ delegate.address }}</span>
             <span class="mobileLabel">Stake</span>
-            <span class="stake">{{weiToEbk(delegate.stake).toFixed(4)}}</span>
+            <span class="stake">{{ weiToEbk(delegate.stake).toFixed(4) }}</span>
             <span class="mobileLabel">Missed blocks</span>
             <span class="missedBlocks">
               <p
                 v-for="(data, idxData) in delegate.data"
                 :key="idxData"
-                v-bind:class="{ danger: data.missedBlocks > 0 }"
+                :class="{ danger: data.missedBlocks > 0 }"
               >
-                {{data.missedBlocks}}
-                <small>within last {{data.timeExamined}}</small>
+                {{ data.missedBlocks }}
+                <small>within last {{ data.timeExamined }}</small>
               </p>
             </span>
             <span class="mobileLabel">Density</span>
             <span class="density">
               <p v-for="(data, idxData) in delegate.data" :key="idxData">
-                {{data.density.toFixed(2)}}%
-                <small>within last {{data.timeExamined}}</small>
+                {{ data.density.toFixed(2) }}%
+                <small>within last {{ data.timeExamined }}</small>
               </p>
             </span>
             <span class="time">
               <p v-for="(data, idxData) in delegate.data" :key="idxData">
-                <small>({{data.timeExamined}})</small>
+                <small>({{ data.timeExamined }})</small>
               </p>
             </span>
           </router-link>
@@ -52,64 +52,66 @@
 </template>
 
 <script>
-import { weiToEbk } from "../utils";
+import { weiToEbk } from '../utils'
 
 export default {
   props: {
     isStatistics: {
-      type: Object
+      type: Object,
+      default: () => ({}),
     },
     stats: {
-      type: Object
-    }
+      type: Object,
+      default: () => ({}),
+    },
   },
   data() {
     return {
       showTitle: false,
-      isLoaded: false
-    };
-  },
-  methods: {
-    weiToEbk: weiToEbk
-  },
-  created: function() {},
-  watch: {
-    stats: function() {
-      this.isLoaded = true;
-      this.showTitle = true;
+      isLoaded: false,
     }
   },
   computed: {
     delegates_: function() {
       return this.stats.delegates.map(delegate => {
         const data = delegate.map(period => {
-          let label = "minutes";
-          let time = period.seconds_examined / 60;
+          let label = 'minutes'
+          let time = period.seconds_examined / 60
           if (time >= 60) {
-            label = "hour";
-            time = 60 / 60;
+            label = 'hour'
+            time = 60 / 60
           }
 
           return {
             timeExamined: `${time} ${label}`,
             totalBlocks: period.total_blocks,
             missedBlocks: period.missed_blocks,
-            density: period.density * 100
-          };
-        });
+            density: period.density * 100,
+          }
+        })
 
-        const delegateInfo = delegate[delegate.length - 1];
+        const delegateInfo = delegate[delegate.length - 1]
 
         return {
           address: delegateInfo.address,
           // get stake from any period, it's the same
           stake: delegateInfo.stake,
-          data
-        };
-      });
-    }
-  }
-};
+          data,
+        }
+      })
+    },
+  },
+  watch: {
+    stats: function() {
+      this.isLoaded = true
+      this.showTitle = true
+    },
+  },
+  created: function() {},
+  methods: {
+    weiToEbk: weiToEbk,
+  },
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
