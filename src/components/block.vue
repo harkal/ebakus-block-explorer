@@ -298,7 +298,7 @@ h2 {
 .widget_wrapper {
   display: flex;
   flex-wrap: wrap;
-  align-content: space-between;
+  align-content: stretch;
   height: 190px;
 }
 .widget {
