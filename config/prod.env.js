@@ -1,4 +1,4 @@
 module.exports = {
   NODE_ENV: '"production"',
-  API_ENDPOINT: '"https://explorersrv.ebakus.com"',
+  API_ENDPOINT: '"https://explorersrvdev.ebakus.com"',
 }
