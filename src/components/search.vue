@@ -225,6 +225,10 @@ export default {
                   this.transaction = response.data
                   this.hasLoaded = true
 
+                  if (!['', '0x', null].includes(this.transaction.input)) {
+                    this.getABI(this.transaction.to)
+                  }
+
                   // extra API call to retrieve block producer, later this will be returned by the API tx call itself
                   this.$http
                     .get(
@@ -310,6 +314,20 @@ export default {
           }
         )
       console.log(this.address)
+    },
+    getABI: function(contractAddress) {
+      this.hasLoaded = false
+      this.abi = null
+      this.$http.get(process.env.API_ENDPOINT + '/abi/' + contractAddress).then(
+        function(response) {
+          this.$set(this.transaction, 'abi', response.data)
+          this.hasLoaded = true
+        },
+        err => {
+          console.log(err)
+          this.hasLoaded = true
+        }
+      )
     },
   },
 }

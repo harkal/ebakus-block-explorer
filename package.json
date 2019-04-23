@@ -13,6 +13,7 @@
     "precommit": "lint-staged"
   },
   "dependencies": {
+    "abi-decoder": "https://github.com/ziogaschr/abi-decoder#feature/instances",
     "chart.js": "^2.7.2",
     "ethereumjs-util": "^5.2.0",
     "vue": "^2.5.2",

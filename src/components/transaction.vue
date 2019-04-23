@@ -175,6 +175,14 @@
             <td class="headcol">Input</td>
             <td class="long">{{ transactionData.input }}</td>
           </tr>
+          <tr v-if="transactionData.abi">
+            <td class="headcol"></td>
+            <td class="long">
+              <pre
+                >{{ pprintInput(transactionData.abi, transactionData.input) }}
+              </pre>
+            </td>
+          </tr>
           <tr>
             <td class="headcol">Cumulative gas used</td>
             <td class="long">{{ transactionData.cumulativeGasUsed }}</td>
@@ -187,6 +195,7 @@
 
 <script>
 import { timeConverter, weiToEbk, isZeroHash } from '../utils'
+import { pprintInput } from '../utils/abi'
 export default {
   props: {
     isTransactionActive: {
@@ -233,6 +242,7 @@ export default {
   methods: {
     timeConverter: timeConverter,
     weiToEbk: weiToEbk,
+    pprintInput: pprintInput,
   },
 }
 </script>
