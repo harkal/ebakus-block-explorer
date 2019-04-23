@@ -278,17 +278,19 @@ export default {
           this.address = response.data
           this.hasLoaded = true
 
-          // extra API call to retrieve block producer, later this will be returned by the API tx call itself
-          this.$http.get(process.env.API_ENDPOINT + '/stats/' + address).then(
-            function(response) {
-              this.$set(this.address, 'stats', response.data)
-              this.hasLoaded = true
-            },
-            err => {
-              console.log('err addrStats: ', err)
-              this.hasLoaded = true
-            }
-          )
+          if (this.address.block_rewards > 0) {
+            // extra API call to retrieve block producer, later this will be returned by the API tx call itself
+            this.$http.get(process.env.API_ENDPOINT + '/stats/' + address).then(
+              function(response) {
+                this.$set(this.address, 'stats', response.data)
+                this.hasLoaded = true
+              },
+              err => {
+                console.log('err addrStats: ', err)
+                this.hasLoaded = true
+              }
+            )
+          }
         },
         err => {
           console.log(err)
