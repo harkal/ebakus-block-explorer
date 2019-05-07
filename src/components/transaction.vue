@@ -181,11 +181,16 @@
               <strong>{{ decodedInput.name }}(</strong>
               {{ decodedInput.args }}
               <strong>)</strong>
+              <a
+                id="downloadAbi"
+                :href="downloadAbiContent.data"
+                :download="downloadAbiContent.filename"
+                >Get ABI</a
+              >
             </td>
           </tr>
           <tr
             v-for="(param, idx) in decodedInput.params"
-            v-if="decodedInput.params"
             :key="idx"
             class="input-data"
           >
@@ -253,6 +258,14 @@ export default {
         data.args = args.join(', \u{00AD}')
       }
       return data
+    },
+    downloadAbiContent: function() {
+      return {
+        data:
+          'data:text/json;charset=utf-8,' +
+          encodeURIComponent(JSON.stringify(this.transactionData.abi, 0, 2)),
+        filename: `${this.transactionData.to}-abi.json`,
+      }
     },
   },
   watch: {
@@ -415,6 +428,18 @@ img.ic_to.absolute {
 }
 .input-data td:last-child {
   background-color: #f3f3f3;
+}
+#downloadAbi {
+  float: right;
+  padding: 1px 8px;
+  border-radius: 4px;
+  border: 1px solid #acb4c9;
+  color: #34393d;
+  background: #f8f9fb;
+  font-size: 0.8em;
+}
+#downloadAbi:hover {
+  box-shadow: 0 2px 43px 0 rgba(0, 0, 0, 0.1);
 }
 @media (max-width: 560px) {
   .absolute {
