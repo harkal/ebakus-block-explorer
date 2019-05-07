@@ -160,6 +160,10 @@
             <td class="long">{{ transactionData.gasUsed }}</td>
           </tr>
           <tr>
+            <td class="headcol">Cumulative gas used</td>
+            <td class="long">{{ transactionData.cumulativeGasUsed }}</td>
+          </tr>
+          <tr>
             <td class="headcol">Nonce</td>
             <td class="long">{{ transactionData.nonce }}</td>
           </tr>
@@ -171,13 +175,30 @@
             <td class="headcol">Transaction index</td>
             <td class="long">{{ transactionData.transactionIndex }}</td>
           </tr>
-          <tr>
+          <tr v-if="transactionData.abi">
+            <td class="headcol">Input</td>
+            <td class="long">
+              <strong>{{ decodedInput.name }}(</strong>
+              {{ decodedInput.args }}
+              <strong>)</strong>
+            </td>
+          </tr>
+          <tr
+            v-for="(param, idx) in decodedInput.params"
+            v-if="decodedInput.params"
+            :key="idx"
+            class="input-data"
+          >
+            <td class="headcol">
+              - <strong>{{ param.type }}</strong> {{ param.name }}
+            </td>
+            <td class="long">
+              {{ param.value }}
+            </td>
+          </tr>
+          <tr v-if="!transactionData.abi">
             <td class="headcol">Input</td>
             <td class="long">{{ transactionData.input }}</td>
-          </tr>
-          <tr>
-            <td class="headcol">Cumulative gas used</td>
-            <td class="long">{{ transactionData.cumulativeGasUsed }}</td>
           </tr>
         </table>
       </div>
@@ -187,6 +208,7 @@
 
 <script>
 import { timeConverter, weiToEbk, isZeroHash } from '../utils'
+import { decodeDataUsingAbi } from '../utils/abi'
 export default {
   props: {
     isTransactionActive: {
@@ -215,6 +237,23 @@ export default {
     isContractCreation: function() {
       return !isZeroHash(this.transactionData.contractAddress)
     },
+    decodedInput: function() {
+      const data = decodeDataUsingAbi(
+        this.transactionData.abi,
+        this.transactionData.input
+      )
+
+      if (typeof data === 'object' && data.name) {
+        let args = []
+
+        for (let { name: parName, type } of data.params) {
+          args.push(`${type} ${parName}`)
+        }
+
+        data.args = args.join(', \u{00AD}')
+      }
+      return data
+    },
   },
   watch: {
     transactionData: function() {
@@ -233,6 +272,7 @@ export default {
   methods: {
     timeConverter: timeConverter,
     weiToEbk: weiToEbk,
+    decodeDataUsingAbi: decodeDataUsingAbi,
   },
 }
 </script>
@@ -370,6 +410,12 @@ img.ic_to.absolute {
   display: inline-block;
   word-break: break-all;
 }
+.input-data td {
+  font-size: 0.85em;
+}
+.input-data td:last-child {
+  background-color: #f3f3f3;
+}
 @media (max-width: 560px) {
   .absolute {
     position: absolute;
@@ -389,6 +435,10 @@ img.ic_to.absolute {
   }
   .widget_wrapper table {
     margin-bottom: 70px;
+  }
+  .input-data td:first-child {
+    background-color: transparent;
+    white-space: inherit;
   }
 }
 </style>
