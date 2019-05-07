@@ -19,7 +19,7 @@
             <span class="mobileLabel">Produced by</span>
             <span class="producer address">{{ delegate.address }}</span>
             <span class="mobileLabel">Stake</span>
-            <span class="stake">{{ weiToEbk(delegate.stake).toFixed(4) }}</span>
+            <span class="stake">{{ delegate.stake }}</span>
             <span class="mobileLabel">Missed blocks</span>
             <span class="missedBlocks">
               <p

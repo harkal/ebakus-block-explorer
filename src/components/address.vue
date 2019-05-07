@@ -49,7 +49,7 @@
         </tr>
         <tr>
           <td>Stake</td>
-          <td>{{ weiToEbk(statsData.stake).toFixed(4) }}</td>
+          <td>{{ statsData.stake }}</td>
         </tr>
         <tr>
           <td colspan="2">
