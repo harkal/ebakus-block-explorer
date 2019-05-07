@@ -2,7 +2,7 @@ import abiDecoder from 'abi-decoder'
 
 const decodeDataUsingAbi = (abi, data) => {
   if (!abi || !data) {
-    return
+    return {}
   }
 
   const abiDecoderInstance = new abiDecoder.AbiDecoder()

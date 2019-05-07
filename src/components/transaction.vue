@@ -185,6 +185,7 @@
           </tr>
           <tr
             v-for="(param, idx) in decodedInput.params"
+            v-if="decodedInput.params"
             :key="idx"
             class="input-data"
           >
