@@ -9,7 +9,7 @@
         <span class="time">Time</span>
       </li>
     </ul>
-    <div class="scroll tx">
+    <div class="scroll inner tx">
       <ul class="tabResults main">
         <li v-for="tx in txs_" :key="tx.hash">
           <router-link :to="{ path: '/search/' + tx.hash }">

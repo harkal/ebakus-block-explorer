@@ -9,7 +9,7 @@
         <span class="time">Time</span>
       </li>
     </ul>
-    <div class="scroll">
+    <div class="scroll inner">
       <ul class="tabResults main">
         <li v-for="block in blocks" :key="block.number">
           <router-link :to="{ path: '/search/' + block.number }">

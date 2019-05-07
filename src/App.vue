@@ -200,7 +200,7 @@ td.long {
   margin-bottom: 20px;
 }
 
-#tabbar div.scroll.tx {
+#tabbar div.scroll.inner {
   height: calc(100% - 150px) !important;
 }
 
@@ -219,6 +219,9 @@ ul.unstyled li:last-child {
 @media (max-width: 960px) {
   .container {
     width: 100vw;
+  }
+  #tabbar div.scroll.inner {
+    height: calc(100% - 142px) !important;
   }
 }
 @media (max-width: 560px) {
@@ -269,6 +272,9 @@ ul.unstyled li:last-child {
   }
   .tabResults.main {
     margin-top: 0px;
+  }
+  #tabbar div.scroll.inner {
+    height: calc(100% - 57px) !important;
   }
 }
 </style>

@@ -10,7 +10,7 @@
         <span class="time">Period</span>
       </li>
     </ul>
-    <div v-if="isLoaded" class="scroll">
+    <div v-if="isLoaded" class="scroll inner">
       <ul class="tabResults main">
         <li v-for="(delegate, idx) in delegates_" :key="idx">
           <router-link :to="{ path: '/search/' + delegate.address }">
