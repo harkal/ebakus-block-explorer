@@ -33,7 +33,7 @@
               }"
               >{{ weiToEbk(tx.value).toFixed(4) }} ebakus</span
             >
-            <span class="mobileLabel timestamp">Timestamp</span>
+            <span class="mobileLabel timestamp">Time</span>
             <span class="time">{{ timeConverter(tx.timestamp) }}</span>
           </router-link>
         </li>
@@ -376,7 +376,7 @@ img {
     -webkit-text-size-adjust: 100%;
   }
   .mobileLabel {
-    display: inline-block;
+    display: block;
     width: 70px;
     font-size: 13px;
     position: absolute;

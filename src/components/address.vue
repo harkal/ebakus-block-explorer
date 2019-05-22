@@ -8,7 +8,9 @@
       </div>
       <div class="twocol right">
         <span class="balanceLabel">Balance</span>
-        <span class="balance">{{ balance.toFixed(4) }}</span>
+        <span class="balance">{{
+          weiToEbk(addressData.balance).toFixed(4)
+        }}</span>
         <small>ebakus</small>
       </div>
       <div v-if="addressData.block_rewards == 0" class="chart_wrapper">
@@ -18,27 +20,6 @@
           :height="300"
         ></Chart>
       </div>
-    </div>
-    <div class="panel">
-      <h2>Details</h2>
-      <table>
-        <tr>
-          <td>Balance</td>
-          <td>{{ balance.toFixed(4) }}</td>
-        </tr>
-        <tr>
-          <td>Total in</td>
-          <td>{{ weiToEbk(addressData.total_in).toFixed(4) }}</td>
-        </tr>
-        <tr>
-          <td>Total out</td>
-          <td>{{ weiToEbk(addressData.total_out).toFixed(4) }}</td>
-        </tr>
-        <tr>
-          <td>Total txs</td>
-          <td>{{ totalTx }}</td>
-        </tr>
-      </table>
     </div>
     <div v-if="addressData.stats" class="panel">
       <h2>Producer Info</h2>
@@ -86,9 +67,10 @@
       <transactions
         :txs="txs"
         :address="addressData.address"
-        :max-offset="totalTx"
-        :is-transactions="{ active: true }"
+        :max-offset="addressData.tx_count"
+        :is-transactions="{ active: txs.length > 0 }"
       />
+      <p v-if="txs.length == 0" class="no-data">There are no transactions.</p>
     </div>
   </div>
 </template>
@@ -122,16 +104,6 @@ export default {
     }
   },
   computed: {
-    balance: function() {
-      var balance =
-        this.addressData.total_in -
-        this.addressData.total_out +
-        this.addressData.block_rewards
-      return this.weiToEbk(balance)
-    },
-    totalTx: function() {
-      return this.addressData.count_in + this.addressData.count_out
-    },
     balanceData: function() {
       var i
       var balance = 0
@@ -151,8 +123,9 @@ export default {
 
         _data.push(balance)
       }
+
       _labels.unshift('')
-      balance = this.balance - _data[txs.length - 1]
+      balance = this.weiToEbk(this.addressData.balance) - _data[txs.length - 1]
       for (i = 0; i < txs.length; i++) {
         _data[i] += balance
       }
@@ -221,13 +194,6 @@ export default {
   },
   created: function() {},
   methods: {
-    getBalance: function() {
-      var balance = 0
-      var i = 0
-      console.log('from: ' + this.addressData.from.length)
-      console.log('to: ' + this.addressData.space - top1.length)
-      console.log(i)
-    },
     timeConverter: timeConverter,
     weiToEbk: weiToEbk,
   },
@@ -297,6 +263,9 @@ h3.address {
 }
 .danger {
   color: #f44336;
+}
+.no-data {
+  text-align: center;
 }
 @media (max-width: 560px) {
   .twocol {
