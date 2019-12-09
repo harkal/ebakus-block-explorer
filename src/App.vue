@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="app" class="container">
     <search :r-query-str="query" :tabbar-active="contentActive"></search>
     <tabbar
       :tabbar-active="contentActive"
@@ -43,7 +43,6 @@ export default {
       this.contentActive = this.vueContentActive
     },
     query: function() {
-      console.log('test')
       if (this.query != '') this.$root.$data.sharedState.query = this.query
     },
   },
@@ -58,23 +57,20 @@ export default {
   },
   methods: {
     back() {
-      console.log('back')
       back = back ? back : this.$route.meta.back
       back ? this.$router.replace(back) : this.$router.replace('/')
     },
   },
 
   beforeRouteLeave: (to, from, next) => {
-    console.log(to)
-    console.log(from)
+    console.log('TCL: to:', to.name, 'from:', from.name)
     if (!to.meta.back) {
       to.meta.back = from.fullpath
     }
     next()
   },
   beforeRouteEnter: (to, from, next) => {
-    console.log(to)
-    console.log(from)
+    console.log('TCL: to:', to.name, 'from:', from.name)
     if (!to.meta.back) {
       to.meta.back = from.fullpath
     }

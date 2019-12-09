@@ -107,17 +107,16 @@ export default {
       }
     },
     searchWithQuery: function(e) {
-      console.log('search')
+      console.log('searchWithQuery')
       var queryStr = this.searchInput.replace(/ /g, '')
       if (
         isNaN(queryStr) ||
         queryStr.substring(0, 2) == '0x' ||
         queryStr == ''
       ) {
-        console.log('search 1')
         switch (queryStr.length) {
           case 42:
-            console.log('this is address')
+            console.log('Search address', queryStr)
             this.isActive = true
             this.isBlockActive = false
             this.isTransactionActive = false
@@ -125,17 +124,20 @@ export default {
             this.getAddress(queryStr)
             break
           case 66:
-            console.log(' this is a txid')
+            console.log('Search TXid', queryStr)
             this.isActive = true
             this.isBlockActive = false
             this.isTransactionActive = true
             this.isAddressActive = false
-            this.getTransaction(queryStr).then(function() {}, err => {
-              console.log('err getTransaction: ', err)
-              this.isBlockActive = true
-              this.isTransactionActive = false
-              this.getBlock(queryStr)
-            })
+            this.getTransaction(queryStr).then(
+              function() {},
+              err => {
+                console.log('err getTransaction: ', err)
+                this.isBlockActive = true
+                this.isTransactionActive = false
+                this.getBlock(queryStr)
+              }
+            )
 
             break
           default:
@@ -145,15 +147,14 @@ export default {
             this.isBlockActive = false
             this.isTransactionActive = false
             this.isAddressActive = false
-            console.log(e)
+            console.log('not valid search query')
             if (e == 'searchBtn') {
               this.rQueryStr = ''
               this.$root.$data.sharedState.query = ''
             }
         }
       } else {
-        console.log('search 2')
-        console.log('its probably a block')
+        console.log('Search block', queryStr)
         this.isBlockActive = true
         this.isTransactionActive = false
         this.isAddressActive = false
@@ -161,21 +162,17 @@ export default {
 
         this.getBlock(queryStr)
       }
-      console.log('search 3')
+
       this.$root.$data.sharedState.contentActive = false
       if (queryStr != '') {
         this.$router.push({
           path: '/search/' + queryStr,
         })
-        console.log('search 4')
       } else if (queryStr == '' && e == 'searchBtn') {
         this.$router.push({
           path: '/',
         })
-        console.log('search 5')
       }
-
-      console.log('search 6')
     },
     getBlock: function(blockID) {
       this.hasLoaded = false
@@ -208,7 +205,6 @@ export default {
           this.hasLoaded = true
         }
       )
-      console.log(this.block)
     },
     getTransaction: function(txHash) {
       this.hasLoaded = false

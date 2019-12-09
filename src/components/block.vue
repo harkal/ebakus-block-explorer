@@ -8,13 +8,13 @@
           <h3>BLOCK #</h3>
           <router-link
             class="left"
-            :to="{ name: 'searchTerm', params: { query: previousBlock } }"
+            :to="{ name: RouteNames.SEARCH, params: { query: previousBlock } }"
           >
             <img src="../assets/ic_prev.png" alt />
           </router-link>
           <router-link
             class="right"
-            :to="{ name: 'searchTerm', params: { query: nextBlock } }"
+            :to="{ name: RouteNames.SEARCH, params: { query: nextBlock } }"
           >
             <img src="../assets/ic_next.png" alt />
           </router-link>
@@ -62,7 +62,7 @@
               <span class="account">
                 <router-link
                   :to="{
-                    name: 'searchTerm',
+                    name: RouteNames.SEARCH,
                     params: { query: blockData.producer },
                   }"
                   >{{ blockData.producer }}</router-link
@@ -104,7 +104,10 @@
                   class="account"
                 >
                   <router-link
-                    :to="{ name: 'searchTerm', params: { query: delegate } }"
+                    :to="{
+                      name: RouteNames.SEARCH,
+                      params: { query: delegate },
+                    }"
                     >{{ delegate }}</router-link
                   >
                 </li>
@@ -129,6 +132,8 @@
 <script>
 import transactions from './transactions'
 import util from 'ethereumjs-util'
+
+import { RouteNames } from '@/router'
 import { timeConverter } from '../utils'
 
 export default {
@@ -158,6 +163,7 @@ export default {
     }
   },
   computed: {
+    RouteNames: () => RouteNames,
     gasUsed: function() {
       if (this.blockData.gasLimit > 0 && this.blockData.gasUsed > 0)
         return (

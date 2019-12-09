@@ -17,7 +17,7 @@
                 <router-link
                   class="address lon"
                   :to="{
-                    name: 'searchTerm',
+                    name: RouteNames.SEARCH,
                     params: { query: transactionData.from },
                   }"
                   >{{ transactionData.from }}</router-link
@@ -42,7 +42,7 @@
                 <router-link
                   class="address lon"
                   :to="{
-                    name: 'searchTerm',
+                    name: RouteNames.SEARCH,
                     params: { query: transactionData.to },
                   }"
                   >{{ transactionData.to }}</router-link
@@ -57,7 +57,7 @@
                 <router-link
                   class="address lon"
                   :to="{
-                    name: 'searchTerm',
+                    name: RouteNames.SEARCH,
                     params: { query: transactionData.contractAddress },
                   }"
                   >{{ transactionData.contractAddress }}</router-link
@@ -99,7 +99,7 @@
               <router-link
                 class="transaction"
                 :to="{
-                  name: 'searchTerm',
+                  name: RouteNames.SEARCH,
                   params: { query: transactionData.hash },
                 }"
                 >{{ transactionData.hash }}</router-link
@@ -116,7 +116,7 @@
               <router-link
                 class="account"
                 :to="{
-                  name: 'searchTerm',
+                  name: RouteNames.SEARCH,
                   params: { query: transactionData.blockHash },
                 }"
                 >{{ transactionData.blockHash }}</router-link
@@ -130,7 +130,7 @@
                 <router-link
                   class="block"
                   :to="{
-                    name: 'searchTerm',
+                    name: RouteNames.SEARCH,
                     params: { query: transactionData.blockNumber },
                   }"
                   >{{ transactionData.blockNumber }}</router-link
@@ -144,7 +144,7 @@
               <router-link
                 class="account"
                 :to="{
-                  name: 'searchTerm',
+                  name: RouteNames.SEARCH,
                   params: { query: transactionData.producer },
                 }"
                 >{{ transactionData.producer }}</router-link
@@ -212,6 +212,7 @@
 </template>
 
 <script>
+import { RouteNames } from '@/router'
 import { timeConverter, weiToEbk, isZeroHash } from '../utils'
 import { decodeDataUsingAbi } from '../utils/abi'
 export default {
@@ -232,6 +233,7 @@ export default {
     }
   },
   computed: {
+    RouteNames: () => RouteNames,
     blockHeight: function() {
       let blockNumber = this.transactionData.blockNumber
       if (typeof blockNumber === 'number') {
