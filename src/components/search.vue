@@ -1,18 +1,18 @@
 <template>
-  <div id="topbar" :class="{ inactive: isActive }">
+  <div id="topbar" :class="{ withTabbar: isActive }">
     <img
       src="../assets/blockExplorer_logo_2.png"
       alt
-      :class="{ inactive: isActive }"
+      :class="{ withTabbar: isActive }"
       @click="$router.push('/')"
     />
     <img
       id="logo"
       alt="New block produced"
       src="../assets/blockExplorer_logo.png"
-      :class="{ inactive: isActive }"
+      :class="{ withTabbar: isActive }"
     />
-    <div id="search_wrapper" :class="{ inactive: isActive }">
+    <div id="search_wrapper" :class="{ withTabbar: isActive }">
       <input
         ref="searchField"
         v-model="searchInput"
@@ -29,32 +29,39 @@
       </button>
     </div>
     <p class="error">{{ error }}</p>
-    <block :is-block-active="isBlockActive" :block-data="block" :txs="txs" />
-    <address_
-      :is-address-active="isAddressActive"
+
+    <Block :class="{ active: isBlockActive }" :block-data="block" :txs="txs" />
+    <Address
+      :class="{ active: isAddressActive }"
       :address-data="address"
       :txs="txs"
     />
-    <transaction
-      :is-transaction-active="isTransactionActive"
+    <Transaction
+      :class="{ active: isTransactionActive }"
       :transaction-data="transaction"
     />
   </div>
 </template>
 
 <script>
-import block from './block'
+import { store, mutations } from '@/store'
+
+import Address from '@/components/Address'
+import Block from '@/components/Block'
+import Transaction from '@/components/Transaction'
 
 export default {
   components: {
-    block,
+    Address,
+    Block,
+    Transaction,
   },
   props: {
     tabbarActive: {
       type: Boolean,
       default: false,
     },
-    rQueryStr: {
+    searchQuery: {
       type: String,
       default: '',
     },
@@ -67,16 +74,17 @@ export default {
       isBlockActive: false,
       isTransactionActive: false,
       isAddressActive: false,
-      hasLoaded: false,
       block: {},
       transaction: {},
       address: {},
       txs: [],
     }
   },
-  computed: {},
+  computed: {
+    blockHeight: () => store.blockHeight,
+  },
   watch: {
-    rQueryStr: function() {
+    searchQuery: function() {
       this.checkQuery()
     },
     searchInput: function() {
@@ -101,8 +109,8 @@ export default {
   },
   methods: {
     checkQuery: function() {
-      if (typeof this.rQueryStr != 'undefined') {
-        this.searchInput = this.rQueryStr
+      if (typeof this.searchQuery !== 'undefined' && this.searchQuery) {
+        this.searchInput = this.searchQuery
         this.searchWithQuery(null)
       }
     },
@@ -149,7 +157,7 @@ export default {
             this.isAddressActive = false
             console.log('not valid search query')
             if (e == 'searchBtn') {
-              this.rQueryStr = ''
+              this.searchQuery = ''
               this.$root.$data.sharedState.query = ''
             }
         }
@@ -163,24 +171,29 @@ export default {
         this.getBlock(queryStr)
       }
 
-      this.$root.$data.sharedState.contentActive = false
+      mutations.setContentActive(false)
+
       if (queryStr != '') {
-        this.$router.push({
-          path: '/search/' + queryStr,
-        })
+        this.$router.push(
+          {
+            path: '/search/' + queryStr,
+          },
+          () => {}
+        )
       } else if (queryStr == '' && e == 'searchBtn') {
-        this.$router.push({
-          path: '/',
-        })
+        this.$router.push(
+          {
+            path: '/',
+          },
+          () => {}
+        )
       }
     },
     getBlock: function(blockID) {
-      this.hasLoaded = false
       this.txs = []
       this.$http.get(process.env.API_ENDPOINT + '/block/' + blockID).then(
         function(response) {
           this.block = response.data
-          this.hasLoaded = true
           if (this.block.number >= 0) {
             this.$http
               .get(
@@ -191,35 +204,28 @@ export default {
               .then(
                 function(response) {
                   this.txs = response.data
-                  this.hasLoaded = true
                 },
                 err => {
                   console.log(err)
-                  this.hasLoaded = true
                 }
               )
           }
         },
         err => {
           console.log(err)
-          this.hasLoaded = true
         }
       )
     },
     getTransaction: function(txHash) {
-      this.hasLoaded = false
-
       return new Promise((resolve, reject) => {
         this.$http.get(process.env.API_ENDPOINT + '/block/-1?range=10').then(
           function(response) {
-            this.$root.$data.sharedState.blockHeight = response.data[0].number
-            this.hasLoaded = true
+            mutations.setBlockHeight(response.data[0].number)
             this.$http
               .get(process.env.API_ENDPOINT + '/transaction/' + txHash)
               .then(
                 function(response) {
                   this.transaction = response.data
-                  this.hasLoaded = true
 
                   if (!['', '0x', null].includes(this.transaction.input)) {
                     this.getABI(this.transaction.to)
@@ -239,26 +245,22 @@ export default {
                           'producer',
                           response.data.producer
                         )
-                        this.hasLoaded = true
                         resolve(response)
                       },
                       err => {
                         console.log('err txBlock: ', err)
-                        this.hasLoaded = true
                         reject(err)
                       }
                     )
                 },
                 err => {
                   console.log('err txByHash: ', err)
-                  this.hasLoaded = false
                   reject(err)
                 }
               )
           },
           err => {
             console.log('err blocks: ', err)
-            this.hasLoaded = false
             reject(err)
           }
         )
@@ -268,29 +270,24 @@ export default {
       console.log('fetching address')
       this.txs = []
 
-      this.hasLoaded = false
       this.$http.get(process.env.API_ENDPOINT + '/address/' + address).then(
         function(response) {
           this.address = response.data
-          this.hasLoaded = true
 
           if (this.address.block_rewards > 0) {
             // extra API call to retrieve block producer, later this will be returned by the API tx call itself
             this.$http.get(process.env.API_ENDPOINT + '/stats/' + address).then(
               function(response) {
                 this.$set(this.address, 'stats', response.data)
-                this.hasLoaded = true
               },
               err => {
                 console.log('err addrStats: ', err)
-                this.hasLoaded = true
               }
             )
           }
         },
         err => {
           console.log(err)
-          this.hasLoaded = true
         }
       )
 
@@ -304,26 +301,20 @@ export default {
         .then(
           function(response) {
             this.txs = response.data
-            this.hasLoaded = true
           },
           err => {
             console.log(err)
-            this.hasLoaded = true
           }
         )
-      console.log(this.address)
     },
     getABI: function(contractAddress) {
-      this.hasLoaded = false
       this.abi = null
       this.$http.get(process.env.API_ENDPOINT + '/abi/' + contractAddress).then(
         function(response) {
           this.$set(this.transaction, 'abi', response.data)
-          this.hasLoaded = true
         },
         err => {
           console.log(err)
-          this.hasLoaded = true
         }
       )
     },
@@ -400,8 +391,6 @@ button:focus {
   opacity: 1;
   transform: scale(1);
 }
-.inactive {
-}
 input:focus + button {
   opacity: 1;
   transform: scale(1);
@@ -433,17 +422,17 @@ p.error {
 p.error.hide {
   opacity: 0;
 }
-#topbar.inactive {
+#topbar.withTabbar {
   top: 10px;
   transform: translate(-50%, 0);
 }
-#topbar img.inactive {
+#topbar img.withTabbar {
   height: 40px;
 }
-#search_wrapper.inactive {
+#search_wrapper.withTabbar {
   padding-top: 60px;
 }
-#search_wrapper.inactive button {
+#search_wrapper.withTabbar button {
   top: 63px;
 }
 @media (max-width: 960px) {
@@ -475,7 +464,7 @@ p.error.hide {
   #topbar img {
     height: 30px;
   }
-  #topbar img.inactive {
+  #topbar img.withTabbar {
     top: 0px;
     height: 25px;
   }
@@ -491,17 +480,17 @@ p.error.hide {
     top: 48%;
   }
 
-  #topbar.inactive {
+  #topbar.withTabbar {
     top: 10px;
   }
 
   #search_wrapper {
     padding-top: 50px;
   }
-  #search_wrapper.inactive {
+  #search_wrapper.withTabbar {
     padding-top: 35px;
   }
-  #search_wrapper.inactive button#searchBtn {
+  #search_wrapper.withTabbar button#searchBtn {
     top: 35px;
   }
   input[type='text'] {

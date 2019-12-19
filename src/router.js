@@ -1,12 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
+import { mutations } from '@/store'
+
 import App from '@/App'
-// import Blocks from '@/components/blocks'
-// import Transaction from '@/components/transaction'
-// import Address from '@/components/address'
-// import Transactions from '@/components/transactions'
-// import Statistics from '@/components/statistics'
 
 Vue.use(Router)
 
@@ -34,29 +31,39 @@ const router = new Router({
       path: '/search/:query?',
       name: RouteNames.SEARCH,
       component: App,
-      props: true,
     },
     {
       path: '/blocks',
       name: RouteNames.BLOCKS,
       component: App,
-      props: { selected: 'blocksTab' },
     },
 
     {
       path: '/transactions',
       name: RouteNames.TRANSACTIONS,
       component: App,
-      props: { selected: 'transactionsTab' },
     },
 
     {
       path: '/statistics',
       name: RouteNames.STATISTICS,
       component: App,
-      props: { selected: 'statisticsTab' },
     },
   ],
+})
+
+router.beforeEach((to, from, next) => {
+  if (
+    to.name === RouteNames.SEARCH &&
+    typeof to.params.query !== 'undefined' &&
+    to.params.query != ''
+  ) {
+    mutations.setQuery(to.params.query)
+  } else {
+    mutations.setQuery('')
+  }
+
+  next()
 })
 
 export default router

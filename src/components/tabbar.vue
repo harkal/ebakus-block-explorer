@@ -1,25 +1,25 @@
 <template>
-  <div id="tabbar" :class="{ active: selected }">
+  <div id="tabbar" :class="{ active: tabbarActive }">
     <div class="scroll">
       <ul id="tabbarOptions">
         <li
-          id="blocksTab"
-          :class="{ active: selected == 'blocksTab' }"
-          @click="activateTab($event, txt)"
+          :id="RouteNames.BLOCKS"
+          :class="{ active: $route.name === RouteNames.BLOCKS }"
+          @click="toggleTab(RouteNames.BLOCKS)"
         >
           <img src="../assets/ic_blocks.png" alt /> Blocks
         </li>
         <li
-          id="transactionsTab"
-          :class="{ active: selected == 'transactionsTab' }"
-          @click="activateTab($event, txt)"
+          :id="RouteNames.TRANSACTIONS"
+          :class="{ active: $route.name === RouteNames.TRANSACTIONS }"
+          @click="toggleTab(RouteNames.TRANSACTIONS)"
         >
           <img src="../assets/ic_transactions.png" alt /> Transactions
         </li>
         <li
-          id="statisticsTab"
-          :class="{ active: selected == 'statisticsTab' }"
-          @click="activateTab($event, txt)"
+          :id="RouteNames.STATISTICS"
+          :class="{ active: $route.name === RouteNames.STATISTICS }"
+          @click="toggleTab(RouteNames.STATISTICS)"
         >
           <img src="../assets/ic_stats.png" alt /> Statistics
         </li>
@@ -27,25 +27,31 @@
     </div>
 
     <div class="container">
-      <blocks
-        :is-blocks="{ active: selected == 'blocksTab' }"
-        :blocks="blocks"
+      <Blocks :class="{ active: $route.name == RouteNames.BLOCKS }" />
+      <Transactions
+        :class="{ active: $route.name == RouteNames.TRANSACTIONS }"
       />
-      <transactions
-        :is-transactions="{ active: selected == 'transactionsTab' }"
-        :txs="txs"
-      />
-      <statistics
-        :is-statistics="{ active: selected == 'statisticsTab' }"
-        :stats="stats"
-      />
+      <Statistics :class="{ active: $route.name == RouteNames.STATISTICS }" />
     </div>
   </div>
 </template>
 
 <script>
+import router, { RouteNames } from '@/router'
+import { store, mutations } from '@/store'
+
+import Blocks from '@/components/Blocks'
+// import Transactions from '@/components/transactions'
+import Statistics from '@/components/Statistics'
+
+export const TabNames = {
+  BLOCKS: 'blocks',
+  TRANSACTIONS: 'transactions',
+  STATISTICS: 'statistics',
+}
+
 export default {
-  components: {},
+  components: { Blocks, Statistics },
   props: {
     tabbarActive: {
       type: Boolean,
@@ -55,143 +61,51 @@ export default {
       type: String,
       default: '',
     },
-  },
-  data() {
-    return {
-      txt: '',
-      isActive: false,
-      tHeight: '',
-      selected: '',
-      isBlocksActive: false,
-      isTransactionsActive: false,
-      isStatisticsActive: false,
-      txs: [],
-      blocks: [],
-      stats: {},
-    }
-  },
-  computed: {},
-  watch: {
-    tabbarActive: function() {
-      if (!this.tabbarActive) {
-        this.tHeight = 'height: 76px;'
-        this.selected = ''
-      }
+    searchQuery: {
+      type: String,
+      default: '',
     },
-    selectedByRoute: function() {
-      if (typeof this.selectedByRoute != null)
-        this.activateTab(null, this.selectedByRoute)
+  },
+
+  computed: {
+    TabNames: () => TabNames,
+    RouteNames: () => RouteNames,
+    isContentActive: () => store.contentActive,
+
+    isTabbarNavigation: function() {
+      return [
+        RouteNames.BLOCKS,
+        RouteNames.TRANSACTIONS,
+        RouteNames.STATISTICS,
+      ].includes(router.app.$route.name)
     },
   },
   created: function() {
-    if (this.selectedByRoute != '') {
-      this.activateTab(null, this.selectedByRoute)
-      this.selected = this.selectedByRoute
-    }
+    mutations.setContentActive(this.isTabbarNavigation)
   },
   methods: {
-    activateTab: function(e, selectedByRoute) {
-      if (selectedByRoute != '') {
-        this.$root.$data.sharedState.contentActive = true
-        this.selected = selectedByRoute
-        this.isActive = true
-        // this.tHeight = "height: calc(100% - 215px);";
-        selectedByRoute = ''
-        this.tabbarRouter()
-      } else if (e && this.selected != e.target.id) {
-        this.selected = e.currentTarget.id
-
-        this.$root.$data.sharedState.contentActive = true
-        this.isActive = true
-        // this.tHeight = "height:calc(100% - 215px);";
-        this.tabbarRouter()
-      } else {
-        this.selected = ''
-        this.$root.$data.sharedState.contentActive = false
-        this.isActive = false
-        // this.tHeight = "height: 76px;";
-        var lastQuery = this.$root.$data.sharedState.query
-        if (lastQuery != '') {
-          this.$router.push({
-            path: '/search/' + this.$root.$data.sharedState.query,
-          })
+    toggleTab: function(routeName) {
+      if (this.isContentActive) {
+        if (this.isTabbarNavigation && this.$route.name !== routeName) {
+          this.$router.replace(
+            {
+              name: routeName,
+            },
+            () => {}
+          )
         } else {
-          this.$router.push({
-            path: '/',
-          })
+          this.$router.go(-1)
+          mutations.setContentActive(false)
         }
-      }
-    },
-    tabbarRouter: function() {
-      console.log(this.selected)
-      switch (this.selected) {
-        case 'blocksTab':
-          this.getLatestBlocks()
-          this.$router.push({
-            path: '/blocks/',
-          })
-          break
-        case 'transactionsTab':
-          this.getLatestTransactions()
-          this.$router.push({
-            path: '/transactions/',
-          })
-
-          break
-        case 'statisticsTab':
-          this.getStatistics()
-          this.$router.push({
-            path: '/statistics/',
-          })
-
-          break
-        default:
-          this.$router.push({
-            path: '/',
-          })
-      }
-    },
-    getLatestTransactions: function() {
-      this.$http
-        .get(
-          process.env.API_ENDPOINT + '/transaction/latest?limit=10&order=desc'
-        )
-        .then(
-          function(response) {
-            this.txs = response.data
-            this.hasLoaded = true
+      } else {
+        this.$router.push(
+          {
+            name: routeName,
           },
-          err => {
-            console.log(err)
-            this.hasLoaded = true
-          }
+          () => {}
         )
-      console.log(this.txs)
-    },
-    getLatestBlocks: function() {
-      this.$http.get(process.env.API_ENDPOINT + '/block/-1?range=10').then(
-        function(response) {
-          this.blocks = response.data
-          this.hasLoaded = true
-        },
-        err => {
-          console.log(err)
-          this.hasLoaded = true
-        }
-      )
-      console.log(this.blocks)
-    },
-    getStatistics: function() {
-      this.$http.get(process.env.API_ENDPOINT + '/stats').then(
-        function(response) {
-          this.stats = response.data
-          this.hasLoaded = true
-        },
-        err => {
-          console.log(err)
-          this.hasLoaded = true
-        }
-      )
+        mutations.setContentActive(true)
+      }
     },
   },
 }

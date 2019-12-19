@@ -1,5 +1,5 @@
 <template>
-  <div id="block_wrapper" :class="{ active: isAddressActive }">
+  <div id="block_wrapper">
     <h1>Address</h1>
 
     <div class="panel">
@@ -64,11 +64,11 @@
     </div>
     <div class="panel">
       <h2>Transactions</h2>
-      <transactions
+      <Transactions
         :txs="txs"
         :address="addressData.address"
         :max-offset="addressData.tx_count"
-        :is-transactions="{ active: txs.length > 0 }"
+        :class="{ active: txs.length > 0 }"
       />
       <p v-if="txs.length == 0" class="no-data">There are no transactions.</p>
     </div>
@@ -76,18 +76,14 @@
 </template>
 
 <script>
-import Chart from './chart'
-import { timeConverter, weiToEbk } from '../utils'
+import Chart from './Chart'
+import { timeConverter, weiToEbk } from '@/utils'
 
 export default {
   components: {
     Chart,
   },
   props: {
-    isAddressActive: {
-      type: Boolean,
-      default: false,
-    },
     addressData: {
       type: Object,
       default: () => ({}),

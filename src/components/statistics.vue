@@ -1,5 +1,5 @@
 <template>
-  <div id="statistics_wrapper" :class="{ active: isStatistics.active }">
+  <div id="statistics_wrapper">
     <ul class="tabResults labels">
       <li v-if="showTitle" id="list_title">
         <span class="delegateID">#</span>
@@ -52,26 +52,20 @@
 </template>
 
 <script>
+import { RouteNames } from '@/router'
 import { weiToEbk } from '../utils'
 
 export default {
-  props: {
-    isStatistics: {
-      type: Object,
-      default: () => ({}),
-    },
-    stats: {
-      type: Object,
-      default: () => ({}),
-    },
-  },
   data() {
     return {
+      stats: [],
       showTitle: false,
       isLoaded: false,
     }
   },
   computed: {
+    RouteNames: () => RouteNames,
+
     delegates_: function() {
       return this.stats.delegates.map(delegate => {
         const data = delegate.map(period => {
@@ -102,14 +96,32 @@ export default {
     },
   },
   watch: {
+    $route(to, from) {
+      if (to.name !== from.name && to.name === RouteNames.STATISTICS)
+        this.getStatistics()
+    },
     stats: function() {
       this.isLoaded = true
       this.showTitle = true
     },
   },
-  created: function() {},
+  created: function() {
+    this.getStatistics()
+  },
   methods: {
     weiToEbk: weiToEbk,
+    getStatistics: function() {
+      this.$http.get(process.env.API_ENDPOINT + '/stats').then(
+        function(response) {
+          this.stats = response.data
+          // this.hasLoaded = true
+        },
+        err => {
+          console.log(err)
+          // this.hasLoaded = true
+        }
+      )
+    },
   },
 }
 </script>

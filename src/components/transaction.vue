@@ -1,5 +1,5 @@
 <template>
-  <div id="block_wrapper" :class="{ active: isTransactionActive }">
+  <div id="block_wrapper">
     <h1>
       <img src="../assets/ic_transactions.png" class="title_img" alt />
       <span v-if="isContractCreation">Contract Creation</span>
@@ -213,14 +213,12 @@
 
 <script>
 import { RouteNames } from '@/router'
-import { timeConverter, weiToEbk, isZeroHash } from '../utils'
-import { decodeDataUsingAbi } from '../utils/abi'
+import { store } from '@/store'
+import { timeConverter, weiToEbk, isZeroHash } from '@/utils'
+import { decodeDataUsingAbi } from '@/utils/abi'
+
 export default {
   props: {
-    isTransactionActive: {
-      type: Boolean,
-      default: false,
-    },
     transactionData: {
       type: Object,
       default: () => ({}),
@@ -234,6 +232,7 @@ export default {
   },
   computed: {
     RouteNames: () => RouteNames,
+    globalBlockHeight: () => store.blockHeight,
     blockHeight: function() {
       let blockNumber = this.transactionData.blockNumber
       if (typeof blockNumber === 'number') {
@@ -272,14 +271,10 @@ export default {
   },
   watch: {
     transactionData: function() {
-      if (
-        this.$root.$data.sharedState.blockHeight >
-        this.transactionData.blockNumber
-      ) {
+      if (this.globalBlockHeight > this.transactionData.blockNumber) {
         this.txstatus = true
         this.confirmationsCount =
-          this.$root.$data.sharedState.blockHeight -
-          this.transactionData.blockNumber
+          this.globalBlockHeight - this.transactionData.blockNumber
       }
     },
   },
