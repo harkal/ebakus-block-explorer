@@ -2,7 +2,7 @@
   <div id="app" class="container">
     <Search :search-query="searchQuery" :tabbar-active="contentActive" />
     <!-- <router-view></router-view> -->
-    <Tabbar :tabbar-active="contentActive" :search-query="searchQuery" />
+    <Tabbar :search-query="searchQuery" :tabbar-active="contentActive" />
   </div>
 </template>
 
@@ -10,7 +10,7 @@
 import { RouteNames } from '@/router'
 import { store } from '@/store'
 
-import Search from './components/Search'
+import Search from '@/components/Search'
 import Tabbar from '@/components/Tabbar'
 
 export default {
@@ -21,12 +21,6 @@ export default {
   computed: {
     contentActive: () => store.contentActive,
     searchQuery: () => store.searchQuery,
-  },
-  methods: {
-    back() {
-      let redirectBack = this.$route.meta.back || '/'
-      this.$router.replace(redirectBack, () => {})
-    },
   },
 }
 </script>

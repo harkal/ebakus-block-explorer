@@ -1,6 +1,6 @@
 <template>
   <div id="block_wrapper">
-    <h1><img src="../assets/ic_blocks.png" class="title_img" alt /> Block</h1>
+    <h1><img src="../assets/ic_blocks.png" class="title_img" alt />Block</h1>
     <div class="panel">
       <div class="widget_wrapper">
         <div class="widget">
