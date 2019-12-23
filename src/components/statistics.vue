@@ -3,124 +3,206 @@
     <ul class="tabResults labels">
       <li v-if="showTitle" id="list_title">
         <span class="delegateID">#</span>
-        <span class="producer">Producer</span>
+        <span class="producer">Address</span>
         <span class="stake">Stake</span>
-        <span class="missedBlocks">Missed blocks</span>
-        <span class="density">Density</span>
-        <span class="time">Period</span>
+        <span class="voted">Voted</span>
+        <span class="vote"></span>
       </li>
     </ul>
     <div v-if="isLoaded" class="scroll inner">
       <ul class="tabResults main">
-        <li v-for="(delegate, idx) in delegates_" :key="idx">
-          <router-link :to="{ path: '/search/' + delegate.address }">
-            <span class="mobileLabel">#</span>
-            <span class="delegateID">{{ idx }}</span>
-            <span class="mobileLabel">Produced by</span>
-            <span class="producer address">{{ delegate.address }}</span>
-            <span class="mobileLabel">Stake</span>
-            <span class="stake">{{ delegate.stake }}</span>
-            <span class="mobileLabel">Missed blocks</span>
-            <span class="missedBlocks">
-              <p
-                v-for="(data, idxData) in delegate.data"
-                :key="idxData"
-                :class="{ danger: data.missedBlocks > 0 }"
-              >
-                {{ data.missedBlocks }}
-                <small>within last {{ data.timeExamined }}</small>
-              </p>
-            </span>
-            <span class="mobileLabel">Density</span>
-            <span class="density">
-              <p v-for="(data, idxData) in delegate.data" :key="idxData">
-                {{ data.density.toFixed(2) }}%
-                <small>within last {{ data.timeExamined }}</small>
-              </p>
-            </span>
-            <span class="time">
-              <p v-for="(data, idxData) in delegate.data" :key="idxData">
-                <small>({{ data.timeExamined }})</small>
-              </p>
-            </span>
-          </router-link>
+        <li v-for="(witness, idx) in witnesses" :key="idx">
+          <span class="mobileLabel">#</span>
+          <span class="delegateID">{{ idx }}</span>
+          <span class="mobileLabel">Address</span>
+          <span class="producer address">
+            <router-link :to="{ path: '/search/' + witness.Id }">
+              {{ witness.Id }}
+            </router-link>
+          </span>
+          <span class="mobileLabel">Stake</span>
+          <span class="stake">{{ witness.Stake }}</span>
+          <span class="mobileLabel">Voted</span>
+          <span class="voted">
+            {{ isCurrentlyVoted(witness.Id) ? '✔' : '' }}
+          </span>
+          <span class="mobileLabel">Vote</span>
+          <span class="vote">
+            <button v-if="isMyVotesLoaded" @click="toggleVote(witness.Id)">
+              {{ isVoted(witness.Id) ? 'Unvote' : 'Vote' }}
+            </button>
+          </span>
         </li>
       </ul>
     </div>
     <div v-if="!isLoaded">Loading...</div>
+    <div v-if="isLoaded" class="actions_area">
+      Witnesses: {{ witnesses.length }}. You already voted
+      {{ currentlyVoted.length }}.
+
+      <span v-if="hasChangedVotes">
+        You have changes to submit.
+        <button v-if="hasChangedVotes" @click="submitVotes()">
+          Submit new votes
+        </button>
+      </span>
+    </div>
   </div>
 </template>
 
 <script>
+import Web3 from 'web3'
+import Web3Ebakus from 'web3-ebakus'
+import ebakusWallet from 'ebakus-web-wallet-loader'
+
 import { RouteNames } from '@/router'
-import { weiToEbk } from '../utils'
+import { weiToEbk } from '@/utils'
+
+const web3 = Web3Ebakus(new Web3(process.env.WEB3JS_NODE_ENDPOINT))
+
+const SystemContractAddress = '0x0000000000000000000000000000000000000101'
+const SystemContractVoteABI = [
+  {
+    type: 'function',
+    name: 'vote',
+    inputs: [
+      {
+        name: 'addresses',
+        type: 'address[]',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+]
+
+const systemContract = new web3.eth.Contract(
+  SystemContractVoteABI,
+  SystemContractAddress
+)
 
 export default {
   data() {
     return {
-      stats: [],
+      witnesses: [],
+      currentlyVoted: [],
+      newVoting: [],
+      myAddress: null,
       showTitle: false,
       isLoaded: false,
+      isMyVotesLoaded: false,
     }
   },
   computed: {
     RouteNames: () => RouteNames,
-
-    delegates_: function() {
-      return this.stats.delegates.map(delegate => {
-        const data = delegate.map(period => {
-          let label = 'minutes'
-          let time = period.seconds_examined / 60
-          if (time >= 60) {
-            label = 'hour'
-            time = 60 / 60
-          }
-
-          return {
-            timeExamined: `${time} ${label}`,
-            totalBlocks: period.total_blocks,
-            missedBlocks: period.missed_blocks,
-            density: period.density * 100,
-          }
-        })
-
-        const delegateInfo = delegate[delegate.length - 1]
-
-        return {
-          address: delegateInfo.address,
-          // get stake from any period, it's the same
-          stake: delegateInfo.stake,
-          data,
-        }
-      })
+    hasChangedVotes: function() {
+      return !this.currentlyVoted.every(address =>
+        this.newVoting.includes(address)
+      )
     },
   },
   watch: {
-    $route(to, from) {
-      if (to.name !== from.name && to.name === RouteNames.STATISTICS)
-        this.getStatistics()
-    },
-    stats: function() {
+    witnesses: function() {
       this.isLoaded = true
       this.showTitle = true
     },
   },
   created: function() {
-    this.getStatistics()
+    const self = this
+
+    if (ebakusWallet.isWalletFrameLoaded()) {
+      this.loadMyAddressFromWallet()
+    } else {
+      window.addEventListener('ebakusLoaded', function() {
+        self.loadMyAddressFromWallet()
+      })
+    }
+
+    this.loadWitnesses()
   },
   methods: {
     weiToEbk: weiToEbk,
-    getStatistics: function() {
-      this.$http.get(process.env.API_ENDPOINT + '/stats').then(
-        function(response) {
-          this.stats = response.data
-          // this.hasLoaded = true
-        },
-        err => {
-          console.log(err)
-          // this.hasLoaded = true
-        }
+
+    loadMyAddressFromWallet: async function() {
+      try {
+        const address = await ebakusWallet.getDefaultAddress()
+        this.myAddress = address
+
+        this.loadCurrentlyVoted()
+      } catch (err) {
+        console.log('Failed to retrieve user address from wallet', err)
+      }
+    },
+
+    loadWitnesses: async function() {
+      const iter = await web3.db.select(
+        SystemContractAddress,
+        'Witnesses',
+        'Flags == 1',
+        'Stake DESC',
+        'latest'
       )
+
+      let witness = null
+
+      do {
+        witness = await web3.db.next(iter)
+        if (witness != null) {
+          this.witnesses.push(witness)
+        }
+      } while (witness != null)
+
+      this.isLoaded = true
+      this.showTitle = true
+    },
+
+    loadCurrentlyVoted: async function() {
+      const iter = await web3.db.select(
+        SystemContractAddress,
+        'Delegations',
+        'Id LIKE ' + this.myAddress,
+        '',
+        'latest'
+      )
+
+      let delegation = null
+
+      do {
+        delegation = await web3.db.next(iter)
+        console.log('TCL: votes', delegation)
+        if (delegation != null) {
+          const to = web3.utils.bytesToHex(delegation.Id.slice(20))
+          this.currentlyVoted.push(to)
+          this.newVoting.push(to)
+        }
+      } while (delegation != null)
+
+      this.isMyVotesLoaded = true
+    },
+
+    isVoted: function(address) {
+      return this.newVoting.includes(address)
+    },
+    isCurrentlyVoted: function(address) {
+      return this.currentlyVoted.includes(address)
+    },
+    toggleVote: function(address) {
+      if (this.newVoting.includes(address)) {
+        this.newVoting = this.newVoting.filter(i => i !== address)
+      } else {
+        this.newVoting.push(address)
+      }
+    },
+    submitVotes: async function() {
+      try {
+        const res = await ebakusWallet.sendTransaction({
+          to: SystemContractAddress,
+          data: systemContract.methods.vote(this.newVoting).encodeABI(),
+        })
+        console.log('TCL: res', res)
+      } catch (err) {
+        console.log('TCL: err', err)
+      }
     },
   },
 }
@@ -141,17 +223,30 @@ export default {
   margin: 0 auto;
 }
 
+.actions_area {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px;
+  border-top: 1px solid #c6c6c6;
+}
+
+#tabbar .scroll.inner {
+  height: calc(100% - 150px - 70px) !important;
+}
+
 li a {
   display: block;
   padding: 22px 1%;
   border-radius: 10px;
   transition: 0.1s all ease-in-out;
   text-decoration: none;
-  color: #112f42;
+  color: #31baf3;
   opacity: 0.85;
 }
 li a:visited {
-  color: #112f42;
+  color: #31baf3;
 }
 li a:hover {
   box-shadow: 0 2px 33px 0 rgba(17, 47, 66, 0.1);
@@ -173,7 +268,7 @@ span.delegateID {
   font-weight: 600;
 }
 span.producer {
-  width: 42%;
+  width: 50%;
   margin: 0;
   text-overflow: ellipsis;
   overflow: hidden;

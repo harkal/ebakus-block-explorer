@@ -31,6 +31,7 @@ const router = new Router({
       path: '/search/:query?',
       name: RouteNames.SEARCH,
       component: App,
+      alias: ['/block/:query', '/transaction/:query', '/address/:query'],
     },
     {
       path: '/blocks',
