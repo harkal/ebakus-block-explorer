@@ -96,6 +96,17 @@ export default {
         } else {
           this.$router.go(-1)
           mutations.setContentActive(false)
+
+          setTimeout(() => {
+            if (this.isTabbarNavigation) {
+              this.$router.replace(
+                {
+                  name: RouteNames.HOME,
+                },
+                () => {}
+              )
+            }
+          }, 0)
         }
       } else {
         this.$router.push(
