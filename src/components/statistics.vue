@@ -1,17 +1,27 @@
 <template>
   <div id="statistics_wrapper">
+    <small>
+      There are
+      <strong>{{ witnesses.length >= 21 ? 21 : witnesses.length }}</strong>
+      block producers elected from
+      <strong>{{ witnesses.length }}</strong> witnesses.
+    </small>
+
     <ul class="tabResults labels">
       <li v-if="showTitle" id="list_title">
         <span class="delegateID">#</span>
         <span class="producer">Address</span>
         <span class="stake">Stake</span>
-        <span class="voted">Voted</span>
         <span class="vote"></span>
       </li>
     </ul>
     <div v-if="isLoaded" class="scroll inner">
       <ul class="tabResults main">
-        <li v-for="(witness, idx) in witnesses" :key="idx">
+        <li
+          v-for="(witness, idx) in witnesses"
+          :key="idx"
+          :class="{ changed: isChanged(witness.Id) }"
+        >
           <span class="mobileLabel">#</span>
           <span class="delegateID">{{ idx }}</span>
           <span class="mobileLabel">Address</span>
@@ -22,10 +32,6 @@
           </span>
           <span class="mobileLabel">Stake</span>
           <span class="stake">{{ witness.Stake }}</span>
-          <span class="mobileLabel">Voted</span>
-          <span class="voted">
-            {{ isCurrentlyVoted(witness.Id) ? '✔' : '' }}
-          </span>
           <span class="mobileLabel">Vote</span>
           <span class="vote">
             <button v-if="isMyVotesLoaded" @click="toggleVote(witness.Id)">
@@ -37,15 +43,16 @@
     </div>
     <div v-if="!isLoaded">Loading...</div>
     <div v-if="isLoaded" class="actions_area">
-      Witnesses: {{ witnesses.length }}. You already voted
-      {{ currentlyVoted.length }}.
-
-      <span v-if="hasChangedVotes">
-        You have changes to submit.
-        <button v-if="hasChangedVotes" @click="submitVotes()">
-          Submit new votes
-        </button>
+      <span>
+        You have used {{ newVoting.length }} out of {{ MaxVotes }} votes.
       </span>
+      <span v-if="hasReachedMaxVotes" class="danger">
+        &nbsp;Maximum number of voted reached.
+      </span>
+
+      <button v-if="hasChangedVotes" @click="submitVotes()">
+        Submit changes
+      </button>
     </div>
   </div>
 </template>
@@ -58,10 +65,25 @@ import ebakusWallet from 'ebakus-web-wallet-loader'
 import { RouteNames } from '@/router'
 import { weiToEbk } from '@/utils'
 
+const MAX_VOTES = 20
+
 const web3 = Web3Ebakus(new Web3(process.env.WEB3JS_NODE_ENDPOINT))
 
 const SystemContractAddress = '0x0000000000000000000000000000000000000101'
 const SystemContractVoteABI = [
+  {
+    type: 'function',
+    name: 'getStaked',
+    inputs: [],
+    outputs: [
+      {
+        type: 'uint64',
+      },
+    ],
+    constant: true,
+    payable: false,
+    stateMutability: 'view',
+  },
   {
     type: 'function',
     name: 'vote',
@@ -71,6 +93,13 @@ const SystemContractVoteABI = [
         type: 'address[]',
       },
     ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'unvote',
+    inputs: [],
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -95,10 +124,17 @@ export default {
   },
   computed: {
     RouteNames: () => RouteNames,
+    MaxVotes: () => MAX_VOTES,
     hasChangedVotes: function() {
-      return !this.currentlyVoted.every(address =>
-        this.newVoting.includes(address)
+      return (
+        !this.newVoting.every(address =>
+          this.currentlyVoted.includes(address)
+        ) ||
+        !this.currentlyVoted.every(address => this.newVoting.includes(address))
       )
+    },
+    hasReachedMaxVotes: function() {
+      return this.newVoting.length >= MAX_VOTES
     },
   },
   watch: {
@@ -110,13 +146,11 @@ export default {
   created: function() {
     const self = this
 
-    if (ebakusWallet.isWalletFrameLoaded()) {
-      this.loadMyAddressFromWallet()
-    } else {
-      window.addEventListener('ebakusLoaded', function() {
-        self.loadMyAddressFromWallet()
-      })
-    }
+    window.addEventListener('ebakusLoaded', function() {
+      self.loadMyAddressFromWallet()
+    })
+
+    ebakusWallet.init('https://wallet.ebakus.test')
 
     this.loadWitnesses()
   },
@@ -135,6 +169,7 @@ export default {
     },
 
     loadWitnesses: async function() {
+      this.witnesses = []
       const iter = await web3.db.select(
         SystemContractAddress,
         'Witnesses',
@@ -157,6 +192,9 @@ export default {
     },
 
     loadCurrentlyVoted: async function() {
+      this.currentlyVoted = []
+      this.newVoting = []
+
       const iter = await web3.db.select(
         SystemContractAddress,
         'Delegations',
@@ -169,7 +207,6 @@ export default {
 
       do {
         delegation = await web3.db.next(iter)
-        console.log('TCL: votes', delegation)
         if (delegation != null) {
           const to = web3.utils.bytesToHex(delegation.Id.slice(20))
           this.currentlyVoted.push(to)
@@ -186,22 +223,51 @@ export default {
     isCurrentlyVoted: function(address) {
       return this.currentlyVoted.includes(address)
     },
+    isChanged: function(address) {
+      return (
+        this.currentlyVoted.includes(address) !==
+        this.newVoting.includes(address)
+      )
+    },
     toggleVote: function(address) {
       if (this.newVoting.includes(address)) {
         this.newVoting = this.newVoting.filter(i => i !== address)
       } else {
+        if (this.hasReachedMaxVotes) {
+          return
+        }
+
         this.newVoting.push(address)
       }
     },
     submitVotes: async function() {
       try {
-        const res = await ebakusWallet.sendTransaction({
+        const vote = systemContract.methods.vote(this.newVoting)
+
+        const tx = {
           to: SystemContractAddress,
-          data: systemContract.methods.vote(this.newVoting).encodeABI(),
-        })
-        console.log('TCL: res', res)
+          // gas: estimatedGas,
+          data: vote.encodeABI(),
+        }
+
+        try {
+          const estimatedGas = await vote.estimateGas({
+            from: this.myAddress,
+            gas: 300000,
+          })
+          tx.gas = estimatedGas
+        } catch (err) {
+          console.log(
+            "Voting gas estimation failed, though it can be because we have no stake yet, so let's continue to wallet"
+          )
+        }
+        const res = await ebakusWallet.sendTransaction(tx)
+        if (res && res.status) {
+          this.loadWitnesses()
+          this.loadCurrentlyVoted()
+        }
       } catch (err) {
-        console.log('TCL: err', err)
+        console.error('Voting failed', err)
       }
     },
   },
@@ -230,10 +296,32 @@ export default {
   right: 0;
   padding: 24px;
   border-top: 1px solid #c6c6c6;
+  background-color: #fff;
+}
+
+.actions_area span {
+  float: left;
+}
+
+.actions_area button {
+  float: right;
+  display: block;
+  padding: 12px 18px;
+  margin: -10px 0;
+  border-radius: 10px;
+  color: white;
+  background: #fe4184;
+  font-size: 16px;
+  font-weight: 600;
+  transition: 0.5s all ease;
+  transform: scale(1);
+  border: 0;
+  cursor: pointer;
+  outline: none;
 }
 
 #tabbar .scroll.inner {
-  height: calc(100% - 150px - 70px) !important;
+  height: calc(100% - 150px - 110px) !important;
 }
 
 li a {
@@ -258,6 +346,17 @@ li span {
   margin: 0 1%;
   text-align: center;
   vertical-align: middle;
+}
+li button {
+  min-width: 70px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: #f8f8f8;
+  font-size: 12px;
+  outline: none;
+}
+li.changed {
+  background-color: #e6ffeb;
 }
 .delegateID {
   width: 6%;
@@ -304,6 +403,11 @@ span.producer {
   color: #f44336;
 }
 @media (max-width: 560px) {
+  #tabbar .scroll.inner {
+    height: calc(100% - 57px - 93px) !important;
+    overflow-x: hidden !important;
+  }
+
   li {
     width: 100vw;
     overflow: hidden;
