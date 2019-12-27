@@ -10,7 +10,15 @@
     <ul class="tabResults labels">
       <li v-if="showTitle" id="list_title">
         <span class="delegateID">#</span>
-        <span class="producer">Address</span>
+        <span class="producer">
+          <input
+            ref="filterField"
+            v-model="filterAddressQuery"
+            type="text"
+            placeholder="Address"
+            @keyup="filterByAddress()"
+          />
+        </span>
         <span class="stake">Stake</span>
         <span class="vote"></span>
       </li>
@@ -18,7 +26,7 @@
     <div v-if="isLoaded" class="scroll inner">
       <ul class="tabResults main">
         <li
-          v-for="(witness, idx) in witnesses"
+          v-for="(witness, idx) in displayedWitnesses"
           :key="idx"
           :class="{ changed: isChanged(witness.Id) }"
         >
@@ -38,6 +46,9 @@
               {{ isVoted(witness.Id) ? 'Unvote' : 'Vote' }}
             </button>
           </span>
+        </li>
+        <li v-if="displayedWitnesses.length === 0">
+          No witness found!
         </li>
       </ul>
     </div>
@@ -114,8 +125,10 @@ export default {
   data() {
     return {
       witnesses: [],
+      displayedWitnesses: [],
       currentlyVoted: [],
       newVoting: [],
+      filterAddressQuery: '',
       myAddress: null,
       showTitle: false,
       isLoaded: false,
@@ -187,6 +200,7 @@ export default {
         }
       } while (witness != null)
 
+      this.displayedWitnesses = this.witnesses
       this.isLoaded = true
       this.showTitle = true
     },
@@ -269,6 +283,18 @@ export default {
       } catch (err) {
         console.error('Voting failed', err)
       }
+    },
+    filterByAddress: function() {
+      const filterAddressQuery = this.filterAddressQuery
+
+      if (filterAddressQuery == '') {
+        this.displayedWitnesses = this.witnesses
+        return
+      }
+
+      this.displayedWitnesses = this.witnesses.filter(w =>
+        w.Id.startsWith(filterAddressQuery)
+      )
     },
   },
 }
@@ -371,6 +397,20 @@ span.producer {
   margin: 0;
   text-overflow: ellipsis;
   overflow: hidden;
+}
+
+.labels span.producer {
+  text-align: left;
+}
+.labels span.producer input {
+  width: 100%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  box-sizing: border-box;
+  font-size: 14px;
+  font-weight: 400;
+  color: #828383 !important;
+  opacity: 0.8;
 }
 .missedBlocks small,
 .density small {
