@@ -11,7 +11,7 @@
     </ul>
     <div class="scroll inner tx">
       <ul class="tabResults main">
-        <li v-for="tx in txs_" :key="tx.hash">
+        <li v-for="(tx, idx) in txs_" :key="tx.hash + ':' + idx">
           <router-link
             :to="{ name: RouteNames.SEARCH, params: { query: tx.hash } }"
           >
