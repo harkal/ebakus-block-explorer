@@ -84,8 +84,18 @@ export default {
     blockHeight: () => store.blockHeight,
   },
   watch: {
-    searchQuery: function() {
-      this.checkQuery()
+    searchQuery: function(val, oldVal) {
+      if (val !== oldVal) {
+        if (val === '') {
+          this.isActive = false
+          this.isBlockActive = false
+          this.isTransactionActive = false
+          this.isAddressActive = false
+          this.searchInput = ''
+        } else {
+          this.checkQuery()
+        }
+      }
     },
     searchInput: function() {
       this.error = ''
