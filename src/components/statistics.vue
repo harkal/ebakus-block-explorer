@@ -353,7 +353,6 @@ export default {
 li a {
   display: block;
   padding: 22px 1%;
-  border-radius: 10px;
   transition: 0.1s all ease-in-out;
   text-decoration: none;
   color: #31baf3;
@@ -449,8 +448,12 @@ span.producer {
   }
 
   li {
+    position: relative;
     width: 100vw;
     overflow: hidden;
+    padding-top: 10px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
   }
   li span {
     display: block;
@@ -459,6 +462,10 @@ span.producer {
   }
   li span:first-child {
     margin: 0px;
+  }
+  li a {
+    display: initial;
+    padding: 0;
   }
   span.producer {
     width: calc(100% - 80px);
@@ -477,7 +484,7 @@ span.producer {
     font-weight: 600;
   }
   .mobileLabel {
-    display: inline-block;
+    display: block;
     width: 70px;
     font-size: 13px;
     margin-bottom: 10px !important;
@@ -487,6 +494,9 @@ span.producer {
     background: #fff;
     font-weight: 400;
   }
+  li.changed .mobileLabel {
+    background-color: #e6ffeb;
+  }
   .missedBlocks small,
   .density small {
     display: inline-block;
@@ -494,6 +504,25 @@ span.producer {
   }
   .time {
     display: none;
+  }
+  li button {
+    min-width: 70px;
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+  .actions_area {
+    padding: 8px;
+    text-align: center;
+  }
+  .actions_area span {
+    float: none;
+    font-size: 14px;
+  }
+  .actions_area button {
+    float: none;
+    margin: 6px auto 0;
+    padding: 8px 14px;
+    font-size: 14px;
   }
 }
 </style>
