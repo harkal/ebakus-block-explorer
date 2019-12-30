@@ -31,7 +31,7 @@
           :class="{ changed: isChanged(witness.Id) }"
         >
           <span class="mobileLabel">#</span>
-          <span class="delegateID">{{ idx }}</span>
+          <span class="delegateID">{{ idx + 1 }}</span>
           <span class="mobileLabel">Address</span>
           <span class="producer address">
             <router-link :to="{ path: '/search/' + witness.Id }">
@@ -57,8 +57,13 @@
       <span>
         You have used {{ newVoting.length }} out of {{ MaxVotes }} votes.
       </span>
-      <span v-if="hasReachedMaxVotes" class="danger">
-        &nbsp;Maximum number of voted reached.
+
+      <span v-if="hasReachedMaxVotes && error === ''" class="danger">
+        Maximum number of votes reached.
+      </span>
+
+      <span v-if="error !== ''" class="danger">
+        {{ error }}
       </span>
 
       <button v-if="hasChangedVotes" @click="submitVotes()">
@@ -133,6 +138,7 @@ export default {
       showTitle: false,
       isLoaded: false,
       isMyVotesLoaded: false,
+      error: '',
     }
   },
   computed: {
@@ -148,12 +154,6 @@ export default {
     },
     hasReachedMaxVotes: function() {
       return this.newVoting.length >= MAX_VOTES
-    },
-  },
-  watch: {
-    witnesses: function() {
-      this.isLoaded = true
-      this.showTitle = true
     },
   },
   created: function() {
@@ -264,17 +264,14 @@ export default {
           data: vote.encodeABI(),
         }
 
-        try {
+        const staked = await ebakusWallet.getStaked()
+        if (staked > 0) {
           const estimatedGas = await vote.estimateGas({
             from: this.myAddress,
-            gas: 300000,
           })
-          tx.gas = estimatedGas
-        } catch (err) {
-          console.log(
-            "Voting gas estimation failed, though it can be because we have no stake yet, so let's continue to wallet"
-          )
+          tx.gas = estimatedGas + 5000
         }
+
         const res = await ebakusWallet.sendTransaction(tx)
         if (res && res.status) {
           this.loadWitnesses()
@@ -282,6 +279,7 @@ export default {
         }
       } catch (err) {
         console.error('Voting failed', err)
+        this.error = 'Something went wrong. Please try again.'
       }
     },
     filterByAddress: function() {
@@ -327,6 +325,9 @@ export default {
 
 .actions_area span {
   float: left;
+}
+.actions_area .danger {
+  margin-left: 4px;
 }
 
 .actions_area button {
