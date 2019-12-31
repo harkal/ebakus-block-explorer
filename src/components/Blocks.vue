@@ -60,12 +60,6 @@ export default {
     blocks: function() {
       if (this.blocks.length > 0) {
         this.showTitle = true
-        // var i = 0
-        // console.log(this.timeConverter(this.blocks[0].timestamp))
-        // for (i = 0; i++; i < this.blocks.length) {
-        //   //this.blocks[i].timestamp = this.timeConverter(this.blocks[i].timestamp)
-        //   console.log(this.timeConverter(this.blocks[i].timestamp))
-        // }
       }
     },
   },
@@ -85,7 +79,7 @@ export default {
 
         mutations.setBlockHeight(this.blocks[0].number)
       } catch (err) {
-        console.log(err)
+        console.error('Failed to load latest blocks', err)
       }
     },
   },

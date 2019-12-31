@@ -144,13 +144,14 @@ export default {
           .then(
             function(response) {
               var new_txs = response.data
-              console.log(new_txs)
               self.txs.push.apply(self.txs, new_txs)
               self.offset += 20
             },
-            err => {
-              console.log(err)
-              // this.hasLoaded = true
+            function(err) {
+              console.error(
+                `Failed to load transactions for address "${this.address}":`,
+                err
+              )
             }
           )
 
@@ -166,12 +167,14 @@ export default {
           .then(
             function(response) {
               var new_txs = response.data
-              console.log(new_txs)
               self.txs.push.apply(self.txs, new_txs)
               self.offset += 20
             },
-            err => {
-              console.log(err)
+            function(err) {
+              console.error(
+                `Failed to load transactions for block "${this.blockHash}":`,
+                err
+              )
             }
           )
       } else {
@@ -190,7 +193,7 @@ export default {
               self.showingLatestTxs = newTxs.length > 0
             },
             err => {
-              console.log(err)
+              console.error('Failed to load latest transactions', err)
             }
           )
       }

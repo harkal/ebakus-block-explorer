@@ -177,7 +177,7 @@ export default {
 
         this.loadCurrentlyVoted()
       } catch (err) {
-        console.log('Failed to retrieve user address from wallet', err)
+        console.error('Failed to retrieve user address from wallet', err)
       }
     },
 

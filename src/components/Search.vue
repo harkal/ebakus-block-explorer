@@ -125,7 +125,6 @@ export default {
       }
     },
     searchWithQuery: function(e) {
-      console.log('searchWithQuery')
       var queryStr = this.searchInput.replace(/ /g, '')
       if (
         isNaN(queryStr) ||
@@ -150,7 +149,10 @@ export default {
             this.getTransaction(queryStr).then(
               function() {},
               err => {
-                console.log('err getTransaction: ', err)
+                console.error(
+                  `Failed to fetch transaction for "${queryStr}": `,
+                  err
+                )
                 this.isBlockActive = true
                 this.isTransactionActive = false
                 this.getBlock(queryStr)
@@ -165,7 +167,6 @@ export default {
             this.isBlockActive = false
             this.isTransactionActive = false
             this.isAddressActive = false
-            console.log('not valid search query')
             if (e == 'searchBtn') {
               this.searchQuery = ''
               this.$root.$data.sharedState.query = ''
@@ -220,19 +221,22 @@ export default {
                   this.txs = response.data
                 },
                 err => {
-                  console.log(err)
+                  console.error(
+                    `Failed to fetch transactions for block "${this.block.hash}": `,
+                    err
+                  )
                 }
               )
           }
         },
         err => {
-          console.log(err)
+          console.error(`Failed to fetch block "${blockID}": `, err)
         }
       )
     },
     getTransaction: function(txHash) {
       return new Promise((resolve, reject) => {
-        this.$http.get(process.env.API_ENDPOINT + '/block/-1?range=10').then(
+        this.$http.get(process.env.API_ENDPOINT + '/block/-1?range=1').then(
           function(response) {
             mutations.setBlockHeight(response.data[0].number)
             this.$http
@@ -261,27 +265,32 @@ export default {
                         )
                         resolve(response)
                       },
-                      err => {
-                        console.log('err txBlock: ', err)
+                      function(err) {
+                        console.error(
+                          `Failed to fetch block "${this.transaction.blockNumber}": `,
+                          err
+                        )
                         reject(err)
                       }
                     )
                 },
-                err => {
-                  console.log('err txByHash: ', err)
+                function(err) {
+                  console.error(
+                    `Failed to fetch transaction "${txHash}": `,
+                    err
+                  )
                   reject(err)
                 }
               )
           },
-          err => {
-            console.log('err blocks: ', err)
+          function(err) {
+            console.error('Failed to fetch latest block:', err)
             reject(err)
           }
         )
       })
     },
     getAddress: function(address) {
-      console.log('fetching address')
       this.txs = []
 
       this.$http.get(process.env.API_ENDPOINT + '/address/' + address).then(
@@ -294,14 +303,17 @@ export default {
               function(response) {
                 this.$set(this.address, 'stats', response.data)
               },
-              err => {
-                console.log('err addrStats: ', err)
+              function(err) {
+                console.error(
+                  `Failed to fetch stats for address "${address}": `,
+                  err
+                )
               }
             )
           }
         },
-        err => {
-          console.log(err)
+        function(err) {
+          console.error(`Failed to fetch address info for "${address}": `, err)
         }
       )
 
@@ -316,8 +328,11 @@ export default {
           function(response) {
             this.txs = response.data
           },
-          err => {
-            console.log(err)
+          function(err) {
+            console.error(
+              `Failed to fetch transactions for address "${address}": `,
+              err
+            )
           }
         )
     },
@@ -327,8 +342,8 @@ export default {
         function(response) {
           this.$set(this.transaction, 'abi', response.data)
         },
-        err => {
-          console.log(err)
+        function(err) {
+          console.error(`Failed to fetch ABI for "${contractAddress}": `, err)
         }
       )
     },
