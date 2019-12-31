@@ -471,8 +471,6 @@ p.error.hide {
     background-size: 15px;
     background-position: 15px 26px;
   }
-  button {
-  }
 }
 @media (max-width: 560px) {
   #topbar img {
