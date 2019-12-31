@@ -59,7 +59,7 @@ router.beforeEach((to, from, next) => {
     typeof to.params.query !== 'undefined' &&
     to.params.query != ''
   ) {
-    mutations.setQuery(to.params.query)
+    mutations.setQuery(String(to.params.query))
   } else {
     mutations.setQuery('')
   }
