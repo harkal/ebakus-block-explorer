@@ -137,6 +137,7 @@ export default {
       myAddress: null,
       showTitle: false,
       isLoaded: false,
+      isWitnessesLoading: false,
       isMyVotesLoaded: false,
       error: '',
     }
@@ -163,6 +164,11 @@ export default {
       self.loadMyAddressFromWallet()
     })
 
+    window.addEventListener('ebakusStaked', function({ detail: staked }) {
+      self.loadWitnesses()
+      self.loadCurrentlyVoted()
+    })
+
     ebakusWallet.init('https://wallet.ebakus.test')
 
     this.loadWitnesses()
@@ -182,6 +188,8 @@ export default {
     },
 
     loadWitnesses: async function() {
+      if (this.isWitnessesLoading) return
+      this.isWitnessesLoading = true
       this.witnesses = []
       const iter = await web3.db.select(
         SystemContractAddress,
@@ -200,6 +208,7 @@ export default {
         }
       } while (witness != null)
 
+      this.isWitnessesLoading = false
       this.displayedWitnesses = this.witnesses
       this.isLoaded = true
       this.showTitle = true
