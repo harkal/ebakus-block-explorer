@@ -326,7 +326,7 @@ export default {
         )
         .then(
           function(response) {
-            this.txs = response.data
+            this.$set(this, 'txs', response.data)
           },
           function(err) {
             console.error(

@@ -65,7 +65,6 @@
     <div class="panel">
       <h2>Transactions</h2>
       <Transactions
-        :txs="txs"
         :address="addressData.address"
         :max-offset="addressData.tx_count"
         :class="{ active: txs.length > 0 }"

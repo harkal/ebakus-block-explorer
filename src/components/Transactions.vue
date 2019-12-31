@@ -106,12 +106,13 @@ export default {
   },
   watch: {
     $route(to, from) {
-      this.txs = []
-      this.showTitle = false
-      this.showingLatestTxs = false
-      this.offset = 0
-
-      if (to.name !== from.name) this.loadTransactions()
+      if (to.name !== from.name) this.reloadFresh()
+    },
+    address(val, oldVal) {
+      if (val !== oldVal) this.reloadFresh()
+    },
+    blockHash(val, oldVal) {
+      if (val !== oldVal) this.reloadFresh()
     },
     txs: function() {
       if (this.txs.length > 0) {
@@ -126,6 +127,14 @@ export default {
     timeConverter: timeConverter,
     weiToEbk: weiToEbk,
 
+    reloadFresh() {
+      this.txs = []
+      this.showTitle = false
+      this.showingLatestTxs = false
+      this.offset = 0
+
+      this.loadTransactions()
+    },
     loadTransactions() {
       const self = this
       var offset_tmp = this.offset > 0 ? this.offset + 20 : 0
