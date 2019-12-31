@@ -70,7 +70,7 @@
           class="status"
           :class="{
             success: transactionData.status,
-            failed: !transactionData.status,
+            failed: transactionData.status === 0,
           }"
         >
           <li>

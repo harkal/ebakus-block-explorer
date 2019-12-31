@@ -107,7 +107,9 @@ export default {
   watch: {
     $route(to, from) {
       this.txs = []
+      this.showTitle = false
       this.showingLatestTxs = false
+      this.offset = 0
 
       if (to.name !== from.name) this.loadTransactions()
     },
@@ -126,7 +128,7 @@ export default {
 
     loadTransactions() {
       const self = this
-      var offset_tmp = this.offset + 20
+      var offset_tmp = this.offset > 0 ? this.offset + 20 : 0
 
       // get txs for address
       if (typeof this.address !== 'undefined' && this.address != '') {
