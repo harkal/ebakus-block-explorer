@@ -38,6 +38,7 @@
 </template>
 
 <script>
+import { mutations } from '@/store'
 import { RouteNames } from '@/router'
 import { timeConverter } from '@/utils'
 
@@ -81,6 +82,8 @@ export default {
         )
 
         this.blocks = res.data
+
+        mutations.setBlockHeight(this.blocks[0].number)
       } catch (err) {
         console.log(err)
       }

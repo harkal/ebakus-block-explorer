@@ -205,6 +205,10 @@ export default {
         function(response) {
           this.block = response.data
           if (this.block.number >= 0) {
+            if (store.blockHeight < this.block.number) {
+              mutations.setBlockHeight(this.block.number)
+            }
+
             this.$http
               .get(
                 process.env.API_ENDPOINT +

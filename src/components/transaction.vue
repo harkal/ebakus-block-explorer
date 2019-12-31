@@ -66,7 +66,13 @@
             </tr>
           </table>
         </div>
-        <ul class="status" :class="{ active: txstatus }">
+        <ul
+          class="status"
+          :class="{
+            success: transactionData.status,
+            failed: !transactionData.status,
+          }"
+        >
           <li>
             <h3>AMOUNT</h3>
           </li>
@@ -78,7 +84,7 @@
           </li>
           <li>
             <img
-              v-if="txstatus"
+              v-if="transactionData.status"
               class="ic_check"
               src="../assets/ic_check.png"
               alt
@@ -175,6 +181,14 @@
             <td class="headcol">Transaction index</td>
             <td class="long">{{ transactionData.transactionIndex }}</td>
           </tr>
+          <tr>
+            <td class="headcol">Status</td>
+            <td class="long">{{ transactionData.status }}</td>
+          </tr>
+          <tr v-if="confirmationsCount > 0">
+            <td class="headcol">Confirmations count</td>
+            <td class="long">{{ confirmationsCount }}</td>
+          </tr>
           <tr v-if="transactionData.abi">
             <td class="headcol">Input</td>
             <td class="long">
@@ -226,20 +240,12 @@ export default {
   },
   data() {
     return {
-      txstatus: false,
       confirmationsCount: 0,
     }
   },
   computed: {
     RouteNames: () => RouteNames,
     globalBlockHeight: () => store.blockHeight,
-    blockHeight: function() {
-      let blockNumber = this.transactionData.blockNumber
-      if (typeof blockNumber === 'number') {
-        blockNumber = blockNumber.toString()
-      }
-      return blockNumber
-    },
     isContractCreation: function() {
       return !isZeroHash(this.transactionData.contractAddress)
     },
@@ -272,9 +278,11 @@ export default {
   watch: {
     transactionData: function() {
       if (this.globalBlockHeight > this.transactionData.blockNumber) {
-        this.txstatus = true
-        this.confirmationsCount =
+        this.$set(
+          this,
+          'confirmationsCount',
           this.globalBlockHeight - this.transactionData.blockNumber
+        )
       }
     },
   },
@@ -400,8 +408,11 @@ li span {
   display: block;
   margin-top: 5px;
 }
-ul.status.active {
+ul.status.success {
   background: #e6faf4;
+}
+ul.status.failed {
+  background: #f7dbdb;
 }
 
 .absolute {
