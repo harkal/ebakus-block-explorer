@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
+    "serve-reverse-proxy": "DISABLE_HOST_CHECK=1 vue-cli-service serve --port 8088 --public https://explorer.ebakus.test",
     "start": "npm run serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
