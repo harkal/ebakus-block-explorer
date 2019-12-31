@@ -1,8 +1,24 @@
 {
-  "name": "explorer",
-  "version": "1.0.0",
-  "description": "A blockchain exlorer for ebakus",
-  "author": "Theodoros Theodoridis <ththeod@gmail.com>",
+  "name": "ebakus-block-explorer",
+  "version": "0.1.0",
+  "description": "A blockchain exlorer for the Ebakus blockchain.",
+  "homepage": "https://www.ebakus.com/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ebakus/ebakus-block-explorer.git"
+  },
+  "author": "Ebakus AG <hello@ebakus.com>",
+  "license": "MIT",
+  "keywords": [
+    "blockchain",
+    "ebakus",
+    "wallet",
+    "web3",
+    "explorer"
+  ],
+  "bugs": {
+    "url": "https://github.com/ebakus/ebakus-block-explorer/issues"
+  },
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
