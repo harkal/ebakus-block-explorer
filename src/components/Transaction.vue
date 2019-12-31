@@ -5,7 +5,7 @@
       <span v-if="isContractCreation">Contract Creation</span>
       <span v-else>Transaction</span>
     </h1>
-    <div class="panel">
+    <div v-if="transactionData.hash" class="panel">
       <div class="widget_wrapper">
         <div class="tablewrapper">
           <table>
@@ -95,7 +95,7 @@
       </div>
     </div>
 
-    <div class="panel">
+    <div v-if="transactionData.hash" class="panel">
       <h2>Details</h2>
       <div class="tablewrapper">
         <table>

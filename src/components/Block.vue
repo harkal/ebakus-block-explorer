@@ -36,7 +36,7 @@
         </div>
       </div>
     </div>
-    <div class="panel">
+    <div v-if="blockData.hash" class="panel">
       <h2>Details</h2>
       <div class="tablewrapper">
         <table>
@@ -117,7 +117,7 @@
         </table>
       </div>
     </div>
-    <div class="panel">
+    <div v-if="txs.length > 0" class="panel">
       <h2>Transactions</h2>
       <Transactions
         :class="{ active: true }"
