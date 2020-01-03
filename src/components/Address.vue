@@ -30,7 +30,7 @@
         </tr>
         <tr>
           <td>Stake</td>
-          <td>{{ statsData.stake }}</td>
+          <td>{{ statsData.stake / 10000 }}</td>
         </tr>
         <tr>
           <td colspan="2">

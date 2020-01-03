@@ -39,7 +39,7 @@
             </router-link>
           </span>
           <span class="mobileLabel">Stake</span>
-          <span class="stake">{{ witness.Stake }}</span>
+          <span class="stake">{{ witness.Stake / 10000 }}</span>
           <span class="mobileLabel">Vote</span>
           <span class="vote">
             <button v-if="isMyVotesLoaded" @click="toggleVote(witness.Id)">
