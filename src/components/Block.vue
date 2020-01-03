@@ -117,7 +117,7 @@
         </table>
       </div>
     </div>
-    <div v-if="txs.length > 0" class="panel">
+    <div v-if="blockData.hash && txs.length > 0" class="panel">
       <h2>Transactions</h2>
       <Transactions
         :class="{ active: true }"

@@ -27,11 +27,18 @@
     </div>
 
     <div class="container">
-      <Blocks :class="{ active: $route.name == RouteNames.BLOCKS }" />
+      <Blocks
+        key="tabbar-blocks"
+        :class="{ active: $route.name == RouteNames.BLOCKS }"
+      />
       <Transactions
+        key="tabbar-transactions"
         :class="{ active: $route.name == RouteNames.TRANSACTIONS }"
       />
-      <Statistics :class="{ active: $route.name == RouteNames.STATISTICS }" />
+      <Statistics
+        key="tabbar-stats"
+        :class="{ active: $route.name == RouteNames.STATISTICS }"
+      />
     </div>
   </div>
 </template>

@@ -62,7 +62,7 @@
         </tr>
       </table>
     </div>
-    <div class="panel">
+    <div v-if="addressData.address" class="panel">
       <h2>Transactions</h2>
       <Transactions
         :address="addressData.address"

@@ -30,13 +30,20 @@
     </div>
     <p class="error">{{ error }}</p>
 
-    <Block :class="{ active: isBlockActive }" :block-data="block" :txs="txs" />
+    <Block
+      v-if="block"
+      :class="{ active: isBlockActive }"
+      :block-data="block"
+      :txs="txs"
+    />
     <Address
+      v-if="address"
       :class="{ active: isAddressActive }"
       :address-data="address"
       :txs="txs"
     />
     <Transaction
+      v-if="transaction"
       :class="{ active: isTransactionActive }"
       :transaction-data="transaction"
     />
