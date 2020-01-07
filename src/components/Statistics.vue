@@ -77,13 +77,15 @@
 import Web3 from 'web3'
 import Web3Ebakus from 'web3-ebakus'
 import ebakusWallet from 'ebakus-web-wallet-loader'
+import { debounce } from 'lodash'
+import { backOff } from 'exponential-backoff'
 
 import { RouteNames } from '@/router'
 import { weiToEbk } from '@/utils'
 
+const BACKOFF_SETTINGS = { maxDelay: 30 * 1000, numOfAttempts: 100 }
 const MAX_VOTES = 20
-
-const web3 = Web3Ebakus(new Web3(process.env.WEB3JS_NODE_ENDPOINT))
+const DEBOUNCE_DELAY = 1000
 
 const SystemContractAddress = '0x0000000000000000000000000000000000000101'
 const SystemContractVoteABI = [
@@ -121,11 +123,6 @@ const SystemContractVoteABI = [
   },
 ]
 
-const systemContract = new web3.eth.Contract(
-  SystemContractVoteABI,
-  SystemContractAddress
-)
-
 export default {
   data() {
     return {
@@ -136,6 +133,16 @@ export default {
       filterAddressQuery: '',
       myAddress: null,
       showTitle: false,
+
+      web3: null,
+      web3Endpoint: process.env.WEB3JS_NODE_ENDPOINT,
+      web3Connecting: false,
+      isWalletConnected: false,
+      contractInstance: null,
+
+      timerConnection: null,
+      isCheckingConnection: false,
+
       isLoaded: false,
       isWitnessesLoading: false,
       isMyVotesLoaded: false,
@@ -160,8 +167,15 @@ export default {
   created: function() {
     const self = this
 
-    window.addEventListener('ebakusLoaded', function() {
-      self.loadMyAddressFromWallet()
+    this.web3 = Web3Ebakus(new Web3(this.web3Endpoint))
+
+    window.addEventListener('ebakusLoaded', async function() {
+      await backOff(() => self.connect(), BACKOFF_SETTINGS)
+
+      if (self.timerConnection) {
+        clearInterval(self.timerConnection)
+      }
+      self.timerConnection = setInterval(self.checkNodeConnection, 5000)
     })
 
     window.addEventListener('ebakusStaked', function({ detail: staked }) {
@@ -169,14 +183,87 @@ export default {
       self.loadCurrentlyVoted()
     })
 
-    ebakusWallet.init('https://wallet.ebakus.test')
+    const opts = {}
+    if (process.env.WALLET_ENDPOINT) {
+      opts.walletEndpoint = process.env.WALLET_ENDPOINT
+    }
 
-    this.loadWitnesses()
+    ebakusWallet.init(opts)
+  },
+  destroyed: function() {
+    clearInterval(this.timerConnection)
   },
   methods: {
     weiToEbk: weiToEbk,
 
-    loadMyAddressFromWallet: async function() {
+    connect: debounce(async function() {
+      if (this.web3Connecting) {
+        return
+      }
+      this.web3Connecting = true
+      try {
+        const endpoint = await ebakusWallet.getCurrentProviderEndpoint()
+        if (this.web3 === null || endpoint !== this.web3Endpoint) {
+          this.web3Endpoint = endpoint
+
+          this.web3 = Web3Ebakus(new Web3(this.web3Endpoint))
+          this.error = null
+        }
+
+        await this.fetchAccount()
+        await this.getWeb3ContractInstance()
+
+        this.loadWitnesses()
+        this.loadCurrentlyVoted()
+
+        this.$set(this, 'isWalletConnected', true)
+
+        this.web3Connecting = false
+      } catch (err) {
+        console.error('Failed to retrieve provider endpoint from wallet', err)
+
+        this.web3Connecting = false
+
+        this.error = 'Failed to connect, retrying...'
+
+        this.$set(this, 'isWalletConnected', false)
+        this.$set(this, 'web3', null)
+        this.$set(this, 'contractInstance', null)
+      }
+    }, DEBOUNCE_DELAY),
+    checkNodeConnection: debounce(async function() {
+      const self = this
+
+      if (this.isCheckingConnection) {
+        return
+      }
+
+      this.isCheckingConnection = true
+
+      try {
+        if (this.web3) {
+          this.web3.eth.net
+            .getId()
+            .then(async function() {
+              if (!self.isWalletConnected) {
+                await backOff(() => self.connect(), BACKOFF_SETTINGS)
+              }
+            })
+            .catch(function() {
+              self.$set(self, 'isWalletConnected', false)
+              self.$set(self, 'web3', null)
+              self.$set(self, 'contractInstance', null)
+            })
+        } else {
+          await backOff(() => self.connect(), BACKOFF_SETTINGS)
+        }
+      } catch (err) {
+        console.error('Failed to connect to wallet', err)
+      }
+
+      this.isCheckingConnection = false
+    }, DEBOUNCE_DELAY),
+    fetchAccount: async function() {
       try {
         const address = await ebakusWallet.getDefaultAddress()
         this.myAddress = address
@@ -186,58 +273,91 @@ export default {
         console.error('Failed to retrieve user address from wallet', err)
       }
     },
+    getWeb3ContractInstance: async function() {
+      if (this.contractInstance !== null) {
+        return this.contractInstance
+      }
+
+      if (this.web3 === null) {
+        throw 'web3 is not set'
+      }
+
+      const systemContract = new this.web3.eth.Contract(
+        SystemContractVoteABI,
+        SystemContractAddress
+      )
+
+      this.$set(this, 'contractInstance', systemContract)
+
+      return systemContract
+    },
 
     loadWitnesses: async function() {
       if (this.isWitnessesLoading) return
-      this.isWitnessesLoading = true
-      this.witnesses = []
-      const iter = await web3.db.select(
-        SystemContractAddress,
-        'Witnesses',
-        'Flags == 1',
-        'Stake DESC',
-        'latest'
-      )
 
-      let witness = null
+      try {
+        this.isWitnessesLoading = true
+        this.witnesses = []
+        const iter = await this.web3.db.select(
+          SystemContractAddress,
+          'Witnesses',
+          'Flags == 1',
+          'Stake DESC',
+          'latest'
+        )
 
-      do {
-        witness = await web3.db.next(iter)
-        if (witness != null) {
-          this.witnesses.push(witness)
-        }
-      } while (witness != null)
+        let witness = null
+
+        do {
+          witness = await this.web3.db.next(iter)
+          if (witness != null) {
+            this.witnesses.push(witness)
+          }
+        } while (witness != null)
+
+        this.displayedWitnesses = this.witnesses
+        this.isLoaded = true
+        this.showTitle = true
+      } catch (err) {
+        console.error('Failed to fetch witnesses', err)
+
+        this.isLoaded = false
+        this.showTitle = false
+      }
 
       this.isWitnessesLoading = false
-      this.displayedWitnesses = this.witnesses
-      this.isLoaded = true
-      this.showTitle = true
     },
 
     loadCurrentlyVoted: async function() {
       this.currentlyVoted = []
       this.newVoting = []
 
-      const iter = await web3.db.select(
-        SystemContractAddress,
-        'Delegations',
-        'Id LIKE ' + this.myAddress,
-        '',
-        'latest'
-      )
+      try {
+        const iter = await this.web3.db.select(
+          SystemContractAddress,
+          'Delegations',
+          'Id LIKE ' + this.myAddress,
+          '',
+          'latest'
+        )
 
-      let delegation = null
+        let delegation = null
 
-      do {
-        delegation = await web3.db.next(iter)
-        if (delegation != null) {
-          const to = web3.utils.bytesToHex(delegation.Id.slice(20))
-          this.currentlyVoted.push(to)
-          this.newVoting.push(to)
-        }
-      } while (delegation != null)
+        do {
+          delegation = await this.web3.db.next(iter)
+          if (delegation != null) {
+            const to = this.web3.utils.bytesToHex(delegation.Id.slice(20))
+            this.currentlyVoted.push(to)
+            this.newVoting.push(to)
+          }
+        } while (delegation != null)
 
-      this.isMyVotesLoaded = true
+        this.isMyVotesLoaded = true
+      } catch (err) {
+        console.error('Failed to fetch witnesses', err)
+
+        this.isMyVotesLoaded = false
+      }
     },
 
     isVoted: function(address) {
@@ -265,7 +385,7 @@ export default {
     },
     submitVotes: async function() {
       try {
-        const vote = systemContract.methods.vote(this.newVoting)
+        const vote = this.contractInstance.methods.vote(this.newVoting)
 
         const tx = {
           to: SystemContractAddress,
