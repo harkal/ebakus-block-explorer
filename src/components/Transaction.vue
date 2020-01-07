@@ -1,11 +1,11 @@
 <template>
-  <div id="block_wrapper" :class="{ active: isTransactionActive }">
+  <div id="block_wrapper">
     <h1>
       <img src="../assets/ic_transactions.png" class="title_img" alt />
       <span v-if="isContractCreation">Contract Creation</span>
       <span v-else>Transaction</span>
     </h1>
-    <div class="panel">
+    <div v-if="transactionData.hash" class="panel">
       <div class="widget_wrapper">
         <div class="tablewrapper">
           <table>
@@ -17,7 +17,7 @@
                 <router-link
                   class="address lon"
                   :to="{
-                    name: 'searchTerm',
+                    name: RouteNames.SEARCH,
                     params: { query: transactionData.from },
                   }"
                   >{{ transactionData.from }}</router-link
@@ -42,7 +42,7 @@
                 <router-link
                   class="address lon"
                   :to="{
-                    name: 'searchTerm',
+                    name: RouteNames.SEARCH,
                     params: { query: transactionData.to },
                   }"
                   >{{ transactionData.to }}</router-link
@@ -57,7 +57,7 @@
                 <router-link
                   class="address lon"
                   :to="{
-                    name: 'searchTerm',
+                    name: RouteNames.SEARCH,
                     params: { query: transactionData.contractAddress },
                   }"
                   >{{ transactionData.contractAddress }}</router-link
@@ -66,7 +66,13 @@
             </tr>
           </table>
         </div>
-        <ul class="status" :class="{ active: txstatus }">
+        <ul
+          class="status"
+          :class="{
+            success: transactionData.status,
+            failed: transactionData.status === 0,
+          }"
+        >
           <li>
             <h3>AMOUNT</h3>
           </li>
@@ -78,7 +84,7 @@
           </li>
           <li>
             <img
-              v-if="txstatus"
+              v-if="transactionData.status"
               class="ic_check"
               src="../assets/ic_check.png"
               alt
@@ -89,7 +95,7 @@
       </div>
     </div>
 
-    <div class="panel">
+    <div v-if="transactionData.hash" class="panel">
       <h2>Details</h2>
       <div class="tablewrapper">
         <table>
@@ -99,7 +105,7 @@
               <router-link
                 class="transaction"
                 :to="{
-                  name: 'searchTerm',
+                  name: RouteNames.SEARCH,
                   params: { query: transactionData.hash },
                 }"
                 >{{ transactionData.hash }}</router-link
@@ -116,7 +122,7 @@
               <router-link
                 class="account"
                 :to="{
-                  name: 'searchTerm',
+                  name: RouteNames.SEARCH,
                   params: { query: transactionData.blockHash },
                 }"
                 >{{ transactionData.blockHash }}</router-link
@@ -130,7 +136,7 @@
                 <router-link
                   class="block"
                   :to="{
-                    name: 'searchTerm',
+                    name: RouteNames.SEARCH,
                     params: { query: transactionData.blockNumber },
                   }"
                   >{{ transactionData.blockNumber }}</router-link
@@ -144,7 +150,7 @@
               <router-link
                 class="account"
                 :to="{
-                  name: 'searchTerm',
+                  name: RouteNames.SEARCH,
                   params: { query: transactionData.producer },
                 }"
                 >{{ transactionData.producer }}</router-link
@@ -174,6 +180,14 @@
           <tr>
             <td class="headcol">Transaction index</td>
             <td class="long">{{ transactionData.transactionIndex }}</td>
+          </tr>
+          <tr>
+            <td class="headcol">Status</td>
+            <td class="long">{{ transactionData.status }}</td>
+          </tr>
+          <tr v-if="confirmationsCount > 0">
+            <td class="headcol">Confirmations count</td>
+            <td class="long">{{ confirmationsCount }}</td>
           </tr>
           <tr v-if="transactionData.abi">
             <td class="headcol">Input</td>
@@ -212,14 +226,13 @@
 </template>
 
 <script>
-import { timeConverter, weiToEbk, isZeroHash } from '../utils'
-import { decodeDataUsingAbi } from '../utils/abi'
+import { RouteNames } from '@/router'
+import { store } from '@/store'
+import { timeConverter, weiToEbk, isZeroHash } from '@/utils'
+import { decodeDataUsingAbi } from '@/utils/abi'
+
 export default {
   props: {
-    isTransactionActive: {
-      type: Boolean,
-      default: false,
-    },
     transactionData: {
       type: Object,
       default: () => ({}),
@@ -227,18 +240,12 @@ export default {
   },
   data() {
     return {
-      txstatus: false,
       confirmationsCount: 0,
     }
   },
   computed: {
-    blockHeight: function() {
-      let blockNumber = this.transactionData.blockNumber
-      if (typeof blockNumber === 'number') {
-        blockNumber = blockNumber.toString()
-      }
-      return blockNumber
-    },
+    RouteNames: () => RouteNames,
+    globalBlockHeight: () => store.blockHeight,
     isContractCreation: function() {
       return !isZeroHash(this.transactionData.contractAddress)
     },
@@ -270,14 +277,12 @@ export default {
   },
   watch: {
     transactionData: function() {
-      if (
-        this.$root.$data.sharedState.blockHeight >
-        this.transactionData.blockNumber
-      ) {
-        this.txstatus = true
-        this.confirmationsCount =
-          this.$root.$data.sharedState.blockHeight -
-          this.transactionData.blockNumber
+      if (this.globalBlockHeight > this.transactionData.blockNumber) {
+        this.$set(
+          this,
+          'confirmationsCount',
+          this.globalBlockHeight - this.transactionData.blockNumber
+        )
       }
     },
   },
@@ -403,8 +408,11 @@ li span {
   display: block;
   margin-top: 5px;
 }
-ul.status.active {
+ul.status.success {
   background: #e6faf4;
+}
+ul.status.failed {
+  background: #f7dbdb;
 }
 
 .absolute {

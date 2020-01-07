@@ -1,85 +1,26 @@
 <template>
-  <div>
-    <search :r-query-str="query" :tabbar-active="contentActive"></search>
-    <tabbar
-      :tabbar-active="contentActive"
-      :selected-by-route="selected"
-    ></tabbar>
+  <div id="app" class="container">
+    <Search :search-query="searchQuery" :tabbar-active="contentActive" />
+    <!-- <router-view></router-view> -->
+    <Tabbar :search-query="searchQuery" :tabbar-active="contentActive" />
   </div>
 </template>
 
 <script>
-import search from './components/search'
-import tabbar from './components/tabbar'
+import { RouteNames } from '@/router'
+import { store } from '@/store'
+
+import Search from '@/components/Search'
+import Tabbar from '@/components/Tabbar'
 
 export default {
-  name: 'App',
   components: {
-    search,
-    tabbar,
-  },
-  props: {
-    query: {
-      type: String,
-      default: '',
-    },
-    selected: {
-      type: String,
-      default: '',
-    },
-  },
-  data() {
-    return {
-      contentActive: false,
-    }
+    Search,
+    Tabbar,
   },
   computed: {
-    vueContentActive() {
-      return this.$root.$data.sharedState.contentActive
-    },
-  },
-  watch: {
-    vueContentActive: function() {
-      this.contentActive = this.vueContentActive
-    },
-    query: function() {
-      console.log('test')
-      if (this.query != '') this.$root.$data.sharedState.query = this.query
-    },
-  },
-  created: function() {
-    //console.log(this.vueSharedState.contentActive)
-    //document.addEventListener('backbutton', this.back(), false);
-    this.contentActive = this.$root.$data.sharedState.contentActive
-    if (this.query != '') this.$root.$data.sharedState.query = this.query
-  },
-  beforeDestroy() {
-    //document.removeEventListener("backbutton", this.back);
-  },
-  methods: {
-    back() {
-      console.log('back')
-      back = back ? back : this.$route.meta.back
-      back ? this.$router.replace(back) : this.$router.replace('/')
-    },
-  },
-
-  beforeRouteLeave: (to, from, next) => {
-    console.log(to)
-    console.log(from)
-    if (!to.meta.back) {
-      to.meta.back = from.fullpath
-    }
-    next()
-  },
-  beforeRouteEnter: (to, from, next) => {
-    console.log(to)
-    console.log(from)
-    if (!to.meta.back) {
-      to.meta.back = from.fullpath
-    }
-    next()
-    // ...
+    contentActive: () => store.contentActive,
+    searchQuery: () => store.searchQuery,
   },
 }
 </script>

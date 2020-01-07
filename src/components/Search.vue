@@ -1,18 +1,18 @@
 <template>
-  <div id="topbar" :class="{ inactive: isActive }">
+  <div id="topbar" :class="{ withTabbar: isActive }">
     <img
       src="../assets/blockExplorer_logo_2.png"
       alt
-      :class="{ inactive: isActive }"
+      :class="{ withTabbar: isActive }"
       @click="$router.push('/')"
     />
     <img
       id="logo"
       alt="New block produced"
       src="../assets/blockExplorer_logo.png"
-      :class="{ inactive: isActive }"
+      :class="{ withTabbar: isActive }"
     />
-    <div id="search_wrapper" :class="{ inactive: isActive }">
+    <div id="search_wrapper" :class="{ withTabbar: isActive }">
       <input
         ref="searchField"
         v-model="searchInput"
@@ -29,32 +29,46 @@
       </button>
     </div>
     <p class="error">{{ error }}</p>
-    <block :is-block-active="isBlockActive" :block-data="block" :txs="txs" />
-    <address_
-      :is-address-active="isAddressActive"
+
+    <Block
+      v-if="block"
+      :class="{ active: isBlockActive }"
+      :block-data="block"
+      :txs="txs"
+    />
+    <Address
+      v-if="address"
+      :class="{ active: isAddressActive }"
       :address-data="address"
       :txs="txs"
     />
-    <transaction
-      :is-transaction-active="isTransactionActive"
+    <Transaction
+      v-if="transaction"
+      :class="{ active: isTransactionActive }"
       :transaction-data="transaction"
     />
   </div>
 </template>
 
 <script>
-import block from './block'
+import { store, mutations } from '@/store'
+
+import Address from '@/components/Address'
+import Block from '@/components/Block'
+import Transaction from '@/components/Transaction'
 
 export default {
   components: {
-    block,
+    Address,
+    Block,
+    Transaction,
   },
   props: {
     tabbarActive: {
       type: Boolean,
       default: false,
     },
-    rQueryStr: {
+    searchQuery: {
       type: String,
       default: '',
     },
@@ -67,17 +81,28 @@ export default {
       isBlockActive: false,
       isTransactionActive: false,
       isAddressActive: false,
-      hasLoaded: false,
       block: {},
       transaction: {},
       address: {},
       txs: [],
     }
   },
-  computed: {},
+  computed: {
+    blockHeight: () => store.blockHeight,
+  },
   watch: {
-    rQueryStr: function() {
-      this.checkQuery()
+    searchQuery: function(val, oldVal) {
+      if (val !== oldVal) {
+        if (val === '') {
+          this.isActive = false
+          this.isBlockActive = false
+          this.isTransactionActive = false
+          this.isAddressActive = false
+          this.searchInput = ''
+        } else {
+          this.checkQuery()
+        }
+      }
     },
     searchInput: function() {
       this.error = ''
@@ -101,23 +126,21 @@ export default {
   },
   methods: {
     checkQuery: function() {
-      if (typeof this.rQueryStr != 'undefined') {
-        this.searchInput = this.rQueryStr
+      if (typeof this.searchQuery !== 'undefined' && this.searchQuery) {
+        this.searchInput = this.searchQuery
         this.searchWithQuery(null)
       }
     },
     searchWithQuery: function(e) {
-      console.log('search')
       var queryStr = this.searchInput.replace(/ /g, '')
       if (
         isNaN(queryStr) ||
         queryStr.substring(0, 2) == '0x' ||
         queryStr == ''
       ) {
-        console.log('search 1')
         switch (queryStr.length) {
           case 42:
-            console.log('this is address')
+            console.log('Search address', queryStr)
             this.isActive = true
             this.isBlockActive = false
             this.isTransactionActive = false
@@ -125,17 +148,23 @@ export default {
             this.getAddress(queryStr)
             break
           case 66:
-            console.log(' this is a txid')
+            console.log('Search TXid', queryStr)
             this.isActive = true
             this.isBlockActive = false
             this.isTransactionActive = true
             this.isAddressActive = false
-            this.getTransaction(queryStr).then(function() {}, err => {
-              console.log('err getTransaction: ', err)
-              this.isBlockActive = true
-              this.isTransactionActive = false
-              this.getBlock(queryStr)
-            })
+            this.getTransaction(queryStr).then(
+              function() {},
+              err => {
+                console.error(
+                  `Failed to fetch transaction for "${queryStr}": `,
+                  err
+                )
+                this.isBlockActive = true
+                this.isTransactionActive = false
+                this.getBlock(queryStr)
+              }
+            )
 
             break
           default:
@@ -145,15 +174,13 @@ export default {
             this.isBlockActive = false
             this.isTransactionActive = false
             this.isAddressActive = false
-            console.log(e)
             if (e == 'searchBtn') {
-              this.rQueryStr = ''
+              this.searchQuery = ''
               this.$root.$data.sharedState.query = ''
             }
         }
       } else {
-        console.log('search 2')
-        console.log('its probably a block')
+        console.log('Search block', queryStr)
         this.isBlockActive = true
         this.isTransactionActive = false
         this.isAddressActive = false
@@ -161,30 +188,35 @@ export default {
 
         this.getBlock(queryStr)
       }
-      console.log('search 3')
-      this.$root.$data.sharedState.contentActive = false
-      if (queryStr != '') {
-        this.$router.push({
-          path: '/search/' + queryStr,
-        })
-        console.log('search 4')
-      } else if (queryStr == '' && e == 'searchBtn') {
-        this.$router.push({
-          path: '/',
-        })
-        console.log('search 5')
-      }
 
-      console.log('search 6')
+      mutations.setContentActive(false)
+
+      if (queryStr != '') {
+        this.$router.push(
+          {
+            path: '/search/' + queryStr,
+          },
+          () => {}
+        )
+      } else if (queryStr == '' && e == 'searchBtn') {
+        this.$router.push(
+          {
+            path: '/',
+          },
+          () => {}
+        )
+      }
     },
     getBlock: function(blockID) {
-      this.hasLoaded = false
       this.txs = []
       this.$http.get(process.env.API_ENDPOINT + '/block/' + blockID).then(
         function(response) {
           this.block = response.data
-          this.hasLoaded = true
           if (this.block.number >= 0) {
+            if (store.blockHeight < this.block.number) {
+              mutations.setBlockHeight(this.block.number)
+            }
+
             this.$http
               .get(
                 process.env.API_ENDPOINT +
@@ -194,36 +226,31 @@ export default {
               .then(
                 function(response) {
                   this.txs = response.data
-                  this.hasLoaded = true
                 },
                 err => {
-                  console.log(err)
-                  this.hasLoaded = true
+                  console.error(
+                    `Failed to fetch transactions for block "${this.block.hash}": `,
+                    err
+                  )
                 }
               )
           }
         },
         err => {
-          console.log(err)
-          this.hasLoaded = true
+          console.error(`Failed to fetch block "${blockID}": `, err)
         }
       )
-      console.log(this.block)
     },
     getTransaction: function(txHash) {
-      this.hasLoaded = false
-
       return new Promise((resolve, reject) => {
-        this.$http.get(process.env.API_ENDPOINT + '/block/-1?range=10').then(
+        this.$http.get(process.env.API_ENDPOINT + '/block/-1?range=1').then(
           function(response) {
-            this.$root.$data.sharedState.blockHeight = response.data[0].number
-            this.hasLoaded = true
+            mutations.setBlockHeight(response.data[0].number)
             this.$http
               .get(process.env.API_ENDPOINT + '/transaction/' + txHash)
               .then(
                 function(response) {
                   this.transaction = response.data
-                  this.hasLoaded = true
 
                   if (!['', '0x', null].includes(this.transaction.input)) {
                     this.getABI(this.transaction.to)
@@ -243,58 +270,57 @@ export default {
                           'producer',
                           response.data.producer
                         )
-                        this.hasLoaded = true
                         resolve(response)
                       },
-                      err => {
-                        console.log('err txBlock: ', err)
-                        this.hasLoaded = true
+                      function(err) {
+                        console.error(
+                          `Failed to fetch block "${this.transaction.blockNumber}": `,
+                          err
+                        )
                         reject(err)
                       }
                     )
                 },
-                err => {
-                  console.log('err txByHash: ', err)
-                  this.hasLoaded = false
+                function(err) {
+                  console.error(
+                    `Failed to fetch transaction "${txHash}": `,
+                    err
+                  )
                   reject(err)
                 }
               )
           },
-          err => {
-            console.log('err blocks: ', err)
-            this.hasLoaded = false
+          function(err) {
+            console.error('Failed to fetch latest block:', err)
             reject(err)
           }
         )
       })
     },
     getAddress: function(address) {
-      console.log('fetching address')
       this.txs = []
 
-      this.hasLoaded = false
       this.$http.get(process.env.API_ENDPOINT + '/address/' + address).then(
         function(response) {
           this.address = response.data
-          this.hasLoaded = true
 
           if (this.address.block_rewards > 0) {
             // extra API call to retrieve block producer, later this will be returned by the API tx call itself
             this.$http.get(process.env.API_ENDPOINT + '/stats/' + address).then(
               function(response) {
                 this.$set(this.address, 'stats', response.data)
-                this.hasLoaded = true
               },
-              err => {
-                console.log('err addrStats: ', err)
-                this.hasLoaded = true
+              function(err) {
+                console.error(
+                  `Failed to fetch stats for address "${address}": `,
+                  err
+                )
               }
             )
           }
         },
-        err => {
-          console.log(err)
-          this.hasLoaded = true
+        function(err) {
+          console.error(`Failed to fetch address info for "${address}": `, err)
         }
       )
 
@@ -307,27 +333,24 @@ export default {
         )
         .then(
           function(response) {
-            this.txs = response.data
-            this.hasLoaded = true
+            this.$set(this, 'txs', response.data)
           },
-          err => {
-            console.log(err)
-            this.hasLoaded = true
+          function(err) {
+            console.error(
+              `Failed to fetch transactions for address "${address}": `,
+              err
+            )
           }
         )
-      console.log(this.address)
     },
     getABI: function(contractAddress) {
-      this.hasLoaded = false
       this.abi = null
       this.$http.get(process.env.API_ENDPOINT + '/abi/' + contractAddress).then(
         function(response) {
           this.$set(this.transaction, 'abi', response.data)
-          this.hasLoaded = true
         },
-        err => {
-          console.log(err)
-          this.hasLoaded = true
+        function(err) {
+          console.error(`Failed to fetch ABI for "${contractAddress}": `, err)
         }
       )
     },
@@ -404,8 +427,6 @@ button:focus {
   opacity: 1;
   transform: scale(1);
 }
-.inactive {
-}
 input:focus + button {
   opacity: 1;
   transform: scale(1);
@@ -437,17 +458,17 @@ p.error {
 p.error.hide {
   opacity: 0;
 }
-#topbar.inactive {
+#topbar.withTabbar {
   top: 10px;
   transform: translate(-50%, 0);
 }
-#topbar img.inactive {
+#topbar img.withTabbar {
   height: 40px;
 }
-#search_wrapper.inactive {
+#search_wrapper.withTabbar {
   padding-top: 60px;
 }
-#search_wrapper.inactive button {
+#search_wrapper.withTabbar button {
   top: 63px;
 }
 @media (max-width: 960px) {
@@ -472,14 +493,12 @@ p.error.hide {
     background-size: 15px;
     background-position: 15px 26px;
   }
-  button {
-  }
 }
 @media (max-width: 560px) {
   #topbar img {
     height: 30px;
   }
-  #topbar img.inactive {
+  #topbar img.withTabbar {
     top: 0px;
     height: 25px;
   }
@@ -495,17 +514,17 @@ p.error.hide {
     top: 48%;
   }
 
-  #topbar.inactive {
+  #topbar.withTabbar {
     top: 10px;
   }
 
   #search_wrapper {
     padding-top: 50px;
   }
-  #search_wrapper.inactive {
+  #search_wrapper.withTabbar {
     padding-top: 35px;
   }
-  #search_wrapper.inactive button#searchBtn {
+  #search_wrapper.withTabbar button#searchBtn {
     top: 35px;
   }
   input[type='text'] {

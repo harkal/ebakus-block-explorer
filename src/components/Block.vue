@@ -1,6 +1,6 @@
 <template>
-  <div id="block_wrapper" :class="{ active: isBlockActive }">
-    <h1><img src="../assets/ic_blocks.png" class="title_img" alt /> Block</h1>
+  <div id="block_wrapper">
+    <h1><img src="../assets/ic_blocks.png" class="title_img" alt />Block</h1>
     <div class="panel">
       <div class="widget_wrapper">
         <div class="widget">
@@ -8,13 +8,13 @@
           <h3>BLOCK #</h3>
           <router-link
             class="left"
-            :to="{ name: 'searchTerm', params: { query: previousBlock } }"
+            :to="{ name: RouteNames.SEARCH, params: { query: previousBlock } }"
           >
             <img src="../assets/ic_prev.png" alt />
           </router-link>
           <router-link
             class="right"
-            :to="{ name: 'searchTerm', params: { query: nextBlock } }"
+            :to="{ name: RouteNames.SEARCH, params: { query: nextBlock } }"
           >
             <img src="../assets/ic_next.png" alt />
           </router-link>
@@ -36,7 +36,7 @@
         </div>
       </div>
     </div>
-    <div class="panel">
+    <div v-if="blockData.hash" class="panel">
       <h2>Details</h2>
       <div class="tablewrapper">
         <table>
@@ -62,7 +62,7 @@
               <span class="account">
                 <router-link
                   :to="{
-                    name: 'searchTerm',
+                    name: RouteNames.SEARCH,
                     params: { query: blockData.producer },
                   }"
                   >{{ blockData.producer }}</router-link
@@ -104,7 +104,10 @@
                   class="account"
                 >
                   <router-link
-                    :to="{ name: 'searchTerm', params: { query: delegate } }"
+                    :to="{
+                      name: RouteNames.SEARCH,
+                      params: { query: delegate },
+                    }"
                     >{{ delegate }}</router-link
                   >
                 </li>
@@ -114,10 +117,10 @@
         </table>
       </div>
     </div>
-    <div class="panel">
+    <div v-if="blockData.hash && txs.length > 0" class="panel">
       <h2>Transactions</h2>
-      <transactions
-        :is-transactions="{ active: true }"
+      <Transactions
+        :class="{ active: true }"
         :max-offset="blockData.transactionCount"
         :block-hash="blockData.hash"
         :txs="txs"
@@ -127,19 +130,17 @@
 </template>
 
 <script>
-import transactions from './transactions'
-import util from 'ethereumjs-util'
-import { timeConverter } from '../utils'
+import Transactions from './Transactions'
+// import util from 'ethereumjs-util'
+
+import { RouteNames } from '@/router'
+import { timeConverter } from '@/utils'
 
 export default {
   components: {
-    transactions,
+    Transactions,
   },
   props: {
-    isBlockActive: {
-      type: Boolean,
-      default: false,
-    },
     blockData: {
       type: Object,
       default: () => ({}),
@@ -154,10 +155,11 @@ export default {
       previousBlock: 1,
       nextBlock: 0,
 
-      txcount: 0,
+      // txcount: 0,
     }
   },
   computed: {
+    RouteNames: () => RouteNames,
     gasUsed: function() {
       if (this.blockData.gasLimit > 0 && this.blockData.gasUsed > 0)
         return (
@@ -183,61 +185,13 @@ export default {
         this.previousBlock = (this.blockData.number - 1).toString()
       }
       this.nextBlock = (this.blockData.number + 1).toString()
-
-      if (process.env.NODE_ENV === 'development') {
-        var hash = this.blockData.hash
-        if (hash.indexOf('0x') === 0) {
-          hash = this.blockData.hash.slice(2)
-        }
-        var msg = Buffer.from(hash.toLowerCase(), 'hex')
-        var sig = Buffer.from(this.blockData.signature, 'base64')
-
-        var sig = this.fromRpcSig(sig)
-        // var sig = util.fromRpcSig(sig)
-        console.log('sig: ', sig)
-
-        // var prefix = new Buffer("\x19Ethereum Signed Message:\n");
-        // var prefixedMsg = util.sha3(
-        //   Buffer.concat([prefix, new Buffer(String(msg.length)), msg])
-        // );
-
-        var pubKey = util.ecrecover(msg, sig.v, sig.r, sig.s)
-        console.log('pubKey: ', pubKey)
-
-        var addrBuf = util.pubToAddress(pubKey)
-        var addr = util.bufferToHex(addrBuf)
-        console.log('addr: ', addr)
-      }
     },
-    txs: function() {
-      this.countTx()
-    },
+    // txs: function() {
+    //   this.txcount = this.txs.length
+    // },
   },
-  created: function() {},
   methods: {
     timeConverter: timeConverter,
-    countTx: function() {
-      this.txcount = this.txs.length
-    },
-    fromRpcSig: function(sig) {
-      //sig = util.toBuffer(sig)
-      console.log('fromRpcSig input: ', sig, 'length: ', sig.length)
-      if (sig.length !== 65) {
-        throw new Error('Invalid signature length')
-      }
-
-      let v = sig[64]
-      // support both versions of eth_sign responses
-      if (v < 27) {
-        v += 27
-      }
-
-      return {
-        v: v,
-        r: sig.slice(0, 32),
-        s: sig.slice(32, 64),
-      }
-    },
   },
 }
 </script>

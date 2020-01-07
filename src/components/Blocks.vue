@@ -1,5 +1,5 @@
 <template>
-  <div id="blocks_wrapper" :class="{ active: isBlocks.active }">
+  <div id="blocks_wrapper">
     <ul class="tabResults labels">
       <li v-if="showTitle" id="list_title">
         <span class="blockID">Block #</span>
@@ -12,7 +12,12 @@
     <div class="scroll inner">
       <ul class="tabResults main">
         <li v-for="block in blocks" :key="block.number">
-          <router-link :to="{ path: '/search/' + block.number }">
+          <router-link
+            :to="{
+              name: RouteNames.SEARCH,
+              params: { query: String(block.number) },
+            }"
+          >
             <span class="mobileLabel">Block #</span>
             <span class="blockID">{{ block.number }}</span>
             <span class="mobileLabel">Tx count</span>
@@ -33,40 +38,50 @@
 </template>
 
 <script>
-import { timeConverter } from '../utils'
+import { mutations } from '@/store'
+import { RouteNames } from '@/router'
+import { timeConverter } from '@/utils'
+
 export default {
-  props: {
-    isBlocks: {
-      type: Object,
-      default: () => ({}),
-    },
-    blocks: {
-      type: Array,
-      default: () => [],
-    },
-  },
   data() {
     return {
       showTitle: false,
+      blocks: [],
     }
   },
-  computed: {},
+  computed: {
+    RouteNames: () => RouteNames,
+  },
   watch: {
+    $route(to, from) {
+      if (to.name !== from.name && to.name === RouteNames.BLOCKS)
+        this.getLatestBlocks()
+    },
     blocks: function() {
       if (this.blocks.length > 0) {
         this.showTitle = true
-        var i = 0
-        console.log(this.timeConverter(this.blocks[0].timestamp))
-        for (i = 0; i++; i < this.blocks.length) {
-          //this.blocks[i].timestamp = this.timeConverter(this.blocks[i].timestamp)
-          console.log(this.timeConverter(this.blocks[i].timestamp))
-        }
       }
     },
   },
-  created: function() {},
+  created: function() {
+    this.getLatestBlocks()
+  },
+  // created: function() {},
   methods: {
     timeConverter: timeConverter,
+    getLatestBlocks: async function() {
+      try {
+        const res = await this.$http.get(
+          process.env.API_ENDPOINT + '/block/-1?range=10'
+        )
+
+        this.blocks = res.data
+
+        mutations.setBlockHeight(this.blocks[0].number)
+      } catch (err) {
+        console.error('Failed to load latest blocks', err)
+      }
+    },
   },
 }
 </script>

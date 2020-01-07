@@ -1,5 +1,5 @@
 <template>
-  <div id="transactions_wrapper" :class="{ active: isTransactions.active }">
+  <div id="transactions_wrapper">
     <ul class="tabResults labels">
       <li v-if="showTitle" id="list_title">
         <span class="txID">Tx hash</span>
@@ -11,8 +11,10 @@
     </ul>
     <div class="scroll inner tx">
       <ul class="tabResults main">
-        <li v-for="tx in txs_" :key="tx.hash">
-          <router-link :to="{ path: '/search/' + tx.hash }">
+        <li v-for="(tx, idx) in txs_" :key="tx.hash + ':' + idx">
+          <router-link
+            :to="{ name: RouteNames.SEARCH, params: { query: tx.hash } }"
+          >
             <span class="mobileLabel">Tx hash</span>
             <span class="txID transaction">{{ tx.hash }}</span>
             <span class="mobileLabel">From</span>
@@ -39,26 +41,22 @@
         </li>
       </ul>
 
-      <button v-if="txLeft > 0" @click="loadMoreTransactions()">
-        Show {{ txLeft }} More
+      <button
+        v-if="numberOfRemainingTxs > 0 || showingLatestTxs"
+        @click="loadTransactions()"
+      >
+        Show {{ numberOfRemainingTxs > 0 ? numberOfRemainingTxs : '' }} More
       </button>
     </div>
   </div>
 </template>
 
 <script>
+import { RouteNames } from '@/router'
 import { timeConverter, weiToEbk, isZeroHash } from '../utils'
 
 export default {
   props: {
-    isTransactions: {
-      type: Object,
-      default: () => ({}),
-    },
-    txs: {
-      type: Array,
-      default: () => [],
-    },
     address: {
       type: String,
       default: '',
@@ -67,18 +65,22 @@ export default {
       type: String,
       default: '',
     },
-    // eslint-disable-next-line  vue/require-default-prop
     maxOffset: {
       type: Number,
+      default: 0,
     },
   },
   data() {
     return {
+      txs: [],
       showTitle: false,
       offset: 0,
+      showingLatestTxs: false,
     }
   },
   computed: {
+    RouteNames: () => RouteNames,
+
     txs_: function() {
       var txs = this.txs
       if (typeof this.address !== 'undefined' && this.address != '') {
@@ -96,26 +98,48 @@ export default {
         return tx
       })
     },
-    txLeft() {
+    numberOfRemainingTxs() {
       var remaining = this.maxOffset - 20 - this.offset
       if (remaining > 0) return remaining
       return 0
     },
   },
   watch: {
+    $route(to, from) {
+      if (to.name !== from.name) this.reloadFresh()
+    },
+    address(val, oldVal) {
+      if (val !== oldVal) this.reloadFresh()
+    },
+    blockHash(val, oldVal) {
+      if (val !== oldVal) this.reloadFresh()
+    },
     txs: function() {
       if (this.txs.length > 0) {
         this.showTitle = true
       }
     },
   },
-  created: function() {},
+  created: function() {
+    this.loadTransactions()
+  },
   methods: {
     timeConverter: timeConverter,
     weiToEbk: weiToEbk,
-    loadMoreTransactions() {
-      var offset_tmp = this.offset + 20
-      var self = this
+
+    reloadFresh() {
+      this.txs = []
+      this.showTitle = false
+      this.showingLatestTxs = false
+      this.offset = 0
+
+      this.loadTransactions()
+    },
+    loadTransactions() {
+      const self = this
+      var offset_tmp = this.offset > 0 ? this.offset + 20 : 0
+
+      // get txs for address
       if (typeof this.address !== 'undefined' && this.address != '') {
         this.$http
           .get(
@@ -129,17 +153,22 @@ export default {
           .then(
             function(response) {
               var new_txs = response.data
-              console.log(new_txs)
               self.txs.push.apply(self.txs, new_txs)
               self.offset += 20
             },
-            err => {
-              console.log(err)
-              this.hasLoaded = true
+            function(err) {
+              console.error(
+                `Failed to load transactions for address "${this.address}":`,
+                err
+              )
             }
           )
-      }
-      if (typeof this.blockHash !== 'undefined' && this.blockHash != '') {
+
+        // get txs for block
+      } else if (
+        typeof this.blockHash !== 'undefined' &&
+        this.blockHash != ''
+      ) {
         this.$http
           .get(
             process.env.API_ENDPOINT + '/transaction/block/' + this.blockHash
@@ -147,12 +176,33 @@ export default {
           .then(
             function(response) {
               var new_txs = response.data
-              console.log(new_txs)
               self.txs.push.apply(self.txs, new_txs)
               self.offset += 20
             },
+            function(err) {
+              console.error(
+                `Failed to load transactions for block "${this.blockHash}":`,
+                err
+              )
+            }
+          )
+      } else {
+        this.$http
+          .get(
+            process.env.API_ENDPOINT +
+              '/transaction/latest?offset=' +
+              offset_tmp +
+              '&limit=10&order=desc'
+          )
+          .then(
+            function(response) {
+              var newTxs = response.data
+              self.txs.push.apply(self.txs, newTxs)
+              self.offset += 10
+              self.showingLatestTxs = newTxs.length > 0
+            },
             err => {
-              console.log(err)
+              console.error('Failed to load latest transactions', err)
             }
           )
       }
