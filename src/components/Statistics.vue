@@ -140,9 +140,6 @@ export default {
       isWalletConnected: false,
       contractInstance: null,
 
-      timerConnection: null,
-      isCheckingConnection: false,
-
       isLoaded: false,
       isWitnessesLoading: false,
       isMyVotesLoaded: false,
@@ -169,13 +166,21 @@ export default {
 
     this.web3 = Web3Ebakus(new Web3(this.web3Endpoint))
 
-    window.addEventListener('ebakusLoaded', async function() {
-      await backOff(() => self.connect(), BACKOFF_SETTINGS)
+    window.addEventListener('ebakusCurrentProviderEndpoint', function({
+      detail: endpoint,
+    }) {
+      self.resetWeb3Connection()
+      self.connect()
+    })
 
-      if (self.timerConnection) {
-        clearInterval(self.timerConnection)
+    window.addEventListener('ebakusConnectionStatus', function({
+      detail: status,
+    }) {
+      self.resetWeb3Connection()
+
+      if (status == 'connected') {
+        self.connect()
       }
-      self.timerConnection = setInterval(self.checkNodeConnection, 5000)
     })
 
     window.addEventListener('ebakusStaked', function({ detail: staked }) {
@@ -190,13 +195,16 @@ export default {
 
     ebakusWallet.init(opts)
   },
-  destroyed: function() {
-    clearInterval(this.timerConnection)
-  },
   methods: {
     weiToEbk: weiToEbk,
 
+    resetWeb3Connection: function() {
+      this.$set(this, 'isWalletConnected', false)
+      this.$set(this, 'web3', null)
+      this.$set(this, 'contractInstance', null)
+    },
     connect: debounce(async function() {
+      console.log('TCL: connect')
       if (this.web3Connecting) {
         return
       }
@@ -226,42 +234,8 @@ export default {
 
         this.error = 'Failed to connect, retrying...'
 
-        this.$set(this, 'isWalletConnected', false)
-        this.$set(this, 'web3', null)
-        this.$set(this, 'contractInstance', null)
+        this.resetWeb3Connection()
       }
-    }, DEBOUNCE_DELAY),
-    checkNodeConnection: debounce(async function() {
-      const self = this
-
-      if (this.isCheckingConnection) {
-        return
-      }
-
-      this.isCheckingConnection = true
-
-      try {
-        if (this.web3) {
-          this.web3.eth.net
-            .getId()
-            .then(async function() {
-              if (!self.isWalletConnected) {
-                await backOff(() => self.connect(), BACKOFF_SETTINGS)
-              }
-            })
-            .catch(function() {
-              self.$set(self, 'isWalletConnected', false)
-              self.$set(self, 'web3', null)
-              self.$set(self, 'contractInstance', null)
-            })
-        } else {
-          await backOff(() => self.connect(), BACKOFF_SETTINGS)
-        }
-      } catch (err) {
-        console.error('Failed to connect to wallet', err)
-      }
-
-      this.isCheckingConnection = false
     }, DEBOUNCE_DELAY),
     fetchAccount: async function() {
       try {
@@ -384,6 +358,11 @@ export default {
       }
     },
     submitVotes: async function() {
+      if (this.contractInstance === null) {
+        this.error = 'Please check that wallet is connected.'
+        return
+      }
+
       try {
         const vote = this.contractInstance.methods.vote(this.newVoting)
 
