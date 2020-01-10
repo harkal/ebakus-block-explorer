@@ -42,7 +42,10 @@
           <span class="stake">{{ witness.Stake / 10000 }}</span>
           <span class="mobileLabel">Vote</span>
           <span class="vote">
-            <button v-if="isMyVotesLoaded" @click="toggleVote(witness.Id)">
+            <button
+              v-if="!isMyVotesLoading && isMyVotesLoaded"
+              @click="toggleVote(witness.Id)"
+            >
               {{ isVoted(witness.Id) ? 'Unvote' : 'Vote' }}
             </button>
           </span>
@@ -142,6 +145,7 @@ export default {
 
       isLoaded: false,
       isWitnessesLoading: false,
+      isMyVotesLoading: false,
       isMyVotesLoaded: false,
       error: '',
     }
@@ -184,6 +188,9 @@ export default {
     })
 
     window.addEventListener('ebakusStaked', function({ detail: staked }) {
+      if (self.web3 === null) {
+        return
+      }
       self.loadWitnesses()
       self.loadCurrentlyVoted()
     })
@@ -303,6 +310,10 @@ export default {
     },
 
     loadCurrentlyVoted: async function() {
+      if (this.isMyVotesLoading) return
+
+      this.isMyVotesLoading = true
+
       this.currentlyVoted = []
       this.newVoting = []
 
@@ -329,9 +340,10 @@ export default {
         this.isMyVotesLoaded = true
       } catch (err) {
         console.error('Failed to fetch witnesses', err)
-
         this.isMyVotesLoaded = false
       }
+
+      this.isMyVotesLoading = false
     },
 
     isVoted: function(address) {
