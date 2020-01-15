@@ -375,21 +375,27 @@ export default {
         return
       }
 
+      this.error = null
+
       try {
-        const vote = this.contractInstance.methods.vote(this.newVoting)
+        let cmd
+        if (this.newVoting.length > 0) {
+          cmd = this.contractInstance.methods.vote(this.newVoting)
+        } else {
+          cmd = this.contractInstance.methods.unvote()
+        }
 
         const tx = {
           to: SystemContractAddress,
-          // gas: estimatedGas,
-          data: vote.encodeABI(),
+          data: cmd.encodeABI(),
         }
 
         const staked = await ebakusWallet.getStaked()
         if (staked > 0) {
-          const estimatedGas = await vote.estimateGas({
+          const estimatedGas = await cmd.estimateGas({
             from: this.myAddress,
           })
-          tx.gas = estimatedGas + 5000
+          tx.gas = estimatedGas + 10000
         }
 
         const res = await ebakusWallet.sendTransaction(tx)
