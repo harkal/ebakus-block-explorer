@@ -26,6 +26,12 @@ export default {
 </script>
 
 <style>
+* {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
   background: #f8f9fb;
   margin: 0px;
