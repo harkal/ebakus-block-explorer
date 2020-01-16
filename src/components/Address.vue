@@ -3,15 +3,23 @@
     <h1>Address</h1>
 
     <div class="panel">
-      <div class="twocol">
-        <span class="address">{{ addressData.address }}</span>
-      </div>
-      <div class="twocol right">
-        <span class="balanceLabel">Balance</span>
-        <span class="balance">{{
-          weiToEbk(addressData.balance).toFixed(4)
-        }}</span>
-        <small>ebakus</small>
+      <div class="valignCenter">
+        <div class="twocol">
+          <span class="address">{{ addressData.address }}</span>
+        </div>
+        <div class="twocol right">
+          <span class="balanceLabel">Liquid balance</span>
+          <span class="balance"
+            >{{ weiToEbk(addressData.balance).toFixed(4) }}
+          </span>
+          <small>EBK</small>
+          <br />
+          <span class="balanceLabel">Staked balance</span>
+          <span class="balance"
+            >{{ (addressData.stake / 10000).toFixed(4) }}
+          </span>
+          <small>EBK</small>
+        </div>
       </div>
       <div v-if="addressData.block_rewards == 0" class="chart_wrapper">
         <Chart
@@ -230,6 +238,11 @@ h3.address {
 .twocol.right {
   text-align: right;
 }
+.valignCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .balanceLabel {
   font-weight: 400;
   color: #acb4c9;
@@ -266,6 +279,9 @@ h3.address {
   text-align: center;
 }
 @media (max-width: 560px) {
+  .valignCenter {
+    display: block;
+  }
   .twocol {
     display: block;
     width: 100%;
