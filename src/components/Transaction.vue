@@ -80,7 +80,7 @@
             <h1>{{ weiToEbk(transactionData.value) }}</h1>
           </li>
           <li>
-            <span>ebakus</span>
+            <small>EBK</small>
           </li>
           <li>
             <img

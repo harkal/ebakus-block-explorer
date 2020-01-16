@@ -33,7 +33,7 @@
                 outgoing: tx.from == 'this' && tx.to != 'this',
                 incoming: tx.from !== 'this' && tx.to == 'this',
               }"
-              >{{ weiToEbk(tx.value).toFixed(4) }} ebakus</span
+              >{{ weiToEbk(tx.value).toFixed(4) }} <small>EBK</small></span
             >
             <span class="mobileLabel timestamp">Time</span>
             <span class="time">{{ timeConverter(tx.timestamp) }}</span>

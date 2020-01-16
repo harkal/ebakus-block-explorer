@@ -39,7 +39,9 @@
             </router-link>
           </span>
           <span class="mobileLabel">Stake</span>
-          <span class="stake">{{ witness.Stake / 10000 }}</span>
+          <span class="stake"
+            >{{ (witness.Stake / 10000).toFixed(4) }} <small>EBK</small></span
+          >
           <span class="mobileLabel">Vote</span>
           <span class="vote">
             <button
@@ -194,7 +196,8 @@ export default {
       self.loadWitnesses()
       self.loadCurrentlyVoted()
     })
-
+  },
+  mounted: function() {
     const opts = {}
     if (process.env.WALLET_ENDPOINT) {
       opts.walletEndpoint = process.env.WALLET_ENDPOINT

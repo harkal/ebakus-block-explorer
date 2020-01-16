@@ -26,11 +26,14 @@
       <table>
         <tr>
           <td>Block rewards</td>
-          <td>{{ weiToEbk(addressData.block_rewards).toFixed(4) }}</td>
+          <td>
+            {{ weiToEbk(addressData.block_rewards).toFixed(4) }}
+            <small>EBK</small>
+          </td>
         </tr>
         <tr>
-          <td>Stake</td>
-          <td>{{ statsData.stake / 10000 }}</td>
+          <td>Votes</td>
+          <td>{{ statsData.stake / 10000 }} <small>EBK</small></td>
         </tr>
         <tr>
           <td colspan="2">
