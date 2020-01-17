@@ -307,6 +307,11 @@ export default {
 
         this.isLoaded = false
         this.showTitle = false
+
+        if (err.message.includes('connection not open')) {
+          this.resetWeb3Connection()
+          this.connect()
+        }
       }
 
       this.isWitnessesLoading = false
@@ -342,8 +347,12 @@ export default {
 
         this.isMyVotesLoaded = true
       } catch (err) {
-        console.error('Failed to fetch witnesses', err)
+        console.error('Failed to fetch voted witnesses', err)
         this.isMyVotesLoaded = false
+        if (err.message.includes('connection not open')) {
+          this.resetWeb3Connection()
+          this.connect()
+        }
       }
 
       this.isMyVotesLoading = false
