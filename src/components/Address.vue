@@ -43,7 +43,7 @@
           <td>Votes</td>
           <td>{{ statsData.stake / 10000 }} <small>EBK</small></td>
         </tr>
-        <tr>
+        <!-- <tr>
           <td colspan="2">
             <table class="missedBlocks">
               <tr>
@@ -70,7 +70,7 @@
               </tr>
             </table>
           </td>
-        </tr>
+        </tr> -->
       </table>
     </div>
     <div v-if="addressData.address" class="panel">
