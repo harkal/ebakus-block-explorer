@@ -83,12 +83,10 @@ import Web3 from 'web3'
 import Web3Ebakus from 'web3-ebakus'
 import ebakusWallet from 'ebakus-web-wallet-loader'
 import { debounce } from 'lodash'
-import { backOff } from 'exponential-backoff'
 
 import { RouteNames } from '@/router'
 import { weiToEbk } from '@/utils'
 
-const BACKOFF_SETTINGS = { maxDelay: 30 * 1000, numOfAttempts: 100 }
 const MAX_VOTES = 20
 const DEBOUNCE_DELAY = 1000
 
