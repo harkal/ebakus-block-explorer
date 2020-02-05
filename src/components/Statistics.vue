@@ -187,6 +187,11 @@ export default {
       }
     })
 
+    window.addEventListener('ebakusAccount', ({ detail: address }) => {
+      self.resetWeb3Connection()
+      self.connect()
+    })
+
     window.addEventListener('ebakusStaked', function({ detail: staked }) {
       if (self.web3 === null) {
         return
@@ -212,7 +217,6 @@ export default {
       this.$set(this, 'contractInstance', null)
     },
     connect: debounce(async function() {
-      console.log('TCL: connect')
       if (this.web3Connecting) {
         return
       }
@@ -222,7 +226,9 @@ export default {
         if (this.web3 === null || endpoint !== this.web3Endpoint) {
           this.web3Endpoint = endpoint
 
-          this.web3 = Web3Ebakus(new Web3(this.web3Endpoint))
+          const web3 = Web3Ebakus(new Web3(this.web3Endpoint))
+          this.$set(this, 'web3', web3)
+
           this.error = null
         }
 
@@ -247,12 +253,13 @@ export default {
     }, DEBOUNCE_DELAY),
     fetchAccount: async function() {
       try {
-        const address = await ebakusWallet.getDefaultAddress()
+        const address = await ebakusWallet.getAccount()
         this.myAddress = address
 
         this.loadCurrentlyVoted()
       } catch (err) {
         console.error('Failed to retrieve user address from wallet', err)
+        ebakusWallet.unlockWallet()
       }
     },
     getWeb3ContractInstance: async function() {
@@ -306,7 +313,10 @@ export default {
         this.isLoaded = false
         this.showTitle = false
 
-        if (err.message.includes('connection not open')) {
+        if (
+          typeof err.message === 'string' &&
+          err.message.includes('connection not open')
+        ) {
           this.resetWeb3Connection()
           this.connect()
         }
@@ -347,7 +357,11 @@ export default {
       } catch (err) {
         console.error('Failed to fetch voted witnesses', err)
         this.isMyVotesLoaded = false
-        if (err.message.includes('connection not open')) {
+
+        if (
+          typeof err.message === 'string' &&
+          err.message.includes('connection not open')
+        ) {
           this.resetWeb3Connection()
           this.connect()
         }
@@ -416,6 +430,14 @@ export default {
       } catch (err) {
         console.error('Voting failed', err)
         this.error = 'Something went wrong. Please try again.'
+
+        if (
+          typeof err.message === 'string' &&
+          err.message.includes('connection not open')
+        ) {
+          this.resetWeb3Connection()
+          this.connect()
+        }
       }
     },
     filterByAddress: function() {
