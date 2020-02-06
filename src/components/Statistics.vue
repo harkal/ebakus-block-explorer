@@ -165,6 +165,20 @@ export default {
       return this.newVoting.length >= MAX_VOTES
     },
   },
+  watch: {
+    async $route(to, from) {
+      if (to.name !== from.name && to.name === RouteNames.STATISTICS) {
+        if (this.web3 === null) {
+          this.connect()
+          return
+        } else {
+          await this.fetchAccount()
+          this.loadWitnesses()
+          this.loadCurrentlyVoted()
+        }
+      }
+    },
+  },
   created: function() {
     const self = this
 
@@ -222,6 +236,10 @@ export default {
       }
       this.web3Connecting = true
       try {
+        if (this.$route.name !== RouteNames.STATISTICS) {
+          throw new Error('Not in stats view')
+        }
+
         const endpoint = await ebakusWallet.getCurrentProviderEndpoint()
         if (this.web3 === null || endpoint !== this.web3Endpoint) {
           this.web3Endpoint = endpoint
