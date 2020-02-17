@@ -87,6 +87,19 @@ export default {
       ].includes(router.app.$route.name)
     },
   },
+  watch: {
+    $route(to, from) {
+      if (
+        to.name !== from.name &&
+        [
+          RouteNames.BLOCKS,
+          RouteNames.TRANSACTIONS,
+          RouteNames.STATISTICS,
+        ].includes(to.name)
+      )
+        mutations.setContentActive(true)
+    },
+  },
   created: function() {
     mutations.setContentActive(this.isTabbarNavigation)
   },
