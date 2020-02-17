@@ -76,6 +76,7 @@
     <div v-if="addressData.address" class="panel">
       <h2>Transactions</h2>
       <Transactions
+        :key="`txs-for-address-${addressData.address}`"
         :address="addressData.address"
         :max-offset="addressData.tx_count"
         :class="{ active: txs.length > 0 }"

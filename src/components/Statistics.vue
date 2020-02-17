@@ -237,7 +237,7 @@ export default {
       this.web3Connecting = true
       try {
         if (this.$route.name !== RouteNames.STATISTICS) {
-          throw new Error('Not in stats view')
+          return
         }
 
         const endpoint = await ebakusWallet.getCurrentProviderEndpoint()
@@ -300,7 +300,7 @@ export default {
     },
 
     loadWitnesses: async function() {
-      if (this.isWitnessesLoading) return
+      if (this.isWitnessesLoading || this.web3 === null) return
 
       try {
         this.isWitnessesLoading = true
@@ -326,8 +326,6 @@ export default {
         this.isLoaded = true
         this.showTitle = true
       } catch (err) {
-        console.error('Failed to fetch witnesses', err)
-
         this.isLoaded = false
         this.showTitle = false
 
@@ -337,6 +335,8 @@ export default {
         ) {
           this.resetWeb3Connection()
           this.connect()
+        } else {
+          console.error('Failed to fetch witnesses', err)
         }
       }
 
@@ -344,7 +344,7 @@ export default {
     },
 
     loadCurrentlyVoted: async function() {
-      if (this.isMyVotesLoading) return
+      if (this.isMyVotesLoading || this.web3 === null) return
 
       this.isMyVotesLoading = true
 
@@ -373,7 +373,6 @@ export default {
 
         this.isMyVotesLoaded = true
       } catch (err) {
-        console.error('Failed to fetch voted witnesses', err)
         this.isMyVotesLoaded = false
 
         if (
@@ -382,6 +381,8 @@ export default {
         ) {
           this.resetWeb3Connection()
           this.connect()
+        } else {
+          console.error('Failed to fetch voted witnesses', err)
         }
       }
 
@@ -420,8 +421,9 @@ export default {
       this.error = null
 
       try {
-        let cmd
-        if (this.newVoting.length > 0) {
+        let cmd,
+          isVoting = this.newVoting.length > 0
+        if (isVoting) {
           cmd = this.contractInstance.methods.vote(this.newVoting)
         } else {
           cmd = this.contractInstance.methods.unvote()
