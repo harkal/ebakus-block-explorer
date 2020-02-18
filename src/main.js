@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import vueResource from 'vue-resource'
+import VueGtag from 'vue-gtag'
 
 import router from '@/router'
 
@@ -7,6 +8,22 @@ import App from '@/App'
 import Transactions from '@/components/Transactions'
 
 Vue.use(vueResource)
+
+if (process.env.NODE_ENV === 'production' && process.env.GOOGLE_TRACKING_ID) {
+  Vue.use(
+    VueGtag,
+    {
+      config: {
+        id: process.env.GOOGLE_TRACKING_ID,
+        params: {
+          cookie_domain:
+            process.env.GOOGLE_TRACKING_COOKIE_DOMAIN || 'explorer.ebakus.com',
+        },
+      },
+    },
+    router
+  )
+}
 
 Vue.component('Transactions', Transactions)
 
