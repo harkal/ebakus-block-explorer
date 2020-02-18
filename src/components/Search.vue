@@ -99,6 +99,10 @@ export default {
           this.isTransactionActive = false
           this.isAddressActive = false
           this.searchInput = ''
+          this.block = {}
+          this.transaction = {}
+          this.address = {}
+          this.txs = []
         } else {
           this.checkQuery()
         }
