@@ -166,15 +166,19 @@ export default {
     },
   },
   watch: {
-    async $route(to, from) {
+    $route: async function(to, from) {
       if (to.name !== from.name && to.name === RouteNames.STATISTICS) {
-        if (this.web3 === null) {
-          this.connect()
-          return
+        if (this.web3 !== null) {
+          try {
+            await this.web3.eth.net.getId()
+            await this.fetchAccount()
+            this.loadWitnesses()
+            this.loadCurrentlyVoted()
+          } catch (err) {
+            this.connect()
+          }
         } else {
-          await this.fetchAccount()
-          this.loadWitnesses()
-          this.loadCurrentlyVoted()
+          this.connect()
         }
       }
     },
@@ -231,15 +235,12 @@ export default {
       this.$set(this, 'contractInstance', null)
     },
     connect: debounce(async function() {
-      if (this.web3Connecting) {
+      if (this.web3Connecting || this.$route.name !== RouteNames.STATISTICS) {
         return
       }
+
       this.web3Connecting = true
       try {
-        if (this.$route.name !== RouteNames.STATISTICS) {
-          return
-        }
-
         const endpoint = await ebakusWallet.getCurrentProviderEndpoint()
         if (this.web3 === null || endpoint !== this.web3Endpoint) {
           this.web3Endpoint = endpoint
