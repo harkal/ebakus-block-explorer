@@ -5,7 +5,7 @@
       <span v-if="isContractCreation">Contract Creation</span>
       <span v-else>Transaction</span>
     </h1>
-    <div v-if="transactionData.hash" class="panel">
+    <div class="panel">
       <div class="widget_wrapper">
         <div class="tablewrapper">
           <table>
@@ -15,6 +15,7 @@
               </td>
               <td class>
                 <router-link
+                  v-if="hasData"
                   class="address lon"
                   :to="{
                     name: RouteNames.SEARCH,
@@ -22,6 +23,7 @@
                   }"
                   >{{ transactionData.from }}</router-link
                 >
+                <ContentLoader v-else :width="400" />
               </td>
             </tr>
             <tr>
@@ -40,6 +42,7 @@
               </td>
               <td class>
                 <router-link
+                  v-if="hasData"
                   class="address lon"
                   :to="{
                     name: RouteNames.SEARCH,
@@ -47,14 +50,16 @@
                   }"
                   >{{ transactionData.to }}</router-link
                 >
+                <ContentLoader v-else :width="400" />
               </td>
             </tr>
             <tr v-if="isContractCreation">
               <td class="absolute">
                 <h3>CONTRACT ADDRESS</h3>
               </td>
-              <td class>
+              <td>
                 <router-link
+                  v-if="hasData"
                   class="address lon"
                   :to="{
                     name: RouteNames.SEARCH,
@@ -62,6 +67,7 @@
                   }"
                   >{{ transactionData.contractAddress }}</router-link
                 >
+                <ContentLoader v-else :width="300" />
               </td>
             </tr>
           </table>
@@ -69,33 +75,33 @@
         <ul
           class="status"
           :class="{
-            success: transactionData.status,
-            failed: transactionData.status === 0,
+            success: hasData && transactionData.status,
+            failed: hasData && transactionData.status === 0,
           }"
         >
           <li>
             <h3>AMOUNT</h3>
           </li>
           <li>
-            <h1>{{ weiToEbk(transactionData.value) }}</h1>
+            <h1 v-if="hasData">{{ weiToEbk(transactionData.value) }}</h1>
+            <ContentLoader v-else :width="25" :height="22" />
           </li>
           <li>
             <small>EBK</small>
           </li>
           <li>
             <img
-              v-if="transactionData.status"
+              v-if="hasData"
               class="ic_check"
               src="../assets/ic_check.png"
               alt
             />
-            <img v-else class="ic_check" src alt />
           </li>
         </ul>
       </div>
     </div>
 
-    <div v-if="transactionData.hash" class="panel">
+    <div class="panel">
       <h2>Details</h2>
       <div class="tablewrapper">
         <table>
@@ -103,6 +109,7 @@
             <td class="headcol">TxHash</td>
             <td class="long">
               <router-link
+                v-if="hasData"
                 class="transaction"
                 :to="{
                   name: RouteNames.SEARCH,
@@ -110,16 +117,23 @@
                 }"
                 >{{ transactionData.hash }}</router-link
               >
+              <ContentLoader v-else :width="600" />
             </td>
           </tr>
           <tr>
             <td class="headcol">Timestamp</td>
-            <td class="long">{{ timeConverter(transactionData.timestamp) }}</td>
+            <td class="long">
+              <span v-if="hasData">
+                {{ timeConverter(transactionData.timestamp) }}
+              </span>
+              <ContentLoader v-else :width="150" />
+            </td>
           </tr>
           <tr>
             <td class="headcol">Block hash</td>
             <td class="long">
               <router-link
+                v-if="hasData"
                 class="account"
                 :to="{
                   name: RouteNames.SEARCH,
@@ -127,12 +141,13 @@
                 }"
                 >{{ transactionData.blockHash }}</router-link
               >
+              <ContentLoader v-else :width="600" />
             </td>
           </tr>
           <tr>
             <td class="headcol">Block number</td>
             <td class="long">
-              <strong>
+              <strong v-if="hasData">
                 <router-link
                   class="block"
                   :to="{
@@ -142,12 +157,14 @@
                   >{{ transactionData.blockNumber }}</router-link
                 >
               </strong>
+              <ContentLoader v-else />
             </td>
           </tr>
           <tr>
             <td class="headcol">Produced by</td>
             <td class="long">
               <router-link
+                v-if="hasData"
                 class="account"
                 :to="{
                   name: RouteNames.SEARCH,
@@ -155,39 +172,76 @@
                 }"
                 >{{ transactionData.producer }}</router-link
               >
+              <ContentLoader v-else :width="350" />
             </td>
           </tr>
           <tr>
             <td class="headcol">Gas limit</td>
-            <td class="long">{{ transactionData.gasLimit }}</td>
+            <td class="long">
+              <span v-if="hasData">
+                {{ transactionData.gasLimit }}
+              </span>
+              <ContentLoader v-else />
+            </td>
           </tr>
           <tr>
             <td class="headcol">Gas used</td>
-            <td class="long">{{ transactionData.gasUsed }}</td>
+            <td class="long">
+              <span v-if="hasData">
+                {{ transactionData.gasUsed }}
+              </span>
+              <ContentLoader v-else />
+            </td>
           </tr>
           <tr>
             <td class="headcol">Cumulative gas used</td>
-            <td class="long">{{ transactionData.cumulativeGasUsed }}</td>
+            <td class="long">
+              <span v-if="hasData">
+                {{ transactionData.cumulativeGasUsed }}
+              </span>
+              <ContentLoader v-else />
+            </td>
           </tr>
           <tr>
             <td class="headcol">Nonce</td>
-            <td class="long">{{ transactionData.nonce }}</td>
+            <td class="long">
+              <span v-if="hasData">
+                {{ transactionData.nonce }}
+              </span>
+              <ContentLoader v-else />
+            </td>
           </tr>
           <tr>
             <td class="headcol">Work nonce</td>
-            <td class="long">{{ transactionData.workNonce }}</td>
+            <td class="long">
+              <span v-if="hasData">
+                {{ transactionData.workNonce }}
+              </span>
+              <ContentLoader v-else />
+            </td>
           </tr>
           <tr>
             <td class="headcol">Transaction index</td>
-            <td class="long">{{ transactionData.transactionIndex }}</td>
+            <td class="long">
+              <span v-if="hasData">
+                {{ transactionData.transactionIndex }}
+              </span>
+              <ContentLoader v-else />
+            </td>
           </tr>
           <tr>
             <td class="headcol">Status</td>
-            <td class="long">{{ transactionData.status }}</td>
+            <td class="long">
+              <span v-if="hasData">{{ transactionData.status }} </span>
+              <ContentLoader v-else />
+            </td>
           </tr>
           <tr v-if="confirmationsCount > 0">
             <td class="headcol">Confirmations count</td>
-            <td class="long">{{ confirmationsCount }}</td>
+            <td class="long">
+              <span v-if="hasData">{{ confirmationsCount }} </span>
+              <ContentLoader v-else />
+            </td>
           </tr>
           <tr v-if="transactionData.abi">
             <td class="headcol">Input</td>
@@ -217,7 +271,12 @@
           </tr>
           <tr v-if="!transactionData.abi">
             <td class="headcol">Input</td>
-            <td class="long">{{ transactionData.input }}</td>
+            <td class="long">
+              <span v-if="hasData">
+                {{ transactionData.input }}
+              </span>
+              <ContentLoader v-else :width="600" :height="48" />
+            </td>
           </tr>
         </table>
       </div>
@@ -230,8 +289,12 @@ import { RouteNames } from '@/router'
 import { store } from '@/store'
 import { timeConverter, weiToEbk, isZeroHash } from '@/utils'
 import { decodeDataUsingAbi } from '@/utils/abi'
+import ContentLoader from './ContentLoader'
 
 export default {
+  components: {
+    ContentLoader,
+  },
   props: {
     transactionData: {
       type: Object,
@@ -245,9 +308,12 @@ export default {
   },
   computed: {
     RouteNames: () => RouteNames,
+    hasData() {
+      return !!this.transactionData.from
+    },
     globalBlockHeight: () => store.blockHeight,
     isContractCreation: function() {
-      return !isZeroHash(this.transactionData.contractAddress)
+      return this.hasData && !isZeroHash(this.transactionData.contractAddress)
     },
     decodedInput: function() {
       const data = decodeDataUsingAbi(

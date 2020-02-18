@@ -9,24 +9,23 @@
         </div>
         <div class="twocol right">
           <span class="balanceLabel">Liquid balance</span>
-          <span class="balance"
+          <span v-if="hasData" class="balance"
             >{{ weiToEbk(addressData.balance).toFixed(4) }}
           </span>
-          <small>EBK</small>
+          <ContentLoader v-else :width="84" :height="20" />
+          <small> EBK</small>
           <br />
           <span class="balanceLabel">Staked balance</span>
-          <span class="balance"
+          <span v-if="hasData" class="balance"
             >{{ (addressData.stake / 10000).toFixed(4) }}
           </span>
-          <small>EBK</small>
+          <ContentLoader v-else :width="84" :height="20" />
+          <small> EBK</small>
         </div>
       </div>
       <div v-if="addressData.block_rewards == 0" class="chart_wrapper">
-        <Chart
-          v-if="chartDataLoaded"
-          :chart-data="balanceData"
-          :height="300"
-        ></Chart>
+        <Chart v-if="chartDataLoaded" :chart-data="balanceData" :height="300" />
+        <ContentLoader v-else :width="1000" :height="300" />
       </div>
     </div>
     <div v-if="addressData.stats" class="panel">
@@ -90,8 +89,11 @@
 import Chart from './Chart'
 import { timeConverter, weiToEbk } from '@/utils'
 
+import ContentLoader from './ContentLoader'
+
 export default {
   components: {
+    ContentLoader,
     Chart,
   },
   props: {
@@ -111,6 +113,9 @@ export default {
     }
   },
   computed: {
+    hasData() {
+      return !!this.addressData.address
+    },
     balanceData: function() {
       var i
       var balance = 0
@@ -257,6 +262,7 @@ h3.address {
   position: relative;
   width: 100% !important;
   padding-top: 40px;
+  overflow: hidden;
 }
 
 .panel h2:not(:first-child) {

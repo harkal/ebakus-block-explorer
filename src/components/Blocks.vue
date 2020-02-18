@@ -1,7 +1,7 @@
 <template>
   <div id="blocks_wrapper">
     <ul class="tabResults labels">
-      <li v-if="showTitle" id="list_title">
+      <li id="list_title">
         <span class="blockID">Block #</span>
         <span class="transaction">Transactions</span>
         <span class="gas_title">Gas used</span>
@@ -11,6 +11,24 @@
     </ul>
     <div class="scroll inner">
       <ul class="tabResults main">
+        <li
+          v-for="index in blocks.length == 0 ? 4 : 0"
+          :key="index"
+          class="placeholder"
+        >
+          <span class="mobileLabel">Block #</span>
+          <span class="blockID"><ContentLoader :width="90"/></span>
+          <span class="mobileLabel">Tx count</span>
+          <span class="transaction">
+            <strong><ContentLoader :width="14" fixed/></strong> transactions
+          </span>
+          <span class="mobileLabel">Gas used</span>
+          <progress :value="0" max="100">0 %</progress>
+          <span class="mobileLabel">Produced by</span>
+          <span class="producer"><ContentLoader :width="120"/></span>
+          <span class="mobileLabel">Timestamp</span>
+          <span class="time"><ContentLoader :width="80"/></span>
+        </li>
         <li v-for="block in blocks" :key="block.number">
           <router-link
             :to="{
@@ -25,7 +43,9 @@
               <strong>{{ block.transactionCount }}</strong> transactions
             </span>
             <span class="mobileLabel">Gas used</span>
-            <progress :value="block.gasUsed" max="100">70 %</progress>
+            <progress :value="block.gasUsed" max="100"
+              >{{ block.gasUsed }} %</progress
+            >
             <span class="mobileLabel">Produced by</span>
             <span class="producer">{{ block.producer }}</span>
             <span class="mobileLabel">Timestamp</span>
@@ -42,7 +62,12 @@ import { mutations } from '@/store'
 import { RouteNames } from '@/router'
 import { timeConverter } from '@/utils'
 
+import ContentLoader from './ContentLoader'
+
 export default {
+  components: {
+    ContentLoader,
+  },
   data() {
     return {
       showTitle: false,
@@ -101,6 +126,10 @@ export default {
   margin: 0 auto;
 }
 
+li.placeholder {
+  padding: 22px 1%;
+}
+
 li a {
   display: block;
   padding: 22px 1%;
@@ -122,6 +151,7 @@ li span {
   width: 16%;
   margin: 0 1%;
   text-align: center;
+  vertical-align: middle;
 }
 .blockID {
   text-align: left;
@@ -210,6 +240,7 @@ span.transaction {
     width: 200px;
     text-align: left;
   }
+  li.placeholder,
   a {
     position: relative;
     width: 100%;

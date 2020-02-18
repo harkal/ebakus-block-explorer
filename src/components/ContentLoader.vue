@@ -6,9 +6,16 @@
     preserve-aspect-ratio="xMinYMid slice"
     primary-color="#f0f0f0"
     secondary-color="#e0e0e0"
-    class="loader"
+    :class="{ loader: !fixed }"
   >
-    <rect x="0" y="0" rx="5" ry="5" :width="width" :height="height" />
+    <rect
+      x="0"
+      y="0"
+      :rx="radius"
+      :ry="radius"
+      :width="width"
+      :height="height"
+    />
   </ContentLoader>
 </template>
 
@@ -26,7 +33,15 @@ export default {
     },
     height: {
       type: Number,
-      default: 11,
+      default: 12,
+    },
+    radius: {
+      type: Number,
+      default: 3,
+    },
+    fixed: {
+      type: Boolean,
+      default: false,
     },
   },
 }
@@ -37,7 +52,7 @@ export default {
 @media (max-width: 560px) {
   .loader {
     width: 90%;
-    padding: 0 5% !important;
+    padding: 0 10% 0 0 !important;
     box-sizing: border-box;
   }
 }

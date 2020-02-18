@@ -150,7 +150,6 @@
 
 <script>
 import ContentLoader from './ContentLoader'
-
 import Transactions from './Transactions'
 import { RouteNames } from '@/router'
 import { timeConverter } from '@/utils'
@@ -343,6 +342,10 @@ h2 {
   .widget_wrapper {
     flex-direction: column;
     height: 550px !important;
+  }
+
+  .loader {
+    padding: 0 5% !important;
   }
 }
 </style>
