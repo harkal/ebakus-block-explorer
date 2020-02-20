@@ -8,7 +8,7 @@
     </small>
 
     <ul class="tabResults labels">
-      <li v-if="showTitle" id="list_title">
+      <li id="list_title">
         <span class="delegateID">#</span>
         <span class="producer">
           <input
@@ -23,8 +23,28 @@
         <span class="vote"></span>
       </li>
     </ul>
-    <div v-if="isLoaded" class="scroll inner">
+    <div class="scroll inner">
       <ul class="tabResults main">
+        <li
+          v-for="index in displayedWitnesses.length == 0 ? 4 : 0"
+          :key="index"
+          class="placeholder"
+        >
+          <span class="mobileLabel">#</span>
+          <span class="delegateID"><ContentLoader :width="14"/></span>
+          <span class="mobileLabel">Address</span>
+          <span class="producer address">
+            <ContentLoader :width="400" />
+          </span>
+          <span class="mobileLabel">Stake</span>
+          <span class="stake">
+            <ContentLoader :width="60" /> <small>EBK</small>
+          </span>
+          <span class="mobileLabel">Vote</span>
+          <span class="vote">
+            <ContentLoader :width="50" :height="22" />
+          </span>
+        </li>
         <li
           v-for="(witness, idx) in displayedWitnesses"
           :key="idx"
@@ -52,12 +72,12 @@
             </button>
           </span>
         </li>
-        <li v-if="displayedWitnesses.length === 0">
+        <li v-if="isLoaded && displayedWitnesses.length === 0">
           No witness found!
         </li>
       </ul>
     </div>
-    <div v-if="!isLoaded">Loading...</div>
+
     <div v-if="isLoaded" class="actions_area">
       <span>
         You have used {{ newVoting.length }} out of {{ MaxVotes }} votes.
@@ -86,6 +106,8 @@ import { debounce } from 'lodash'
 
 import { RouteNames } from '@/router'
 import { weiToEbk } from '@/utils'
+
+import ContentLoader from './ContentLoader'
 
 const MAX_VOTES = 20
 const DEBOUNCE_DELAY = 1000
@@ -127,6 +149,9 @@ const SystemContractVoteABI = [
 ]
 
 export default {
+  components: {
+    ContentLoader,
+  },
   data() {
     return {
       witnesses: [],
@@ -166,15 +191,19 @@ export default {
     },
   },
   watch: {
-    async $route(to, from) {
+    $route: async function(to, from) {
       if (to.name !== from.name && to.name === RouteNames.STATISTICS) {
-        if (this.web3 === null) {
-          this.connect()
-          return
+        if (this.web3 !== null) {
+          try {
+            await this.web3.eth.net.getId()
+            await this.fetchAccount()
+            this.loadWitnesses()
+            this.loadCurrentlyVoted()
+          } catch (err) {
+            this.connect()
+          }
         } else {
-          await this.fetchAccount()
-          this.loadWitnesses()
-          this.loadCurrentlyVoted()
+          this.connect()
         }
       }
     },
@@ -231,15 +260,12 @@ export default {
       this.$set(this, 'contractInstance', null)
     },
     connect: debounce(async function() {
-      if (this.web3Connecting) {
+      if (this.web3Connecting || this.$route.name !== RouteNames.STATISTICS) {
         return
       }
+
       this.web3Connecting = true
       try {
-        if (this.$route.name !== RouteNames.STATISTICS) {
-          return
-        }
-
         const endpoint = await ebakusWallet.getCurrentProviderEndpoint()
         if (this.web3 === null || endpoint !== this.web3Endpoint) {
           this.web3Endpoint = endpoint
@@ -529,6 +555,11 @@ export default {
   height: calc(100% - 150px - 110px) !important;
 }
 
+li.placeholder,
+li a {
+  padding: 22px 1%;
+}
+
 li a {
   display: block;
   padding: 22px 1%;
@@ -649,6 +680,7 @@ span.producer {
   span.producer {
     width: calc(100% - 80px);
   }
+  li.placeholder,
   a {
     position: relative;
     width: 100%;

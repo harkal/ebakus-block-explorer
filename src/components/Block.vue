@@ -18,48 +18,60 @@
           >
             <img src="../assets/ic_next.png" alt />
           </router-link>
-          <h2>{{ blockData.number }}</h2>
+          <h2 v-if="blockData.number">{{ blockData.number }}</h2>
+          <ContentLoader v-else :width="100" :height="20" />
         </div>
 
         <div class="widget">
           <img src="../assets/ic_transactions.png" alt />
           <h3>TRANSACTIONS</h3>
-          <h2>{{ blockData.transactionCount }}</h2>
+          <h2 v-if="blockData.transactionCount >= 0">
+            {{ blockData.transactionCount }}
+          </h2>
+          <ContentLoader v-else :width="100" :height="20" />
         </div>
         <div class="widget">
           <img src="../assets/ic_gas.png" alt />
           <h3>GAS USED</h3>
-          <h2>{{ gasUsed }}%</h2>
+          <h2 v-if="blockData.gasUsed >= 0">{{ gasUsed }}%</h2>
+          <ContentLoader v-else :width="100" :height="20" />
           <div class="progress_wrapper">
             <div class="progress" :style="gasUsedCss"></div>
           </div>
         </div>
       </div>
     </div>
-    <div v-if="blockData.hash" class="panel">
+    <div class="panel">
       <h2>Details</h2>
       <div class="tablewrapper">
         <table>
           <tr>
             <td class="headcol">Hash</td>
             <td class="long">
-              <strong>{{ blockData.hash }}</strong>
+              <strong v-if="hasData">{{ blockData.hash }}</strong>
+              <ContentLoader v-else :width="300" />
             </td>
           </tr>
           <tr>
             <td class="headcol">Size</td>
             <td class="long">
-              <strong>{{ size }}</strong>
+              <strong v-if="hasData">{{ size }}</strong>
+              <ContentLoader v-else :width="100" />
             </td>
           </tr>
           <tr>
             <td class="headcol">Timestamp</td>
-            <td class="long">{{ timeConverter(blockData.timestamp) }}</td>
+            <td class="long">
+              <span v-if="hasData">{{
+                timeConverter(blockData.timestamp)
+              }}</span>
+              <ContentLoader v-else :width="100" />
+            </td>
           </tr>
           <tr>
             <td class="headcol">Produced by</td>
             <td class="long">
-              <span class="account">
+              <span v-if="hasData" class="account">
                 <router-link
                   :to="{
                     name: RouteNames.SEARCH,
@@ -68,36 +80,41 @@
                   >{{ blockData.producer }}</router-link
                 >
               </span>
+              <ContentLoader v-else :width="300" />
             </td>
           </tr>
           <tr>
-            <td class="headcol"></td>
-            <td class="long"></td>
-          </tr>
-          <tr>
-            <td class="headcol"></td>
-            <td class="long"></td>
-          </tr>
-          <tr>
             <td class="headcol">Gas used</td>
-            <td class="long">{{ blockData.gasUsed }}</td>
+            <td class="long">
+              <span v-if="hasData">{{ blockData.gasUsed }}</span>
+              <ContentLoader v-else :width="100" />
+            </td>
           </tr>
           <tr>
             <td class="headcol">Gas limit</td>
-            <td class="long">{{ blockData.gasLimit }}</td>
+            <td class="long">
+              <span v-if="hasData">{{ blockData.gasLimit }}</span>
+              <ContentLoader v-else :width="100" />
+            </td>
           </tr>
           <tr>
             <td class="headcol">Tx Root</td>
-            <td class="long">{{ blockData.transactionsRoot }}</td>
+            <td class="long">
+              <span v-if="hasData">{{ blockData.transactionsRoot }}</span>
+              <ContentLoader v-else :width="300" />
+            </td>
           </tr>
           <tr>
             <td class="headcol">Parent Hash</td>
-            <td class="long">{{ blockData.parentHash }}</td>
+            <td class="long">
+              <span v-if="hasData">{{ blockData.parentHash }}</span>
+              <ContentLoader v-else :width="300" />
+            </td>
           </tr>
           <tr>
             <td class="headcol">Delegates</td>
             <td class="long">
-              <ul class="unstyled">
+              <ul v-if="hasData" class="unstyled">
                 <li
                   v-for="(delegate, idx) in blockData.delegates"
                   :key="idx"
@@ -112,11 +129,13 @@
                   >
                 </li>
               </ul>
+              <ContentLoader v-else :width="300" :height="48" />
             </td>
           </tr>
         </table>
       </div>
     </div>
+
     <div v-if="blockData.hash && txs.length > 0" class="panel">
       <h2>Transactions</h2>
       <Transactions
@@ -130,14 +149,14 @@
 </template>
 
 <script>
+import ContentLoader from './ContentLoader'
 import Transactions from './Transactions'
-// import util from 'ethereumjs-util'
-
 import { RouteNames } from '@/router'
 import { timeConverter } from '@/utils'
 
 export default {
   components: {
+    ContentLoader,
     Transactions,
   },
   props: {
@@ -177,6 +196,9 @@ export default {
       else if (parseFloat(this.blockData.size) > 1048576)
         return this.blockData.size / 1048576 + 'MB'
       else return this.blockData.size + ' Bytes'
+    },
+    hasData() {
+      return !!this.blockData.hash
     },
   },
   watch: {
@@ -277,7 +299,8 @@ h2 {
   font-size: 13px;
   font-weight: 600;
 }
-.widget h2 {
+.widget h2,
+.widget svg {
   position: absolute;
   bottom: 40px;
   left: 50%;
@@ -319,6 +342,10 @@ h2 {
   .widget_wrapper {
     flex-direction: column;
     height: 550px !important;
+  }
+
+  .loader {
+    padding: 0 5% !important;
   }
 }
 </style>

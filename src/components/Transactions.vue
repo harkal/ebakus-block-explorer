@@ -1,7 +1,7 @@
 <template>
   <div id="transactions_wrapper">
     <ul class="tabResults labels">
-      <li v-if="showTitle" id="list_title">
+      <li id="list_title">
         <span class="txID">Tx hash</span>
         <span class="from">From</span>
         <span class="to">To</span>
@@ -11,6 +11,29 @@
     </ul>
     <div class="scroll inner tx">
       <ul class="tabResults main">
+        <li
+          v-for="index in txs_.length == 0 ? 4 : 0"
+          :key="index"
+          class="placeholder"
+        >
+          <span class="mobileLabel">Tx hash</span>
+          <span class="txID transaction"> <ContentLoader :width="150"/></span>
+          <span class="mobileLabel">From</span>
+          <span class="address"><ContentLoader :width="150"/></span>
+          <img
+            src="../assets/ic_from_to.png"
+            alt
+            :class="{ outgoing: false }"
+          />
+          <span class="mobileLabel">To</span>
+          <span class="address"><ContentLoader :width="150"/></span>
+          <span class="mobileLabel">Amount</span>
+          <span class="amount_" :class="{ outgoing: false }">
+            <ContentLoader :width="50" /> <small>EBK</small>
+          </span>
+          <span class="mobileLabel timestamp">Time</span>
+          <span class="time"><ContentLoader :width="80"/></span>
+        </li>
         <li v-for="(tx, idx) in txs_" :key="tx.hash + ':' + idx">
           <router-link
             :to="{ name: RouteNames.SEARCH, params: { query: tx.hash } }"
@@ -53,9 +76,14 @@
 
 <script>
 import { RouteNames } from '@/router'
+import ContentLoader from './ContentLoader'
+
 import { timeConverter, weiToEbk, isZeroHash } from '../utils'
 
 export default {
+  components: {
+    ContentLoader,
+  },
   props: {
     address: {
       type: String,
@@ -267,10 +295,12 @@ li {
   /* block_list_item: */
   width: 97%;
 }
+li.placeholder,
+li a {
+  padding: 22px 1%;
+}
 li a {
   display: block;
-  padding: 90px 1%;
-  padding: 22px 1%;
   border-radius: 10px;
   transition: 0.1s all ease-in-out;
   text-decoration: none;
@@ -345,6 +375,7 @@ img {
     display: block;
   }
 
+  li.placeholder,
   li a {
     position: relative;
     opacity: 1;
@@ -386,7 +417,7 @@ img {
     text-overflow: ellipsis;
     font-size: 14px;
     line-height: 14px;
-    padding-left: 80px;
+    padding-left: 86px;
   }
   li img {
     transform: rotate(90deg) scale(0.9);
