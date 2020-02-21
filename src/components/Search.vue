@@ -28,22 +28,23 @@
         <span>Go</span>
       </button>
     </div>
-    <p class="error">{{ error }}</p>
+
+    <p v-if="error" class="error">{{ error }}</p>
 
     <Block
-      v-if="block"
+      v-if="block && !error"
       :class="{ active: isBlockActive }"
       :block-data="block"
       :txs="txs"
     />
     <Address
-      v-if="address"
+      v-if="address && !error"
       :class="{ active: isAddressActive }"
       :address-data="address"
       :txs="txs"
     />
     <Transaction
-      v-if="transaction"
+      v-if="transaction && !error"
       :class="{ active: isTransactionActive }"
       :transaction-data="transaction"
     />
@@ -136,6 +137,7 @@ export default {
       }
     },
     searchWithQuery: function(e) {
+      this.error = ''
       var queryStr = this.searchInput.replace(/ /g, '')
       if (
         isNaN(queryStr) ||
@@ -157,19 +159,7 @@ export default {
             this.isBlockActive = false
             this.isTransactionActive = true
             this.isAddressActive = false
-            this.getTransaction(queryStr).then(
-              function() {},
-              err => {
-                console.error(
-                  `Failed to fetch transaction for "${queryStr}": `,
-                  err
-                )
-                this.isBlockActive = true
-                this.isTransactionActive = false
-                this.getBlock(queryStr)
-              }
-            )
-
+            this.getTransaction(queryStr)
             break
           default:
             this.error =
@@ -242,6 +232,9 @@ export default {
         },
         err => {
           console.error(`Failed to fetch block "${blockID}": `, err)
+          this.error = 'Failed to get block.'
+          this.isActive = false
+          this.isBlockActive = false
         }
       )
     },
@@ -290,6 +283,9 @@ export default {
                     `Failed to fetch transaction "${txHash}": `,
                     err
                   )
+                  this.error = 'Failed to get transaction.'
+                  this.isActive = false
+                  this.isTransactionActive = false
                   reject(err)
                 }
               )
@@ -325,6 +321,9 @@ export default {
         },
         function(err) {
           console.error(`Failed to fetch address info for "${address}": `, err)
+          this.error = 'Failed to get address informations.'
+          this.isActive = false
+          this.isAddressActive = false
         }
       )
 
