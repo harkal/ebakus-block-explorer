@@ -26,28 +26,8 @@
     <div class="scroll inner">
       <ul class="tabResults main">
         <li
-          v-for="index in displayedWitnesses.length == 0 ? 4 : 0"
-          :key="index"
-          class="placeholder"
-        >
-          <span class="mobileLabel">#</span>
-          <span class="delegateID"><ContentLoader :width="14"/></span>
-          <span class="mobileLabel">Address</span>
-          <span class="producer address">
-            <ContentLoader :width="400" />
-          </span>
-          <span class="mobileLabel">Stake</span>
-          <span class="stake">
-            <ContentLoader :width="60" /> <small>EBK</small>
-          </span>
-          <span class="mobileLabel">Vote</span>
-          <span class="vote">
-            <ContentLoader :width="50" :height="22" />
-          </span>
-        </li>
-        <li
           v-for="(witness, idx) in displayedWitnesses"
-          :key="idx"
+          :key="`${witness.Id}-${idx}`"
           :class="{ changed: isChanged(witness.Id) }"
         >
           <span class="mobileLabel">#</span>
@@ -70,6 +50,28 @@
             >
               {{ isVoted(witness.Id) ? 'Unvote' : 'Vote' }}
             </button>
+          </span>
+        </li>
+        <li
+          v-for="index in displayedWitnesses.length == 0 || isWitnessesLoading
+            ? 4
+            : 0"
+          :key="index"
+          class="placeholder"
+        >
+          <span class="mobileLabel">#</span>
+          <span class="delegateID"><ContentLoader :width="14"/></span>
+          <span class="mobileLabel">Address</span>
+          <span class="producer address">
+            <ContentLoader :width="400" />
+          </span>
+          <span class="mobileLabel">Stake</span>
+          <span class="stake">
+            <ContentLoader :width="60" /> <small>EBK</small>
+          </span>
+          <span class="mobileLabel">Vote</span>
+          <span class="vote">
+            <ContentLoader :width="50" :height="22" />
           </span>
         </li>
         <li v-if="isLoaded && displayedWitnesses.length === 0">
@@ -217,6 +219,7 @@ export default {
       detail: endpoint,
     }) {
       self.resetWeb3Connection()
+      self.displayedWitnesses = []
       self.connect()
     })
 
@@ -331,6 +334,7 @@ export default {
       try {
         this.isWitnessesLoading = true
         this.witnesses = []
+        this.displayedWitnesses = []
         const iter = await this.web3.db.select(
           SystemContractAddress,
           'Witnesses',
@@ -345,10 +349,10 @@ export default {
           witness = await this.web3.db.next(iter)
           if (witness != null) {
             this.witnesses.push(witness)
+            this.displayedWitnesses.push(witness)
           }
         } while (witness != null)
 
-        this.displayedWitnesses = this.witnesses
         this.isLoaded = true
         this.showTitle = true
       } catch (err) {
@@ -508,6 +512,7 @@ export default {
   display: none;
   height: 50px;
   height: 100%;
+  /* padding-right: 200px; */
 }
 #statistics_wrapper.active {
   opacity: 1;
@@ -522,6 +527,7 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
+  /* right: 200px; */
   padding: 24px;
   border-top: 1px solid #c6c6c6;
   background-color: #fff;
@@ -553,6 +559,10 @@ export default {
 
 #tabbar .scroll.inner {
   height: calc(100% - 150px - 110px) !important;
+}
+
+li {
+  animation: fadeIn 0.2s ease-in;
 }
 
 li.placeholder,
@@ -650,6 +660,14 @@ span.producer {
 }
 .danger {
   color: #f44336;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @media (max-width: 560px) {
   #tabbar .scroll.inner {
