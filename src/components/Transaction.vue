@@ -91,10 +91,16 @@
           </li>
           <li>
             <img
-              v-if="hasData"
+              v-if="hasData && transactionData.status"
               class="ic_check"
               src="../assets/ic_check.png"
-              alt
+              alt="Successfull transaction"
+            />
+            <img
+              v-else
+              class="ic_check"
+              src="../assets/ic_error.svg"
+              alt="Failed transaction"
             />
           </li>
         </ul>

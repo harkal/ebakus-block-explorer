@@ -34,7 +34,11 @@
           <span class="mobileLabel timestamp">Time</span>
           <span class="time"><ContentLoader :width="80"/></span>
         </li>
-        <li v-for="(tx, idx) in txs_" :key="tx.hash + ':' + idx">
+        <li
+          v-for="(tx, idx) in txs_"
+          :key="tx.hash + ':' + idx"
+          :class="{ failed: tx.status === 0 }"
+        >
           <router-link
             :to="{ name: RouteNames.SEARCH, params: { query: tx.hash } }"
           >
@@ -326,6 +330,10 @@ li a:hover {
   box-shadow: 0 2px 33px 0 rgba(17, 47, 66, 0.1);
   opacity: 1;
   background: #fff;
+}
+li.failed,
+li.failed a:hover {
+  background-color: #fae6eb;
 }
 li span {
   display: inline-block;
