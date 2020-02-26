@@ -32,6 +32,7 @@ if (process.env.NODE_ENV === 'production' && process.env.GOOGLE_TRACKING_ID) {
             process.env.GOOGLE_TRACKING_COOKIE_DOMAIN || 'explorer.ebakus.com',
         },
       },
+      bootstrap: false,
     },
     router
   )

@@ -3,6 +3,7 @@
     <Search :search-query="searchQuery" :tabbar-active="contentActive" />
     <!-- <router-view></router-view> -->
     <Tabbar :search-query="searchQuery" :tabbar-active="contentActive" />
+    <CookiePolicy />
   </div>
 </template>
 
@@ -12,11 +13,13 @@ import { store } from '@/store'
 
 import Search from '@/components/Search'
 import Tabbar from '@/components/Tabbar'
+import CookiePolicy from '@/components/CookiePolicy'
 
 export default {
   components: {
     Search,
     Tabbar,
+    CookiePolicy,
   },
   computed: {
     contentActive: () => store.contentActive,
