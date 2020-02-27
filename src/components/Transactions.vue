@@ -165,24 +165,26 @@ export default {
     },
     loadTransactions() {
       const self = this
-      var offset_tmp = this.offset > 0 ? this.offset + 20 : 0
 
       // get txs for address
       if (typeof this.address !== 'undefined' && this.address != '') {
+        const limit = 20
         this.$http
           .get(
             process.env.API_ENDPOINT +
               '/transaction/all/' +
               this.address +
               '?offset=' +
-              offset_tmp +
-              '&limit=20&order=desc'
+              this.offset +
+              '&limit=' +
+              limit +
+              '&order=desc'
           )
           .then(
             function(response) {
               var new_txs = response.data
               self.txs.push.apply(self.txs, new_txs)
-              self.offset += 20
+              self.offset += limit
             },
             function(err) {
               console.error(
@@ -197,15 +199,23 @@ export default {
         typeof this.blockHash !== 'undefined' &&
         this.blockHash != ''
       ) {
+        const limit = 20
         this.$http
           .get(
-            process.env.API_ENDPOINT + '/transaction/block/' + this.blockHash
+            process.env.API_ENDPOINT +
+              '/transaction/block/' +
+              this.blockHash +
+              '?offset=' +
+              this.offset +
+              '&limit=' +
+              limit +
+              '&order=desc'
           )
           .then(
             function(response) {
               var new_txs = response.data
               self.txs.push.apply(self.txs, new_txs)
-              self.offset += 20
+              self.offset += limit
             },
             function(err) {
               console.error(
@@ -215,18 +225,21 @@ export default {
             }
           )
       } else {
+        const limit = 10
         this.$http
           .get(
             process.env.API_ENDPOINT +
               '/transaction/latest?offset=' +
-              offset_tmp +
-              '&limit=10&order=desc'
+              this.offset +
+              '&limit=' +
+              limit +
+              '&order=desc'
           )
           .then(
             function(response) {
               var newTxs = response.data
               self.txs.push.apply(self.txs, newTxs)
-              self.offset += 10
+              self.offset += limit
               self.showingLatestTxs = newTxs.length > 0
             },
             err => {
