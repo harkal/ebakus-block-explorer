@@ -56,7 +56,7 @@
                 outgoing: tx.from == 'this' && tx.to != 'this',
                 incoming: tx.from !== 'this' && tx.to == 'this',
               }"
-              >{{ weiToEbk(tx.value).toFixed(4) }} <small>EBK</small></span
+              >{{ tx.value | toEtherFixed }} <small>EBK</small></span
             >
             <span class="mobileLabel timestamp">Time</span>
             <span class="time">{{ timeConverter(tx.timestamp) }}</span>
@@ -78,7 +78,7 @@
 import { RouteNames } from '@/router'
 import ContentLoader from './ContentLoader'
 
-import { timeConverter, weiToEbk, isZeroHash } from '../utils'
+import { timeConverter, isZeroHash } from '../utils'
 
 export default {
   components: {
@@ -153,7 +153,6 @@ export default {
   },
   methods: {
     timeConverter: timeConverter,
-    weiToEbk: weiToEbk,
 
     reloadFresh() {
       this.txs = []

@@ -83,7 +83,7 @@
             <h3>AMOUNT</h3>
           </li>
           <li>
-            <h1 v-if="hasData">{{ weiToEbk(transactionData.value) }}</h1>
+            <h1 v-if="hasData">{{ transactionData.value | toEtherFixed }}</h1>
             <ContentLoader v-else :width="25" :height="22" />
           </li>
           <li>
@@ -287,7 +287,7 @@
 <script>
 import { RouteNames } from '@/router'
 import { store } from '@/store'
-import { timeConverter, weiToEbk, isZeroHash } from '@/utils'
+import { timeConverter, isZeroHash } from '@/utils'
 import { decodeDataUsingAbi } from '@/utils/abi'
 import ContentLoader from './ContentLoader'
 
@@ -355,7 +355,6 @@ export default {
   created: function() {},
   methods: {
     timeConverter: timeConverter,
-    weiToEbk: weiToEbk,
     decodeDataUsingAbi: decodeDataUsingAbi,
   },
 }

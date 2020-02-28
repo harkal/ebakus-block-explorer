@@ -10,7 +10,7 @@
         <div class="twocol right">
           <span class="balanceLabel">Liquid balance</span>
           <span v-if="hasData" class="balance"
-            >{{ weiToEbk(addressData.balance).toFixed(4) }}
+            >{{ addressData.balance | toEtherFixed }}
           </span>
           <ContentLoader v-else :width="84" :height="20" />
           <small> EBK</small>
@@ -34,7 +34,7 @@
         <tr>
           <td>Block rewards</td>
           <td>
-            {{ weiToEbk(addressData.block_rewards).toFixed(4) }}
+            {{ addressData.block_rewards | toEtherFixed }}
             <small>EBK</small>
           </td>
         </tr>
@@ -86,8 +86,9 @@
 </template>
 
 <script>
+import Web3 from 'web3'
 import Chart from './Chart'
-import { timeConverter, weiToEbk } from '@/utils'
+import { timeConverter } from '@/utils'
 
 import ContentLoader from './ContentLoader'
 
@@ -207,7 +208,6 @@ export default {
   created: function() {},
   methods: {
     timeConverter: timeConverter,
-    weiToEbk: weiToEbk,
   },
 }
 </script>

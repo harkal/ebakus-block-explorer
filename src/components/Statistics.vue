@@ -107,7 +107,6 @@ import ebakusWallet from 'ebakus-web-wallet-loader'
 import { debounce } from 'lodash'
 
 import { RouteNames } from '@/router'
-import { weiToEbk } from '@/utils'
 
 import ContentLoader from './ContentLoader'
 
@@ -255,8 +254,6 @@ export default {
     ebakusWallet.init(opts)
   },
   methods: {
-    weiToEbk: weiToEbk,
-
     resetWeb3Connection: function() {
       this.$set(this, 'isWalletConnected', false)
       this.$set(this, 'web3', null)

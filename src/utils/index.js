@@ -36,10 +36,8 @@ const timeConverter = UNIX_timestamp => {
   return time
 }
 
-const weiToEbk = value => value * 0.000000000000000001
-
 const isZeroHash = hash => {
   return /^(0x)?0*$/.test(hash)
 }
 
-export { timeConverter, weiToEbk, isZeroHash }
+export { timeConverter, isZeroHash }
