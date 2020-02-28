@@ -1,9 +1,10 @@
 import Vue from 'vue'
+import Web3 from 'web3'
+import floor from 'lodash/floor'
 import vueResource from 'vue-resource'
 import VueGtag from 'vue-gtag'
 
 import router from '@/router'
-
 import App from '@/App'
 import Transactions from '@/components/Transactions'
 
@@ -37,6 +38,30 @@ if (process.env.NODE_ENV === 'production' && process.env.GOOGLE_TRACKING_ID) {
 Vue.component('Transactions', Transactions)
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
+
+Vue.filter('toFixed', function(price, limit = 4) {
+  return price.toFixed(limit)
+})
+
+Vue.filter('floor', function(number) {
+  return floor(number, 4)
+})
+
+Vue.filter('toEther', function(wei) {
+  if (typeof wei == 'number') {
+    wei = '0x' + wei.toString(16)
+  }
+
+  return Web3.utils.fromWei(wei)
+})
+
+Vue.filter('toEtherFixed', function(wei) {
+  if (typeof wei == 'number') {
+    wei = '0x' + wei.toString(16)
+  }
+
+  return floor(parseFloat(Web3.utils.fromWei(wei)), 4).toFixed(4)
+})
 
 new Vue({
   router,
