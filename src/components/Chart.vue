@@ -18,11 +18,25 @@ export default {
       type: Number,
     },
   },
+  watch: {
+    chartData() {
+      this.$data._chart.update()
+    },
+  },
   mounted() {
     this.renderChart(this.chartData, {
       responsive: true,
       maintainAspectRatio: false,
       legend: { display: false },
+      scales: {
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+            },
+          },
+        ],
+      },
     })
   },
 }
