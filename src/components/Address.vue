@@ -163,8 +163,11 @@ export default {
       }
       _data.unshift(balance)
 
+      // TODO: remove this. cap lower value to 0
+      _data = _data.map(value => (value.lt(new BN('0')) ? new BN('0') : value))
+
       // now that we finished with number calcs, keep 4 decimals (converts to string)
-      _data = _data.map(data => this.$options.filters.toEtherFixed(data))
+      _data = _data.map(value => this.$options.filters.toEtherFixed(value))
 
       _datasets = [
         {
