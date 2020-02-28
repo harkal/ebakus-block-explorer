@@ -118,8 +118,13 @@ export default {
       return !!this.addressData.address
     },
     balanceData: function() {
+      const data = this.addressData
+      if (!data || !data.address) return
+
+      const BN = Web3.utils.BN
+
       var i
-      var balance = 0
+      var balance = new BN('0')
       var balanceData = {}
       var _data = []
       var _datasets = []
@@ -128,24 +133,38 @@ export default {
 
       for (i = 0; i < txs.length; i++) {
         _labels.push(this.timeConverter(txs[i].timestamp))
-        if (txs[i].from == 'this' && txs[i].to != 'this') {
-          balance -= this.weiToEbk(txs[i].value)
-        } else if (txs[i].from != 'this' && txs[i].to == 'this') {
-          balance += this.weiToEbk(txs[i].value)
+
+        if (
+          [data.address, 'this'].includes(txs[i].from) &&
+          txs[i].to != 'this'
+        ) {
+          balance = balance.sub(new BN(String(txs[i].value)))
+        } else if (
+          txs[i].from != 'this' &&
+          [data.address, 'this'].includes(txs[i].to)
+        ) {
+          balance = balance.add(new BN(String(txs[i].value)))
         }
 
         _data.push(balance)
       }
 
       _labels.unshift('')
-      balance = this.weiToEbk(this.addressData.balance) - _data[txs.length - 1]
+      balance = new BN(String(data.balance)).add(
+        new BN(String(data.stake)).mul(new BN(100000000000000))
+      )
+
+      if (txs.length > 0) {
+        balance = balance.sub(_data[txs.length - 1])
+      }
+
       for (i = 0; i < txs.length; i++) {
-        _data[i] += balance
+        _data[i] = _data[i].add(balance)
       }
       _data.unshift(balance)
 
       // now that we finished with number calcs, keep 4 decimals (converts to string)
-      _data = _data.map(data => data.toFixed(4))
+      _data = _data.map(data => this.$options.filters.toEtherFixed(data))
 
       _datasets = [
         {
