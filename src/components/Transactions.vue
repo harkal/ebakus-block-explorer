@@ -267,8 +267,8 @@ button {
   background: #fe4184;
   font-size: 18px;
   font-weight: 600;
-  width: 100%;
-  margin: 0 auto;
+  width: 95%;
+  margin: 0 auto 20px;
   transition: 0.5s all ease;
   transform: scale(1);
   border: 0;
@@ -309,14 +309,21 @@ ul {
 }
 li {
   /* block_list_item: */
-  width: 97%;
+  width: 95%;
+  margin: 0 auto;
 }
 li.placeholder,
 li a {
   padding: 22px 1%;
 }
 li a {
-  display: block;
+  /* display: block; */
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
   border-radius: 10px;
   transition: 0.1s all ease-in-out;
   text-decoration: none;
@@ -335,8 +342,12 @@ li.failed,
 li.failed a:hover {
   background-color: #fae6eb;
 }
+li.failed a:hover {
+  border-radius: 0;
+}
 li span {
   display: inline-block;
+  flex: 1 0 auto;
   width: 19%;
   margin: 0 1%;
   text-align: center;
@@ -351,7 +362,7 @@ li span:last-child {
   text-align: right;
   margin: 0;
   width: 10%;
-  vertical-align: top;
+  /* vertical-align: top; */
 }
 span.amount_ {
   font-weight: 600;
@@ -394,7 +405,9 @@ img {
     width: 100%;
     display: block;
   }
-
+  li a {
+    display: block;
+  }
   li.placeholder,
   li a {
     position: relative;
@@ -407,6 +420,13 @@ img {
     padding-bottom: 45px;
     border-bottom: 2px solid #f0f0f0;
     border-radius: 0px !important;
+  }
+  li.failed {
+    background-color: #fff;
+  }
+  li.placeholder.failed,
+  li.failed a {
+    background-color: #fae6eb;
   }
   li {
     width: 100vw;
@@ -485,6 +505,10 @@ img {
     padding-left: 10px !important;
     margin-bottom: 10px;
     background: #fff;
+  }
+
+  .failed .mobileLabel {
+    background-color: #fae6eb;
   }
 }
 </style>
