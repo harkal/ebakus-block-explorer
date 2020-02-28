@@ -347,6 +347,10 @@ export default {
           if (witness != null) {
             this.witnesses.push(witness)
             this.displayedWitnesses.push(witness)
+
+            if (this.filterAddressQuery !== '') {
+              this.filterByAddress()
+            }
           }
         } while (witness != null)
 
