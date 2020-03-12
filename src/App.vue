@@ -71,6 +71,9 @@ body {
   font-weight: 600;
   color: #31baf3;
 }
+.address a {
+  color: inherit;
+}
 h1 {
   font-size: 22px;
 }

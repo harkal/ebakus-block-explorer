@@ -39,32 +39,53 @@
           :key="tx.hash + ':' + idx"
           :class="{ failed: tx.status === 0 }"
         >
-          <router-link
-            :to="{ name: RouteNames.SEARCH, params: { query: tx.hash } }"
-          >
-            <span class="mobileLabel">Tx hash</span>
-            <span class="txID transaction">{{ tx.hash }}</span>
-            <span class="mobileLabel">From</span>
-            <span class="address">{{ tx.from }}</span>
-            <img
-              src="../assets/ic_from_to.png"
-              alt
-              :class="{ outgoing: tx.from == 'this' && tx.to != 'this' }"
-            />
-            <span class="mobileLabel">To</span>
-            <span class="address">{{ tx.to }}</span>
-            <span class="mobileLabel">Amount</span>
-            <span
-              class="amount_"
-              :class="{
-                outgoing: tx.from == 'this' && tx.to != 'this',
-                incoming: tx.from !== 'this' && tx.to == 'this',
-              }"
-              >{{ tx.value | toEtherFixed }} <small>EBK</small></span
+          <span class="mobileLabel">Tx hash</span>
+          <span class="txID transaction">
+            <router-link
+              :to="{ name: RouteNames.SEARCH, params: { query: tx.hash } }"
+              :title="tx.hash"
             >
-            <span class="mobileLabel timestamp">Time</span>
-            <span class="time">{{ timeConverter(tx.timestamp) }}</span>
-          </router-link>
+              {{ tx.hash }}
+            </router-link>
+          </span>
+          <span class="mobileLabel">From</span>
+          <span class="address">
+            <router-link
+              v-if="tx.from !== 'this'"
+              :to="{ name: RouteNames.SEARCH, params: { query: tx.from } }"
+              :title="tx.from"
+            >
+              {{ tx.from }}
+            </router-link>
+            <strong v-else>this</strong>
+          </span>
+          <img
+            src="../assets/ic_from_to.png"
+            alt
+            :class="{ outgoing: tx.from == 'this' && tx.to != 'this' }"
+          />
+          <span class="mobileLabel">To</span>
+          <span class="address">
+            <router-link
+              v-if="tx.to !== 'this'"
+              :to="{ name: RouteNames.SEARCH, params: { query: tx.to } }"
+              :title="tx.to"
+            >
+              {{ tx.to }}
+            </router-link>
+            <strong v-else>this</strong>
+          </span>
+          <span class="mobileLabel">Amount</span>
+          <span
+            class="amount_"
+            :class="{
+              outgoing: tx.from == 'this' && tx.to != 'this',
+              incoming: tx.from !== 'this' && tx.to == 'this',
+            }"
+            >{{ tx.value | toEtherFixed }} <small>EBK</small></span
+          >
+          <span class="mobileLabel timestamp">Time</span>
+          <span class="time">{{ timeConverter(tx.timestamp) }}</span>
         </li>
       </ul>
 
@@ -309,14 +330,11 @@ ul {
 }
 li {
   /* block_list_item: */
-  width: 95%;
+  width: 93%;
   margin: 0 auto;
 }
-li.placeholder,
-li a {
-  padding: 22px 1%;
-}
-li a {
+
+.main li {
   /* display: block; */
   display: flex;
   flex-wrap: nowrap;
@@ -324,25 +342,22 @@ li a {
   justify-content: center;
   align-items: center;
   align-content: center;
+  padding: 22px 1%;
   border-radius: 10px;
   transition: 0.1s all ease-in-out;
   text-decoration: none;
-  color: #34393d;
   opacity: 0.85;
 }
-li a:visited {
-  color: #112f42;
-}
-li a:hover {
+.main li:hover {
   box-shadow: 0 2px 33px 0 rgba(17, 47, 66, 0.1);
   opacity: 1;
   background: #fff;
 }
 li.failed,
-li.failed a:hover {
+li.failed:hover {
   background-color: #fae6eb;
 }
-li.failed a:hover {
+li.failed:hover {
   border-radius: 0;
 }
 li span {
@@ -405,11 +420,8 @@ img {
     width: 100%;
     display: block;
   }
-  li a {
+  .main li {
     display: block;
-  }
-  li.placeholder,
-  li a {
     position: relative;
     opacity: 1;
     background: #fff;
@@ -425,7 +437,7 @@ img {
     background-color: #fff;
   }
   li.placeholder.failed,
-  li.failed a {
+  li.failed {
     background-color: #fae6eb;
   }
   li {
