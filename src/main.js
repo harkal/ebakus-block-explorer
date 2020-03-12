@@ -13,9 +13,11 @@ Vue.use(vueResource)
 // add support for BN in JSON
 Vue.http.interceptors.push(function(request) {
   return function(response) {
-    response.body = JSON.parse(
-      response.bodyText.replace(/:([0-9]{15,}),/g, ':"$1",')
-    )
+    if (response.ok) {
+      response.body = JSON.parse(
+        response.bodyText.replace(/:([0-9]{15,}),/g, ':"$1",')
+      )
+    }
   }
 })
 
