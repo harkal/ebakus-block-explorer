@@ -114,40 +114,6 @@ const MAX_VOTES = 20
 const DEBOUNCE_DELAY = 1000
 
 const SystemContractAddress = '0x0000000000000000000000000000000000000101'
-const SystemContractVoteABI = [
-  {
-    type: 'function',
-    name: 'getStaked',
-    inputs: [],
-    outputs: [
-      {
-        type: 'uint64',
-      },
-    ],
-    constant: true,
-    payable: false,
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    name: 'vote',
-    inputs: [
-      {
-        name: 'addresses',
-        type: 'address[]',
-      },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    name: 'unvote',
-    inputs: [],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-]
 
 export default {
   components: {
@@ -315,8 +281,13 @@ export default {
         throw 'web3 is not set'
       }
 
+      let systemContractABI = await this.web3.eth.getAbiForAddress(
+        SystemContractAddress
+      )
+      systemContractABI = JSON.parse(systemContractABI)
+
       const systemContract = new this.web3.eth.Contract(
-        SystemContractVoteABI,
+        systemContractABI,
         SystemContractAddress
       )
 
