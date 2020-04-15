@@ -13,6 +13,7 @@ const RouteNames = {
   SEARCH: 'search',
   BLOCKS: 'blocks',
   TRANSACTIONS: 'transactions',
+  RICHLIST: 'richlist',
 
   PRODUCERS: 'producers',
 }
@@ -42,6 +43,12 @@ const router = new Router({
     {
       path: '/transactions',
       name: RouteNames.TRANSACTIONS,
+      component: App,
+    },
+
+    {
+      path: '/richlist',
+      name: RouteNames.RICHLIST,
       component: App,
     },
 
