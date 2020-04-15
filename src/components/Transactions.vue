@@ -410,9 +410,6 @@ img {
   display: none;
 }
 @media (max-width: 560px) {
-  ul#tabbarOptions {
-    width: 460px;
-  }
   ul.tabResults.main {
     width: 100%;
   }

@@ -17,6 +17,7 @@
           <img src="../assets/ic_transactions.png" alt />
           <span class="txs-button"></span>
         </li>
+        <li class="mobile-only"></li>
         <li
           :id="RouteNames.PRODUCERS"
           :class="{ active: $route.name === RouteNames.PRODUCERS }"
@@ -181,10 +182,10 @@ export default {
 }
 
 #tabbarOptions li {
-  margin-bottom: 8px;
+  margin: 4px;
 }
-#tabbarOptions li:last-child {
-  margin-bottom: 0;
+#tabbarOptions li.mobile-only {
+  display: none;
 }
 
 li {
@@ -245,34 +246,47 @@ ul.tabbarOptions li.img {
   padding-left: 2px;
 }
 
-@media (max-width: 620px) {
-  .txs-button:after {
-    content: 'Txs';
-  }
-}
 @media (max-width: 560px) {
   .scroll {
     overflow-x: auto;
   }
-  ul#tabbarOptions {
-    width: 330px;
+  #tabbarOptions {
+    width: 100%;
+    max-width: 352px;
 
     margin: 12px auto;
     padding: 0px;
+    white-space: normal;
   }
   #tabbarOptions li {
-    padding: 5px 8px;
-    margin: 0px 4px 8px;
+    padding: 5px 7px;
     font-size: 14px;
   }
   #tabbarOptions img {
     width: 12px;
+  }
+  .txs-button:after {
+    content: 'Txs';
   }
   #tabbar {
     height: 60px;
   }
   #tabbar.active {
     height: calc(100% - 100px);
+  }
+}
+
+@media (max-width: 350px) {
+  #tabbar {
+    height: 102px;
+  }
+  #tabbarOptions li.mobile-only {
+    display: block;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    border: transparent;
   }
 }
 </style>
