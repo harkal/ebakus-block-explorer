@@ -74,15 +74,29 @@
             <ContentLoader :width="50" :height="22" />
           </span>
         </li>
-        <li v-if="isLoaded && displayedWitnesses.length === 0">
+        <li
+          v-if="
+            filterAddressQuery !== '' &&
+              isWitnessesLoaded &&
+              displayedWitnesses.length === 0
+          "
+        >
           No witness found!
         </li>
       </ul>
     </div>
 
-    <div v-if="isLoaded" class="actions_area">
-      <span>
+    <div class="actions_area">
+      <span v-if="ebakusWalletAllowed && isMyVotesLoaded">
         You have used {{ newVoting.length }} out of {{ MaxVotes }} votes.
+      </span>
+      <span
+        v-else-if="hasUserConsented && !ebakusWalletAllowed"
+        class="warning"
+      >
+        In order to vote, you have to allow ebakus wallet to store browser
+        cookies.
+        <button class="allowCookies" @click="allowEbakusWallet">Allow</button>
       </span>
 
       <span v-if="hasReachedMaxVotes && error === ''" class="danger">
@@ -107,6 +121,8 @@ import ebakusWallet from 'ebakus-web-wallet-loader'
 import { debounce } from 'lodash'
 
 import { RouteNames } from '@/router'
+import { weiToEbk } from '@/utils'
+import { store, mutations } from '@/store'
 
 import ContentLoader from './ContentLoader'
 
@@ -135,7 +151,8 @@ export default {
       isWalletConnected: false,
       contractInstance: null,
 
-      isLoaded: false,
+      isEbakusWalletLoaded: false,
+      isWitnessesLoaded: false,
       isWitnessesLoading: false,
       isMyVotesLoading: false,
       isMyVotesLoaded: false,
@@ -145,6 +162,8 @@ export default {
   computed: {
     RouteNames: () => RouteNames,
     MaxVotes: () => MAX_VOTES,
+    hasUserConsented: () => store.hasUserConsented,
+    ebakusWalletAllowed: () => store.ebakusWalletAllowed,
     hasChangedVotes: function() {
       return (
         !this.newVoting.every(address =>
@@ -174,52 +193,71 @@ export default {
         }
       }
     },
+    ebakusWalletAllowed: function(val, oldVal) {
+      if (val && val !== oldVal) {
+        this.initEbakusWallet()
+      }
+    },
   },
   created: function() {
-    const self = this
-
     this.web3 = Web3Ebakus(new Web3(this.web3Endpoint))
-
-    window.addEventListener('ebakusCurrentProviderEndpoint', function({
-      detail: endpoint,
-    }) {
-      self.resetWeb3Connection()
-      self.displayedWitnesses = []
-      self.connect()
-    })
-
-    window.addEventListener('ebakusConnectionStatus', function({
-      detail: status,
-    }) {
-      self.resetWeb3Connection()
-
-      if (status == 'connected') {
-        self.connect()
-      }
-    })
-
-    window.addEventListener('ebakusAccount', ({ detail: address }) => {
-      self.resetWeb3Connection()
-      self.connect()
-    })
-
-    window.addEventListener('ebakusStaked', function({ detail: staked }) {
-      if (self.web3 === null) {
-        return
-      }
-      self.loadWitnesses()
-      self.loadCurrentlyVoted()
-    })
   },
   mounted: function() {
-    const opts = {}
-    if (process.env.WALLET_ENDPOINT) {
-      opts.walletEndpoint = process.env.WALLET_ENDPOINT
+    if (this.ebakusWalletAllowed) {
+      this.initEbakusWallet()
+    } else {
+      this.connect()
     }
-
-    ebakusWallet.init(opts)
   },
   methods: {
+    weiToEbk: weiToEbk,
+    allowEbakusWallet: function() {
+      mutations.setAllowEbakusWallet(true)
+    },
+    initEbakusWallet: function() {
+      if (this.isEbakusWalletLoaded || !this.ebakusWalletAllowed) return
+      this.isEbakusWalletLoaded = true
+
+      const self = this
+
+      window.addEventListener('ebakusCurrentProviderEndpoint', function({
+        detail: endpoint,
+      }) {
+        self.resetWeb3Connection()
+        self.displayedWitnesses = []
+        self.connect()
+      })
+
+      window.addEventListener('ebakusConnectionStatus', function({
+        detail: status,
+      }) {
+        self.resetWeb3Connection()
+
+        if (status == 'connected') {
+          self.connect()
+        }
+      })
+
+      window.addEventListener('ebakusAccount', ({ detail: address }) => {
+        self.resetWeb3Connection()
+        self.connect()
+      })
+
+      window.addEventListener('ebakusStaked', function({ detail: staked }) {
+        if (self.web3 === null) {
+          return
+        }
+        self.loadWitnesses()
+        self.loadCurrentlyVoted()
+      })
+
+      const opts = {}
+      if (process.env.WALLET_ENDPOINT) {
+        opts.walletEndpoint = process.env.WALLET_ENDPOINT
+      }
+
+      ebakusWallet.init(opts)
+    },
     resetWeb3Connection: function() {
       this.$set(this, 'isWalletConnected', false)
       this.$set(this, 'web3', null)
@@ -232,7 +270,11 @@ export default {
 
       this.web3Connecting = true
       try {
-        const endpoint = await ebakusWallet.getCurrentProviderEndpoint()
+        let endpoint = process.env.WEB3JS_NODE_ENDPOINT
+        if (this.ebakusWalletAllowed) {
+          endpoint = await ebakusWallet.getCurrentProviderEndpoint()
+        }
+
         if (this.web3 === null || endpoint !== this.web3Endpoint) {
           this.web3Endpoint = endpoint
 
@@ -262,6 +304,8 @@ export default {
       }
     }, DEBOUNCE_DELAY),
     fetchAccount: async function() {
+      if (!this.ebakusWalletAllowed) return
+
       try {
         const address = await ebakusWallet.getAccount()
         this.myAddress = address
@@ -325,10 +369,10 @@ export default {
           }
         } while (witness != null)
 
-        this.isLoaded = true
+        this.isWitnessesLoaded = true
         this.showTitle = true
       } catch (err) {
-        this.isLoaded = false
+        this.isWitnessesLoaded = false
         this.showTitle = false
 
         if (
@@ -346,7 +390,12 @@ export default {
     },
 
     loadCurrentlyVoted: async function() {
-      if (this.isMyVotesLoading || this.web3 === null) return
+      if (
+        this.isMyVotesLoading ||
+        this.web3 === null ||
+        !this.ebakusWalletAllowed
+      )
+        return
 
       this.isMyVotesLoading = true
 
@@ -500,9 +549,13 @@ export default {
   left: 0;
   right: 0;
   /* right: 200px; */
+  min-height: 22px;
   padding: 24px;
   border-top: 1px solid #c6c6c6;
   background-color: #fff;
+
+  opacity: 0;
+  animation: fadeIn 0.3s ease-in forwards;
 }
 
 .actions_area span {
@@ -527,6 +580,14 @@ export default {
   border: 0;
   cursor: pointer;
   outline: none;
+}
+
+.actions_area .allowCookies {
+  margin-left: 12px;
+  border-radius: 4px;
+  border: solid 1px #acb4c9;
+  background-color: #f8f9fb;
+  color: #112f42;
 }
 
 #tabbar .scroll.inner {
@@ -630,9 +691,13 @@ span.producer {
 .mobileLabel {
   display: none;
 }
+.warning {
+  color: #ff9800;
+}
 .danger {
   color: #f44336;
 }
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -724,6 +789,13 @@ span.producer {
     margin: 6px auto 0;
     padding: 8px 14px;
     font-size: 14px;
+  }
+}
+@media (max-width: 670px) {
+  .actions_area .allowCookies {
+    display: block;
+    float: none;
+    margin: 12px auto 0;
   }
 }
 </style>

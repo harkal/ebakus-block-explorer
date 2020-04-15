@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!isConsented" class="cookiePolicy">
+  <div v-if="!hasUserConsented" class="cookiePolicy">
     <p>
       This website stores data such as cookies to enable important site
       functionality including analytics and personalization. You may alter your
@@ -26,7 +26,7 @@
         <label
           class="tglBtn"
           for="ebakusWallet"
-          data-label="EbakusWallet"
+          data-label="Ebakus Wallet"
         ></label>
       </li>
     </ul>
@@ -38,53 +38,30 @@
 
 <script>
 import { bootstrap as gTagBootstap } from 'vue-gtag'
-
-const localStorageKey = 'userConsent'
+import { store, mutations } from '@/store'
 
 export default {
   data() {
     return {
-      isConsented: false,
-      analytics: false,
-      ebakusWallet: true,
+      analytics: store.analyticsAllowed,
+      ebakusWallet: store.hasUserConsented ? store.ebakusWalletAllowed : true,
     }
+  },
+  computed: {
+    hasUserConsented: () => store.hasUserConsented,
   },
   created() {
-    const userConsent = localStorage.getItem(localStorageKey)
-    if (userConsent) {
-      const {
-        analytics = this.analytics,
-        ebakusWallet = this.ebakusWallet,
-      } = JSON.parse(userConsent)
-      this.analytics = analytics
-      this.ebakusWallet = ebakusWallet
-
-      this.handleAnalytics()
-
-      // this.isConsented = true
-    }
+    this.handleAnalytics()
   },
   methods: {
-    saveInStorage: function() {
-      localStorage.setItem(
-        localStorageKey,
-        JSON.stringify({
-          analytics: this.analytics,
-          ebakusWallet: this.ebakusWallet,
-        })
-      )
-    },
     save: function() {
-      this.isConsented = true
-      this.saveInStorage()
+      mutations.setAllowEbakusWallet(this.ebakusWallet)
+      mutations.setAllowAnalytics(this.analytics)
       this.handleAnalytics()
     },
     acceptAll: function() {
-      this.isConsented = true
-      this.analytics = true
-      this.ebakusWallet = true
-
-      this.saveInStorage()
+      mutations.setAllowEbakusWallet(true)
+      mutations.setAllowAnalytics(true)
       this.handleAnalytics()
     },
     handleAnalytics: function() {
@@ -112,6 +89,9 @@ export default {
   background-color: #ffffff;
 
   text-align: left;
+
+  opacity: 0;
+  animation: fadeIn 0.4s ease 2s forwards;
 
   ul {
     list-style: none;
@@ -168,6 +148,7 @@ export default {
       left: 50px;
       top: 0;
       font-weight: bold;
+      white-space: nowrap;
     }
   }
 
@@ -207,6 +188,15 @@ button {
 
   &:last-child {
     margin-left: 2%;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 </style>
