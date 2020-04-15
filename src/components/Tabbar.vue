@@ -14,7 +14,8 @@
           :class="{ active: $route.name === RouteNames.TRANSACTIONS }"
           @click="toggleTab(RouteNames.TRANSACTIONS)"
         >
-          <img src="../assets/ic_transactions.png" alt /> Transactions
+          <img src="../assets/ic_transactions.png" alt />
+          <span class="txs-button"></span>
         </li>
         <li
           :id="RouteNames.PRODUCERS"
@@ -22,6 +23,13 @@
           @click="toggleTab(RouteNames.PRODUCERS)"
         >
           <img src="../assets/ic_stats.png" alt /> Producers
+        </li>
+        <li
+          :id="RouteNames.RICHLIST"
+          :class="{ active: $route.name === RouteNames.RICHLIST }"
+          @click="toggleTab(RouteNames.RICHLIST)"
+        >
+          <img src="../assets/ic_richlist.png" alt /> Richlist
         </li>
       </ul>
     </div>
@@ -39,6 +47,10 @@
         key="tabbar-stats"
         :class="{ active: $route.name == RouteNames.PRODUCERS }"
       />
+      <Richlist
+        key="tabbar-richlist"
+        :class="{ active: $route.name == RouteNames.RICHLIST }"
+      />
     </div>
   </div>
 </template>
@@ -48,17 +60,18 @@ import router, { RouteNames } from '@/router'
 import { store, mutations } from '@/store'
 
 import Blocks from '@/components/Blocks'
-// import Transactions from '@/components/transactions'
+import Richlist from '@/components/Richlist'
 import Producers from '@/components/Producers'
 
 export const TabNames = {
   BLOCKS: 'blocks',
   TRANSACTIONS: 'transactions',
+  RICHLIST: 'richlist',
   PRODUCERS: 'producers',
 }
 
 export default {
-  components: { Blocks, Producers },
+  components: { Blocks, Richlist, Producers },
   props: {
     tabbarActive: {
       type: Boolean,
@@ -83,6 +96,7 @@ export default {
       return [
         RouteNames.BLOCKS,
         RouteNames.TRANSACTIONS,
+        RouteNames.RICHLIST,
         RouteNames.PRODUCERS,
       ].includes(router.app.$route.name)
     },
@@ -94,6 +108,7 @@ export default {
         [
           RouteNames.BLOCKS,
           RouteNames.TRANSACTIONS,
+          RouteNames.RICHLIST,
           RouteNames.PRODUCERS,
         ].includes(to.name)
       )
@@ -160,9 +175,18 @@ export default {
 }
 
 #tabbarOptions {
-  width: 460px;
+  width: 584px;
   margin: 15px auto;
+  padding-left: 0;
 }
+
+#tabbarOptions li {
+  margin-bottom: 8px;
+}
+#tabbarOptions li:last-child {
+  margin-bottom: 0;
+}
+
 li {
   display: inline-block;
   /* Rectangle 2: */
@@ -216,7 +240,16 @@ ul.tabbarOptions li.img {
   user-select: none;
   cursor: pointer;
 }
+.txs-button:after {
+  content: 'Transactions';
+  padding-left: 2px;
+}
 
+@media (max-width: 620px) {
+  .txs-button:after {
+    content: 'Txs';
+  }
+}
 @media (max-width: 560px) {
   .scroll {
     overflow-x: auto;
@@ -229,7 +262,7 @@ ul.tabbarOptions li.img {
   }
   #tabbarOptions li {
     padding: 5px 8px;
-    margin: 0px 4px;
+    margin: 0px 4px 8px;
     font-size: 14px;
   }
   #tabbarOptions img {
