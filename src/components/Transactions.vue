@@ -51,13 +51,13 @@
           <span class="mobileLabel">From</span>
           <span class="address">
             <router-link
-              v-if="tx.from !== 'this'"
+              v-if="!['this', 'contract creation'].includes(tx.from)"
               :to="{ name: RouteNames.SEARCH, params: { query: tx.from } }"
               :title="tx.from"
             >
               {{ tx.from }}
             </router-link>
-            <strong v-else>this</strong>
+            <strong v-else>{{ tx.from }}</strong>
           </span>
           <img
             src="../assets/ic_from_to.png"
@@ -67,13 +67,13 @@
           <span class="mobileLabel">To</span>
           <span class="address">
             <router-link
-              v-if="tx.to !== 'this'"
+              v-if="!['this', 'contract creation'].includes(tx.to)"
               :to="{ name: RouteNames.SEARCH, params: { query: tx.to } }"
               :title="tx.to"
             >
               {{ tx.to }}
             </router-link>
-            <strong v-else>this</strong>
+            <strong v-else>{{ tx.to }}</strong>
           </span>
           <span class="mobileLabel">Amount</span>
           <span
