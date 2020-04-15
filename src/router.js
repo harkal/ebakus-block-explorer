@@ -14,7 +14,7 @@ const RouteNames = {
   BLOCKS: 'blocks',
   TRANSACTIONS: 'transactions',
 
-  STATISTICS: 'statistics',
+  PRODUCERS: 'producers',
 }
 
 const router = new Router({
@@ -45,9 +45,10 @@ const router = new Router({
       component: App,
     },
 
+    { path: '/statistics', redirect: '/producers' },
     {
-      path: '/statistics',
-      name: RouteNames.STATISTICS,
+      path: '/producers',
+      name: RouteNames.PRODUCERS,
       component: App,
     },
   ],

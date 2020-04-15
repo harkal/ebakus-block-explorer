@@ -17,11 +17,11 @@
           <img src="../assets/ic_transactions.png" alt /> Transactions
         </li>
         <li
-          :id="RouteNames.STATISTICS"
-          :class="{ active: $route.name === RouteNames.STATISTICS }"
-          @click="toggleTab(RouteNames.STATISTICS)"
+          :id="RouteNames.PRODUCERS"
+          :class="{ active: $route.name === RouteNames.PRODUCERS }"
+          @click="toggleTab(RouteNames.PRODUCERS)"
         >
-          <img src="../assets/ic_stats.png" alt /> Statistics
+          <img src="../assets/ic_stats.png" alt /> Producers
         </li>
       </ul>
     </div>
@@ -35,9 +35,9 @@
         key="tabbar-transactions"
         :class="{ active: $route.name == RouteNames.TRANSACTIONS }"
       />
-      <Statistics
+      <Producers
         key="tabbar-stats"
-        :class="{ active: $route.name == RouteNames.STATISTICS }"
+        :class="{ active: $route.name == RouteNames.PRODUCERS }"
       />
     </div>
   </div>
@@ -49,16 +49,16 @@ import { store, mutations } from '@/store'
 
 import Blocks from '@/components/Blocks'
 // import Transactions from '@/components/transactions'
-import Statistics from '@/components/Statistics'
+import Producers from '@/components/Producers'
 
 export const TabNames = {
   BLOCKS: 'blocks',
   TRANSACTIONS: 'transactions',
-  STATISTICS: 'statistics',
+  PRODUCERS: 'producers',
 }
 
 export default {
-  components: { Blocks, Statistics },
+  components: { Blocks, Producers },
   props: {
     tabbarActive: {
       type: Boolean,
@@ -83,7 +83,7 @@ export default {
       return [
         RouteNames.BLOCKS,
         RouteNames.TRANSACTIONS,
-        RouteNames.STATISTICS,
+        RouteNames.PRODUCERS,
       ].includes(router.app.$route.name)
     },
   },
@@ -94,7 +94,7 @@ export default {
         [
           RouteNames.BLOCKS,
           RouteNames.TRANSACTIONS,
-          RouteNames.STATISTICS,
+          RouteNames.PRODUCERS,
         ].includes(to.name)
       )
         mutations.setContentActive(true)

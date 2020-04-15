@@ -1,5 +1,5 @@
 <template>
-  <div id="statistics_wrapper">
+  <div id="producers_wrapper">
     <small>
       There are
       <strong>{{ witnesses.length >= 21 ? 21 : witnesses.length }}</strong>
@@ -159,7 +159,7 @@ export default {
   },
   watch: {
     $route: async function(to, from) {
-      if (to.name !== from.name && to.name === RouteNames.STATISTICS) {
+      if (to.name !== from.name && to.name === RouteNames.PRODUCERS) {
         if (this.web3 !== null) {
           try {
             await this.web3.eth.net.getId()
@@ -226,7 +226,7 @@ export default {
       this.$set(this, 'contractInstance', null)
     },
     connect: debounce(async function() {
-      if (this.web3Connecting || this.$route.name !== RouteNames.STATISTICS) {
+      if (this.web3Connecting || this.$route.name !== RouteNames.PRODUCERS) {
         return
       }
 
@@ -480,13 +480,13 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-#statistics_wrapper {
+#producers_wrapper {
   display: none;
   height: 50px;
   height: 100%;
   /* padding-right: 200px; */
 }
-#statistics_wrapper.active {
+#producers_wrapper.active {
   opacity: 1;
   display: block;
 }
