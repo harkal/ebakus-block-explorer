@@ -66,6 +66,10 @@ Vue.filter('toEtherFixed', function(wei) {
   return floor(parseFloat(Web3.utils.fromWei(wei)), 4).toFixed(4)
 })
 
+Vue.filter('toENS', function(obj, field) {
+  return !!obj[`${field}Ens`] ? obj[`${field}Ens`] : obj[field]
+})
+
 new Vue({
   router,
   render: h => h(App),
