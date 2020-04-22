@@ -180,7 +180,7 @@ export default {
   watch: {
     $route: async function(to, from) {
       if (to.name !== from.name && to.name === RouteNames.PRODUCERS) {
-        if (web3) {
+        if (this.contractInstance !== null) {
           try {
             await web3.eth.net.getId()
             await this.fetchAccount()
