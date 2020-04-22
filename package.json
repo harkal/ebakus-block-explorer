@@ -33,6 +33,7 @@
     "abi-decoder": "https://github.com/ziogaschr/abi-decoder#feature/multiple-instances",
     "chart.js": "^2.9.3",
     "ebakus-web-wallet-loader": "^0.1.4",
+    "eth-ens-namehash": "^2.0.8",
     "ethereumjs-util": "^6.2.0",
     "lodash": "^4.17.15",
     "vue": "^2.6.10",
