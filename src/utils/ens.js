@@ -3,7 +3,7 @@ import memoize from 'lodash/memoize'
 import debounce from 'lodash/debounce'
 import namehash from 'eth-ens-namehash'
 
-import { web3, initWeb3 } from '@/utils/web3ebakus'
+import { web3, checkConnectionError } from '@/utils/web3ebakus'
 
 const ContractAddress = process.env.ENS_CONTRACT_ADDRESS
 
@@ -24,13 +24,15 @@ const resetContract = async () => {
   _contract = null
 }
 
-const checkConnectionError = async err => {
-  if (err.message === 'connection not open') {
-    resetContract()
-    initWeb3()
-    await getEnsContract()
-    return true
-  }
+const checkEnsConnectionError = async err => {
+  return await checkConnectionError(err, {
+    preInit: async () => {
+      resetContract()
+    },
+    postInit: async () => {
+      await getEnsContract()()
+    },
+  })
 }
 
 const getAddressWithCaching = memoize(async hash => {
@@ -53,7 +55,7 @@ const getAddressForEns = async name => {
   try {
     return await getAddressWithCaching(hash)
   } catch (err) {
-    if (await checkConnectionError(err)) {
+    if (await checkEnsConnectionError(err)) {
       return getAddressForEns(name)
     }
 

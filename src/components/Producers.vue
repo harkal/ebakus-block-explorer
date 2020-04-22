@@ -122,7 +122,7 @@ import ebakusWallet from 'ebakus-web-wallet-loader'
 import { debounce } from 'lodash'
 
 import { RouteNames } from '@/router'
-import { web3, setProvider } from '@/utils/web3ebakus'
+import { web3, setProvider, checkConnectionError } from '@/utils/web3ebakus'
 import { getEnsNameForAddress, resetContract } from '@/utils/ens'
 import { store, mutations } from '@/store'
 
@@ -187,7 +187,9 @@ export default {
             this.loadWitnesses()
             this.loadCurrentlyVoted()
           } catch (err) {
-            this.connect()
+            if (!(await this.checkWeb3ConnectionError(err))) {
+              this.connect()
+            }
           }
         } else {
           this.connect()
@@ -254,6 +256,26 @@ export default {
       }
 
       ebakusWallet.init(opts)
+    },
+    checkWeb3ConnectionError: async function(err) {
+      const self = this
+      return await checkConnectionError(err, {
+        getProviderEndpoint: async () => {
+          if (this.ebakusWalletAllowed) {
+            const endpoint = await ebakusWallet.getCurrentProviderEndpoint()
+
+            if (endpoint) return endpoint
+          }
+          return process.env.WEB3JS_NODE_ENDPOINT
+        },
+        preInit: async () => {
+          self.resetWeb3Connection()
+        },
+        postInit: async () => {
+          self.error = ''
+          self.connect()
+        },
+      })
     },
     resetWeb3Connection: function() {
       this.$set(this, 'isWalletConnected', false)
@@ -367,13 +389,7 @@ export default {
         this.isWitnessesLoaded = false
         this.showTitle = false
 
-        if (
-          typeof err.message === 'string' &&
-          err.message.includes('connection not open')
-        ) {
-          this.resetWeb3Connection()
-          this.connect()
-        } else {
+        if (!(await this.checkWeb3ConnectionError(err))) {
           console.error('Failed to fetch witnesses', err)
         }
       }
@@ -418,13 +434,7 @@ export default {
       } catch (err) {
         this.isMyVotesLoaded = false
 
-        if (
-          typeof err.message === 'string' &&
-          err.message.includes('connection not open')
-        ) {
-          this.resetWeb3Connection()
-          this.connect()
-        } else {
+        if (!(await this.checkWeb3ConnectionError(err))) {
           console.error('Failed to fetch voted witnesses', err)
         }
       }
@@ -494,13 +504,7 @@ export default {
         console.error('Voting failed', err)
         this.error = 'Something went wrong. Please try again.'
 
-        if (
-          typeof err.message === 'string' &&
-          err.message.includes('connection not open')
-        ) {
-          this.resetWeb3Connection()
-          this.connect()
-        }
+        await this.checkWeb3ConnectionError(err)
       }
     },
     filterByAddress: function() {
