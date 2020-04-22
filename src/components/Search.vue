@@ -17,7 +17,7 @@
         ref="searchField"
         v-model="searchInput"
         type="text"
-        placeholder="Search by txid, block number or address"
+        placeholder="Search by txid, block number, address or ENS name"
         @keyup.enter="searchWithQuery('searchBtn')"
       />
       <button
@@ -200,7 +200,7 @@ export default {
         }
       } catch (err) {
         this.error =
-          'Please enter a txid, a block number or an account address.'
+          'Please enter a txid, a block number, an account address or an ENS name.'
         this.isActive = false
         this.isBlockActive = false
         this.isTransactionActive = false

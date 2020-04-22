@@ -21,7 +21,7 @@
             ><ContentLoader :width="150" /> <small>EBK</small></span
           >
         </li>
-        <li v-for="(data, idx) in addresses" :key="data.address">
+        <li v-for="(data, idx) in addresses" :key="`${data.address}:${idx}`">
           <span class="mobileLabel">#</span>
           <span class="id">{{ idx + 1 }}</span>
           <span class="mobileLabel">Address</span>
