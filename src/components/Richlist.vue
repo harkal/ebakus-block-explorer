@@ -27,7 +27,7 @@
               :to="{ name: RouteNames.SEARCH, params: { query: data.address } }"
               :title="data.address"
             >
-              {{ data.address }}
+              {{ data | toENS('address') }}
             </router-link>
           </span>
           <span class="mobileLabel">Amount</span>

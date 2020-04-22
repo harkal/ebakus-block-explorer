@@ -47,7 +47,17 @@
               >{{ block.gasUsed }} %</progress
             >
             <span class="mobileLabel">Produced by</span>
-            <span class="producer">{{ block.producer }}</span>
+            <span class="producer address">
+              <router-link
+                :to="{
+                  name: RouteNames.SEARCH,
+                  params: { query: block.producer },
+                }"
+                :title="block.producer"
+              >
+                {{ block | toENS('producer') }}
+              </router-link>
+            </span>
             <span class="mobileLabel">Timestamp</span>
             <span class="time">{{ timeConverter(block.timestamp) }}</span>
           </router-link>

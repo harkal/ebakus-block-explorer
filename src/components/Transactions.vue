@@ -55,7 +55,7 @@
               :to="{ name: RouteNames.SEARCH, params: { query: tx.from } }"
               :title="tx.from"
             >
-              {{ tx.from }}
+              {{ tx | toENS('from') }}
             </router-link>
             <strong v-else>{{ tx.from }}</strong>
           </span>
@@ -71,7 +71,7 @@
               :to="{ name: RouteNames.SEARCH, params: { query: tx.to } }"
               :title="tx.to"
             >
-              {{ tx.to }}
+              {{ tx | toENS('to') }}
             </router-link>
             <strong v-else>{{ tx.to }}</strong>
           </span>

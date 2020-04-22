@@ -77,8 +77,10 @@
                     name: RouteNames.SEARCH,
                     params: { query: blockData.producer },
                   }"
-                  >{{ blockData.producer }}</router-link
+                  :title="blockData.producer"
                 >
+                  {{ blockData | toENS('producer') }}
+                </router-link>
               </span>
               <ContentLoader v-else :width="300" />
             </td>

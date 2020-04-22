@@ -34,8 +34,11 @@
           <span class="delegateID">{{ idx + 1 }}</span>
           <span class="mobileLabel">Address</span>
           <span class="producer address">
-            <router-link :to="{ path: '/search/' + witness.Id }">
-              {{ witness.Id }}
+            <router-link
+              :to="{ path: '/search/' + witness.Id }"
+              :title="witness.Id"
+            >
+              {{ witness | toENS('Id') }}
             </router-link>
           </span>
           <span class="mobileLabel">Stake</span>
@@ -120,6 +123,7 @@ import { debounce } from 'lodash'
 
 import { RouteNames } from '@/router'
 import { web3, setProvider } from '@/utils/web3ebakus'
+import { getEnsNameForAddress, resetContract } from '@/utils/ens'
 import { store, mutations } from '@/store'
 
 import ContentLoader from './ContentLoader'
@@ -346,6 +350,8 @@ export default {
         do {
           witness = await web3.db.next(iter)
           if (witness != null) {
+            witness.IdEns = await getEnsNameForAddress(witness.Id)
+
             this.witnesses.push(witness)
             this.displayedWitnesses.push(witness)
 
