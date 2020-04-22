@@ -11,6 +11,11 @@ const RouteNames = {
   HOME: 'home',
 
   SEARCH: 'search',
+  BLOCK: 'block',
+  TRANSACTION: 'transaction',
+  ADDRESS: 'address',
+  ENS: 'ens',
+
   BLOCKS: 'blocks',
   TRANSACTIONS: 'transactions',
   RICHLIST: 'richlist',
@@ -32,7 +37,12 @@ const router = new Router({
       path: '/search/:query?',
       name: RouteNames.SEARCH,
       component: App,
-      alias: ['/block/:query', '/transaction/:query', '/address/:query'],
+      alias: [
+        '/block/:query',
+        '/transaction/:query',
+        '/address/:query',
+        '/ens/:query',
+      ],
     },
     {
       path: '/blocks',
