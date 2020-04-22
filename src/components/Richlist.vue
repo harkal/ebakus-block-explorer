@@ -14,6 +14,8 @@
           :key="index"
           class="placeholder"
         >
+          <span class="mobileLabel">#</span>
+          <span class="id"><ContentLoader :width="14"/></span>
           <span class="mobileLabel">Address</span>
           <span class="address"> <ContentLoader :width="400"/></span>
           <span class="mobileLabel">Amount</span>
