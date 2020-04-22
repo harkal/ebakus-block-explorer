@@ -57,6 +57,7 @@ import { store, mutations } from '@/store'
 import Address from '@/components/Address'
 import Block from '@/components/Block'
 import Transaction from '@/components/Transaction'
+import { getAddressForEns, storeEnsNameForAddress } from '@/utils/ens'
 
 export default {
   components: {
@@ -136,51 +137,77 @@ export default {
         this.searchWithQuery(null)
       }
     },
-    searchWithQuery: function(e) {
+    searchWithQuery: async function(e) {
       this.error = ''
       var queryStr = this.searchInput.replace(/ /g, '')
-      if (
-        isNaN(queryStr) ||
-        queryStr.substring(0, 2) == '0x' ||
-        queryStr == ''
-      ) {
-        switch (queryStr.length) {
-          case 42:
-            console.log('Search address', queryStr)
-            this.isActive = true
-            this.isBlockActive = false
-            this.isTransactionActive = false
-            this.isAddressActive = true
-            this.getAddress(queryStr)
-            break
-          case 66:
-            console.log('Search TXid', queryStr)
-            this.isActive = true
-            this.isBlockActive = false
-            this.isTransactionActive = true
-            this.isAddressActive = false
-            this.getTransaction(queryStr)
-            break
-          default:
-            this.error =
-              'Please enter a txid, a block number or an account address.'
-            this.isActive = false
-            this.isBlockActive = false
-            this.isTransactionActive = false
-            this.isAddressActive = false
-            if (e == 'searchBtn') {
-              this.searchQuery = ''
-              this.$root.$data.sharedState.query = ''
+      try {
+        if (
+          isNaN(queryStr) ||
+          queryStr.substring(0, 2) == '0x' ||
+          queryStr == ''
+        ) {
+          if (queryStr.substring(0, 2) == '0x') {
+            switch (queryStr.length) {
+              case 42:
+                console.log('Search address', queryStr)
+                this.isActive = true
+                this.isBlockActive = false
+                this.isTransactionActive = false
+                this.isAddressActive = true
+                this.getAddress(queryStr)
+                break
+              case 66:
+                console.log('Search TXid', queryStr)
+                this.isActive = true
+                this.isBlockActive = false
+                this.isTransactionActive = true
+                this.isAddressActive = false
+                this.getTransaction(queryStr)
+                break
             }
+          } else {
+            if (queryStr != '') {
+              try {
+                console.log('Search ENS name', queryStr)
+                const ensAddress = await getAddressForEns(queryStr)
+                if (ensAddress) {
+                  this.isBlockActive = false
+                  this.isTransactionActive = false
+                  this.isAddressActive = true
+                  this.isActive = true
+                  this.getAddress(ensAddress)
+
+                  await storeEnsNameForAddress(queryStr, ensAddress)
+                } else {
+                  throw new Error('No address found at ENS contract')
+                }
+              } catch (err) {
+                throw new Error('Failed to match an ENS name:', err)
+              }
+            } else {
+              throw new Error('Nothing to search')
+            }
+          }
+        } else {
+          // if is number, check for block
+          console.log('Search block', queryStr)
+          this.isBlockActive = true
+          this.isTransactionActive = false
+          this.isAddressActive = false
+          this.isActive = true
+
+          this.getBlock(queryStr)
         }
-      } else {
-        console.log('Search block', queryStr)
-        this.isBlockActive = true
+      } catch (err) {
+        this.error =
+          'Please enter a txid, a block number or an account address.'
+        this.isActive = false
+        this.isBlockActive = false
         this.isTransactionActive = false
         this.isAddressActive = false
-        this.isActive = true
-
-        this.getBlock(queryStr)
+        if (e == 'searchBtn') {
+          mutations.setQuery('')
+        }
       }
 
       mutations.setContentActive(false)
