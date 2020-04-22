@@ -2,6 +2,7 @@
   <div id="richlist_wrapper">
     <ul class="tabResults labels">
       <li id="list_title">
+        <span class="id">#</span>
         <span class="address">Address</span>
         <span class="amount">Amount</span>
       </li>
@@ -20,7 +21,9 @@
             ><ContentLoader :width="150" /> <small>EBK</small></span
           >
         </li>
-        <li v-for="data in addresses" :key="data.address">
+        <li v-for="(data, idx) in addresses" :key="data.address">
+          <span class="mobileLabel">#</span>
+          <span class="id">{{ idx + 1 }}</span>
           <span class="mobileLabel">Address</span>
           <span class="address">
             <router-link
@@ -202,7 +205,8 @@ li span {
   overflow: hidden;
 }
 #list_title {
-  padding: 0px 10px;
+  width: 98%;
+  padding: 0;
 }
 #list_title span {
   font-size: 14px;
@@ -211,8 +215,14 @@ li span {
   opacity: 0.8;
   text-align: center;
 }
+.id {
+  width: 6%;
+  text-align: left;
+  margin: 0;
+  font-weight: 600;
+}
 span.address {
-  width: 65%;
+  width: 60%;
   text-align: left;
 }
 span.amount {
@@ -236,28 +246,30 @@ span.amount {
     display: block;
   }
   .main li {
-    display: block;
-    position: relative;
-    opacity: 1;
-    background: #fff;
     margin-left: 0px;
-    width: 610px;
-    width: 100vw;
     margin-bottom: 10px;
     padding-bottom: 45px;
-    border-bottom: 2px solid #f0f0f0;
-    border-radius: 0px !important;
   }
+
   li {
+    position: relative;
     width: 100vw;
     overflow: hidden;
+    padding-top: 10px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
   }
-
   li span {
+    display: block;
+    width: 100vw;
+    margin: 0;
     text-align: left;
-    margin: 0px;
   }
 
+  .id {
+    padding-left: 86px;
+    font-size: 14px;
+  }
   span.address {
     width: 550px;
     width: 75%;
@@ -279,9 +291,10 @@ span.amount {
     position: absolute;
     width: 30%;
     text-align: left;
-    padding-left: 94px;
+    padding-left: 86px;
     font-size: 14px;
     white-space: nowrap;
+    font-weight: 600;
   }
   a:hover {
     box-shadow: none;
