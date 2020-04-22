@@ -4,6 +4,7 @@ import debounce from 'lodash/debounce'
 import namehash from 'eth-ens-namehash'
 
 import { web3, checkConnectionError } from '@/utils/web3ebakus'
+import { isZeroHash } from '.'
 
 const ContractAddress = process.env.ENS_CONTRACT_ADDRESS
 
@@ -40,9 +41,7 @@ const getAddressWithCaching = memoize(async hash => {
   if (!contract) return null
 
   const address = await contract.methods.getAddress(hash).call()
-  return address != '0x0000000000000000000000000000000000000000'
-    ? address
-    : null
+  return isZeroHash(address) ? null : address
 })
 
 const cleanAddressCache = debounce(function(hash) {
