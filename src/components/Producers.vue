@@ -115,13 +115,11 @@
 </template>
 
 <script>
-import Web3 from 'web3'
-import Web3Ebakus from 'web3-ebakus'
 import ebakusWallet from 'ebakus-web-wallet-loader'
 import { debounce } from 'lodash'
 
 import { RouteNames } from '@/router'
-import { weiToEbk } from '@/utils'
+import { web3, setProvider } from '@/utils/web3ebakus'
 import { store, mutations } from '@/store'
 
 import ContentLoader from './ContentLoader'
@@ -145,7 +143,6 @@ export default {
       myAddress: null,
       showTitle: false,
 
-      web3: null,
       web3Endpoint: process.env.WEB3JS_NODE_ENDPOINT,
       web3Connecting: false,
       isWalletConnected: false,
@@ -179,9 +176,9 @@ export default {
   watch: {
     $route: async function(to, from) {
       if (to.name !== from.name && to.name === RouteNames.PRODUCERS) {
-        if (this.web3 !== null) {
+        if (web3) {
           try {
-            await this.web3.eth.net.getId()
+            await web3.eth.net.getId()
             await this.fetchAccount()
             this.loadWitnesses()
             this.loadCurrentlyVoted()
@@ -199,9 +196,6 @@ export default {
       }
     },
   },
-  created: function() {
-    this.web3 = Web3Ebakus(new Web3(this.web3Endpoint))
-  },
   mounted: function() {
     if (this.ebakusWalletAllowed) {
       this.initEbakusWallet()
@@ -210,7 +204,6 @@ export default {
     }
   },
   methods: {
-    weiToEbk: weiToEbk,
     allowEbakusWallet: function() {
       mutations.setAllowEbakusWallet(true)
     },
@@ -244,7 +237,7 @@ export default {
       })
 
       window.addEventListener('ebakusStaked', function({ detail: staked }) {
-        if (self.web3 === null) {
+        if (!web3) {
           return
         }
         self.loadWitnesses()
@@ -260,7 +253,6 @@ export default {
     },
     resetWeb3Connection: function() {
       this.$set(this, 'isWalletConnected', false)
-      this.$set(this, 'web3', null)
       this.$set(this, 'contractInstance', null)
     },
     connect: debounce(async function() {
@@ -270,18 +262,16 @@ export default {
 
       this.web3Connecting = true
       try {
-        let endpoint = process.env.WEB3JS_NODE_ENDPOINT
         if (this.ebakusWalletAllowed) {
-          endpoint = await ebakusWallet.getCurrentProviderEndpoint()
-        }
+          const endpoint = await ebakusWallet.getCurrentProviderEndpoint()
 
-        if (this.web3 === null || endpoint !== this.web3Endpoint) {
-          this.web3Endpoint = endpoint
+          if (endpoint !== this.web3Endpoint) {
+            this.web3Endpoint = endpoint
+            setProvider(this.web3Endpoint)
+            resetContract()
 
-          const web3 = Web3Ebakus(new Web3(this.web3Endpoint))
-          this.$set(this, 'web3', web3)
-
-          this.error = null
+            this.error = null
+          }
         }
 
         await this.fetchAccount()
@@ -321,16 +311,12 @@ export default {
         return this.contractInstance
       }
 
-      if (this.web3 === null) {
-        throw 'web3 is not set'
-      }
-
-      let systemContractABI = await this.web3.eth.getAbiForAddress(
+      let systemContractABI = await web3.eth.getAbiForAddress(
         SystemContractAddress
       )
       systemContractABI = JSON.parse(systemContractABI)
 
-      const systemContract = new this.web3.eth.Contract(
+      const systemContract = new web3.eth.Contract(
         systemContractABI,
         SystemContractAddress
       )
@@ -341,13 +327,13 @@ export default {
     },
 
     loadWitnesses: async function() {
-      if (this.isWitnessesLoading || this.web3 === null) return
+      if (this.isWitnessesLoading || this.contractInstance === null) return
 
       try {
         this.isWitnessesLoading = true
         this.witnesses = []
         this.displayedWitnesses = []
-        const iter = await this.web3.db.select(
+        const iter = await web3.db.select(
           SystemContractAddress,
           'Witnesses',
           'Flags == 1',
@@ -358,7 +344,7 @@ export default {
         let witness = null
 
         do {
-          witness = await this.web3.db.next(iter)
+          witness = await web3.db.next(iter)
           if (witness != null) {
             this.witnesses.push(witness)
             this.displayedWitnesses.push(witness)
@@ -392,7 +378,7 @@ export default {
     loadCurrentlyVoted: async function() {
       if (
         this.isMyVotesLoading ||
-        this.web3 === null ||
+        this.contractInstance === null ||
         !this.ebakusWalletAllowed
       )
         return
@@ -403,7 +389,7 @@ export default {
       this.newVoting = []
 
       try {
-        const iter = await this.web3.db.select(
+        const iter = await web3.db.select(
           SystemContractAddress,
           'Delegations',
           'Id LIKE ' + this.myAddress,
@@ -414,9 +400,9 @@ export default {
         let delegation = null
 
         do {
-          delegation = await this.web3.db.next(iter)
+          delegation = await web3.db.next(iter)
           if (delegation != null) {
-            const to = this.web3.utils.bytesToHex(delegation.Id.slice(20))
+            const to = web3.utils.bytesToHex(delegation.Id.slice(20))
             this.currentlyVoted.push(to)
             this.newVoting.push(to)
           }

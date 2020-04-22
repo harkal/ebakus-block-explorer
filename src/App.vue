@@ -10,6 +10,7 @@
 <script>
 import { RouteNames } from '@/router'
 import { store } from '@/store'
+import { initWeb3 } from '@/utils/web3ebakus'
 
 import Search from '@/components/Search'
 import Tabbar from '@/components/Tabbar'
@@ -24,6 +25,9 @@ export default {
   computed: {
     contentActive: () => store.contentActive,
     searchQuery: () => store.searchQuery,
+  },
+  created() {
+    initWeb3()
   },
 }
 </script>
