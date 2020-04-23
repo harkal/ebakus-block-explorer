@@ -7,6 +7,7 @@ import VueGtag from 'vue-gtag'
 import router from '@/router'
 import App from '@/App'
 import Transactions from '@/components/Transactions'
+import { store } from './store'
 
 Vue.use(vueResource)
 
@@ -50,13 +51,14 @@ Vue.filter('floor', function(number) {
   return floor(number, 4)
 })
 
-Vue.filter('toEther', function(wei) {
+const toEther = wei => {
   if (typeof wei == 'number') {
     wei = '0x' + wei.toString(16)
   }
 
   return Web3.utils.fromWei(wei)
-})
+}
+Vue.filter('toEther', toEther)
 
 Vue.filter('toEtherFixed', function(wei) {
   if (typeof wei == 'number') {
@@ -68,6 +70,18 @@ Vue.filter('toEtherFixed', function(wei) {
 
 Vue.filter('toENS', function(obj, field) {
   return !!obj[`${field}Ens`] ? obj[`${field}Ens`] : obj[field]
+})
+
+Vue.filter('weiToUSDString', function(wei, symbol = 'USD') {
+  if (!process.env.SHOW_PRICE_IN_USD || wei <= 0 || !store.usdRate) {
+    return ''
+  }
+
+  const ether = toEther(wei)
+  const usd = ether * store.usdRate
+  let out = floor(parseFloat(usd), 4).toFixed(4)
+  if (symbol) out += ` ${symbol}`
+  return `${out}`
 })
 
 new Vue({
