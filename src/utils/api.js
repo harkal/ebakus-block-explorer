@@ -13,9 +13,7 @@ const fetchUSDConversionRate = debounce(async () => {
     mutations.setUsdRate(usd_rate)
 
     return usd_rate
-  } catch (err) {
-    console.error('Failed to get USD rate for 1 EBK', err)
-  }
+  } catch (err) {}
 }, 2000)
 
 export { fetchUSDConversionRate }
