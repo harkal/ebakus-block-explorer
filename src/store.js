@@ -22,6 +22,7 @@ export const store = Vue.observable({
   contentActive: false,
   searchQuery: '',
   blockHeight: '',
+  usdRate: null,
   hasUserConsented: _hasUserConsented,
   ebakusWalletAllowed: _ebakusWalletAllowed,
   analyticsAllowed: _analyticsAllowed,
@@ -46,6 +47,9 @@ export const mutations = {
   },
   setBlockHeight(blockHeight) {
     store.blockHeight = blockHeight
+  },
+  setUsdRate(usdRate) {
+    store.usdRate = usdRate
   },
   setAllowEbakusWallet(allowed) {
     store.ebakusWalletAllowed = allowed
