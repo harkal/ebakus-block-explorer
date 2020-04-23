@@ -47,7 +47,17 @@
               >{{ block.gasUsed }} %</progress
             >
             <span class="mobileLabel">Produced by</span>
-            <span class="producer">{{ block.producer }}</span>
+            <span class="producer address">
+              <router-link
+                :to="{
+                  name: RouteNames.SEARCH,
+                  params: { query: block.producer },
+                }"
+                :title="block.producer"
+              >
+                {{ block | toENS('producer') }}
+              </router-link>
+            </span>
             <span class="mobileLabel">Timestamp</span>
             <span class="time">{{ timeConverter(block.timestamp) }}</span>
           </router-link>
@@ -130,7 +140,7 @@ li.placeholder {
   padding: 22px 1%;
 }
 
-li a {
+li > a {
   display: block;
   padding: 22px 1%;
   border-radius: 10px;
@@ -139,10 +149,10 @@ li a {
   color: #112f42;
   opacity: 0.85;
 }
-li a:visited {
+li > a:visited {
   color: #112f42;
 }
-li a:hover {
+li > a:hover {
   box-shadow: 0 2px 33px 0 rgba(17, 47, 66, 0.1);
   opacity: 1;
 }
@@ -241,7 +251,7 @@ span.transaction {
     text-align: left;
   }
   li.placeholder,
-  a {
+  li > a {
     position: relative;
     width: 100%;
     overflow: hidden;

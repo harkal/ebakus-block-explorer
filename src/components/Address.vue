@@ -4,7 +4,11 @@
 
     <div class="panel">
       <div class="valignCenter">
-        <div class="twocol">
+        <div v-if="!!addressData.addressEns" class="twocol ens">
+          <p class="title">{{ addressData.addressEns }}</p>
+          <span class="address">{{ addressData.address }}</span>
+        </div>
+        <div v-else class="twocol">
           <span class="address">{{ addressData.address }}</span>
         </div>
         <div class="twocol right">
@@ -256,6 +260,16 @@ td:nth-child(2) {
 h3.address {
   font-size: 22px;
 }
+.ens .title {
+  margin: 2px 0 11px 7px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.ens .address {
+  color: #acb4c9;
+}
+
 .twocol {
   display: inline-block;
   width: 49%;
@@ -307,9 +321,12 @@ h3.address {
 .no-data {
   text-align: center;
 }
-@media (max-width: 560px) {
+@media (max-width: 800px) {
   .valignCenter {
     display: block;
+  }
+  .missedBlocks th:first-child {
+    min-width: auto;
   }
   .twocol {
     display: block;
@@ -318,6 +335,9 @@ h3.address {
     padding: 0px;
     margin: 0px;
     padding: 8px 0px;
+  }
+  .ens .title {
+    margin-left: 0;
   }
   div.twocol span.address {
     font-size: 14px;
@@ -328,9 +348,6 @@ h3.address {
   }
   .chart_wrapper {
     padding-top: 10px;
-  }
-  .missedBlocks th:first-child {
-    min-width: auto;
   }
 }
 </style>
