@@ -6,10 +6,12 @@ import VueGtag from 'vue-gtag'
 
 import router from '@/router'
 import App from '@/App'
+import VPureTooltip from '@/directives/v-pure-tooltip'
 import Transactions from '@/components/Transactions'
 import { store } from './store'
 
 Vue.use(vueResource)
+Vue.use(VPureTooltip)
 
 // add support for BN in JSON
 Vue.http.interceptors.push(function(request) {

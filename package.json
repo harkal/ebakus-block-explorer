@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "abi-decoder": "https://github.com/ziogaschr/abi-decoder#feature/multiple-instances",
+    "balloon-css": "^1.0.4",
     "chart.js": "^2.9.3",
     "ebakus-web-wallet-loader": "^0.1.4",
     "eth-ens-namehash": "^2.0.8",

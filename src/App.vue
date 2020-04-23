@@ -182,6 +182,10 @@ ul.unstyled li:last-child {
   margin-bottom: 0;
 }
 
+[aria-label][data-balloon-pos]:after {
+  text-align: center;
+}
+
 @media (max-width: 960px) {
   .container {
     width: 100vw;
