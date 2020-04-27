@@ -196,7 +196,7 @@ export default {
     },
     stakeInUSD: function() {
       return !!this.addressData.stake
-        ? this.$options.filters.weiToUSDString(
+        ? this.$options.filters.toUSDString(
             (this.addressData.stake / 10000).toFixed(4)
           )
         : null

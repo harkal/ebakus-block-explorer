@@ -74,16 +74,26 @@ Vue.filter('toENS', function(obj, field) {
   return !!obj[`${field}Ens`] ? obj[`${field}Ens`] : obj[field]
 })
 
-Vue.filter('weiToUSDString', function(wei, symbol = 'USD') {
-  if (!process.env.SHOW_PRICE_IN_USD || wei <= 0 || !store.usdRate) {
+const toUSDString = (amount, symbol = 'USD') => {
+  if (
+    !process.env.SHOW_PRICE_IN_USD ||
+    amount <= 0 ||
+    !store.usdRate ||
+    isNaN(amount)
+  ) {
     return ''
   }
 
-  const ether = toEther(wei)
-  const usd = ether * store.usdRate
+  const usd = amount * store.usdRate
   let out = floor(parseFloat(usd), 4).toFixed(4)
   if (symbol) out += ` ${symbol}`
   return `${out}`
+}
+Vue.filter('toUSDString', toUSDString)
+
+Vue.filter('weiToUSDString', function(wei, symbol = 'USD') {
+  const ether = toEther(wei)
+  return toUSDString(ether, symbol)
 })
 
 new Vue({
