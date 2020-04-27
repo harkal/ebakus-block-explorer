@@ -21,7 +21,7 @@
           <span class="mobileLabel">From</span>
           <span class="address"><ContentLoader :width="150"/></span>
           <img
-            src="../assets/ic_from_to.png"
+            src="@/assets/img/ic_from_to.png"
             alt
             :class="{ outgoing: false }"
           />
@@ -60,7 +60,7 @@
             <strong v-else>this</strong>
           </span>
           <img
-            src="../assets/ic_from_to.png"
+            src="@/assets/img/ic_from_to.png"
             alt
             :class="{ outgoing: tx.from == 'this' && tx.to != 'this' }"
           />

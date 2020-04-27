@@ -7,14 +7,14 @@
           :class="{ active: $route.name === RouteNames.BLOCKS }"
           @click="toggleTab(RouteNames.BLOCKS)"
         >
-          <img src="../assets/ic_blocks.png" alt /> Blocks
+          <img src="@/assets/img/ic_blocks.png" alt /> Blocks
         </li>
         <li
           :id="RouteNames.TRANSACTIONS"
           :class="{ active: $route.name === RouteNames.TRANSACTIONS }"
           @click="toggleTab(RouteNames.TRANSACTIONS)"
         >
-          <img src="../assets/ic_transactions.png" alt />
+          <img src="@/assets/img/ic_transactions.png" alt />
           <span class="txs-button"></span>
         </li>
         <li class="mobile-only"></li>
@@ -23,14 +23,14 @@
           :class="{ active: $route.name === RouteNames.PRODUCERS }"
           @click="toggleTab(RouteNames.PRODUCERS)"
         >
-          <img src="../assets/ic_stats.png" alt /> Producers
+          <img src="@/assets/img/ic_stats.png" alt /> Producers
         </li>
         <li
           :id="RouteNames.RICHLIST"
           :class="{ active: $route.name === RouteNames.RICHLIST }"
           @click="toggleTab(RouteNames.RICHLIST)"
         >
-          <img src="../assets/ic_richlist.png" alt /> Richlist
+          <img src="@/assets/img/ic_richlist.png" alt /> Richlist
         </li>
       </ul>
     </div>

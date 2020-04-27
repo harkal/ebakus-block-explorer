@@ -1,29 +1,29 @@
 <template>
   <div id="block_wrapper">
-    <h1><img src="../assets/ic_blocks.png" class="title_img" alt />Block</h1>
+    <h1><img src="@/assets/img/ic_blocks.png" class="title_img" alt />Block</h1>
     <div class="panel">
       <div class="widget_wrapper">
         <div class="widget">
-          <img src="../assets/ic_blocks.png" alt />
+          <img src="@/assets/img/ic_blocks.png" alt />
           <h3>BLOCK #</h3>
           <router-link
             class="left"
             :to="{ name: RouteNames.SEARCH, params: { query: previousBlock } }"
           >
-            <img src="../assets/ic_prev.png" alt />
+            <img src="@/assets/img/ic_prev.png" alt />
           </router-link>
           <router-link
             class="right"
             :to="{ name: RouteNames.SEARCH, params: { query: nextBlock } }"
           >
-            <img src="../assets/ic_next.png" alt />
+            <img src="@/assets/img/ic_next.png" alt />
           </router-link>
           <h2 v-if="blockData.number">{{ blockData.number }}</h2>
           <ContentLoader v-else :width="100" :height="20" />
         </div>
 
         <div class="widget">
-          <img src="../assets/ic_transactions.png" alt />
+          <img src="@/assets/img/ic_transactions.png" alt />
           <h3>TRANSACTIONS</h3>
           <h2 v-if="blockData.transactionCount >= 0">
             {{ blockData.transactionCount }}
@@ -31,7 +31,7 @@
           <ContentLoader v-else :width="100" :height="20" />
         </div>
         <div class="widget">
-          <img src="../assets/ic_gas.png" alt />
+          <img src="@/assets/img/ic_gas.png" alt />
           <h3>GAS USED</h3>
           <h2 v-if="blockData.gasUsed >= 0">{{ gasUsed }}%</h2>
           <ContentLoader v-else :width="100" :height="20" />

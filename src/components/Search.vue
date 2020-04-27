@@ -1,7 +1,7 @@
 <template>
   <div id="topbar" :class="{ withTabbar: isActive }">
     <img
-      src="../assets/blockExplorer_logo_2.png"
+      src="@/assets/img/blockExplorer_logo_2.png"
       alt
       :class="{ withTabbar: isActive }"
       @click="$router.push('/')"
@@ -9,7 +9,7 @@
     <img
       id="logo"
       alt="New block produced"
-      src="../assets/blockExplorer_logo.png"
+      src="@/assets/img/blockExplorer_logo.png"
       :class="{ withTabbar: isActive }"
     />
     <div id="search_wrapper" :class="{ withTabbar: isActive }">
@@ -429,7 +429,7 @@ export default {
 input[type='text'] {
   width: 100%;
   /* Rectangle: */
-  background: url('../assets/ic_search.png') no-repeat #ffffff;
+  background: url('@/assets/img/ic_search.png') no-repeat #ffffff;
   background-size: 20px;
   background-position: 15px 20px;
   box-shadow: 0 2px 14px 0 rgba(0, 0, 0, 0.08);

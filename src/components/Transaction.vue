@@ -1,7 +1,7 @@
 <template>
   <div id="block_wrapper">
     <h1>
-      <img src="../assets/ic_transactions.png" class="title_img" alt />
+      <img src="@/assets/img/ic_transactions.png" class="title_img" alt />
       <span v-if="isContractCreation">Contract Creation</span>
       <span v-else>Transaction</span>
     </h1>
@@ -31,7 +31,7 @@
               <td>
                 <img
                   class="ic_to absolute"
-                  src="../assets/ic_from_to.png"
+                  src="@/assets/img/ic_from_to.png"
                   alt
                 />
               </td>
@@ -93,13 +93,13 @@
             <img
               v-if="hasData && transactionData.status"
               class="ic_check"
-              src="../assets/ic_check.png"
+              src="@/assets/img/ic_check.png"
               alt="Successfull transaction"
             />
             <img
               v-else
               class="ic_check"
-              src="../assets/ic_error.svg"
+              src="@/assets/img/ic_error.svg"
               alt="Failed transaction"
             />
           </li>
@@ -412,7 +412,7 @@ span.txstatus_badge {
   margin-left: 4px;
 }
 span.txstatus_badge.success {
-  background: url('../assets/ic_check.png') no-repeat #fff;
+  background: url('@/assets/img/ic_check.png') no-repeat #fff;
   background-size: 16px;
   background-position: right 6px center;
 }
