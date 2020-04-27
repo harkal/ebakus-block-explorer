@@ -10,6 +10,8 @@ import VPureTooltip from '@/directives/v-pure-tooltip'
 import Transactions from '@/components/Transactions'
 import { store } from './store'
 
+import '@/assets/css/main.scss'
+
 Vue.use(vueResource)
 Vue.use(VPureTooltip)
 
