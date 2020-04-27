@@ -7,4 +7,6 @@ module.exports = merge(prodEnv, {
   WALLET_ENDPOINT: '"https://wallet.ebakus-testnet.com"',
 
   ENS_CONTRACT_ADDRESS: '"0x02C8b1bE10299302D6dD7cCf951D78615fdDC0e6"',
+
+  SHOW_PRICE_IN_USD: true,
 })

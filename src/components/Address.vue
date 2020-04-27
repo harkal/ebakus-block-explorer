@@ -13,15 +13,15 @@
         </div>
         <div class="twocol right">
           <span class="balanceLabel">Liquid balance</span>
-          <span v-if="hasData" class="balance"
-            >{{ addressData.balance | toEtherFixed }}
+          <span v-if="hasData" v-pure-tooltip="balanceInUSD" class="balance">
+            {{ addressData.balance | toEtherFixed }}
           </span>
           <ContentLoader v-else :width="84" :height="20" />
           <small> EBK</small>
           <br />
           <span class="balanceLabel">Staked balance</span>
-          <span v-if="hasData" class="balance"
-            >{{ (addressData.stake / 10000).toFixed(4) }}
+          <span v-if="hasData" v-pure-tooltip.down="stakeInUSD" class="balance">
+            {{ (addressData.stake / 10000).toFixed(4) }}
           </span>
           <ContentLoader v-else :width="84" :height="20" />
           <small> EBK</small>
@@ -188,6 +188,18 @@ export default {
       }
 
       return balanceData
+    },
+    balanceInUSD: function() {
+      return !!this.addressData.balance
+        ? this.$options.filters.weiToUSDString(this.addressData.balance)
+        : null
+    },
+    stakeInUSD: function() {
+      return !!this.addressData.stake
+        ? this.$options.filters.toUSDString(
+            (this.addressData.stake / 10000).toFixed(4)
+          )
+        : null
     },
     statsData: function() {
       const [delegateInfo, ...rest] = this.addressData.stats.delegates.filter(

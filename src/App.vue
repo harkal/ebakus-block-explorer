@@ -10,6 +10,7 @@
 <script>
 import { RouteNames } from '@/router'
 import { store } from '@/store'
+import { fetchUSDConversionRate } from '@/utils/api'
 import { initWeb3 } from '@/utils/web3ebakus'
 
 import Search from '@/components/Search'
@@ -28,6 +29,14 @@ export default {
   },
   created() {
     initWeb3()
+
+    // fetch USD rate every 5 minutes
+    if (process.env.SHOW_PRICE_IN_USD) {
+      setInterval(() => {
+        fetchUSDConversionRate()
+      }, 1000 * 60 * 5)
+      fetchUSDConversionRate()
+    }
   },
 }
 </script>
@@ -171,6 +180,10 @@ ul.unstyled li {
 }
 ul.unstyled li:last-child {
   margin-bottom: 0;
+}
+
+[aria-label][data-balloon-pos]:after {
+  text-align: center;
 }
 
 @media (max-width: 960px) {

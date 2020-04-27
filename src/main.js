@@ -6,9 +6,12 @@ import VueGtag from 'vue-gtag'
 
 import router from '@/router'
 import App from '@/App'
+import VPureTooltip from '@/directives/v-pure-tooltip'
 import Transactions from '@/components/Transactions'
+import { store } from './store'
 
 Vue.use(vueResource)
+Vue.use(VPureTooltip)
 
 // add support for BN in JSON
 Vue.http.interceptors.push(function(request) {
@@ -50,13 +53,14 @@ Vue.filter('floor', function(number) {
   return floor(number, 4)
 })
 
-Vue.filter('toEther', function(wei) {
+const toEther = wei => {
   if (typeof wei == 'number') {
     wei = '0x' + wei.toString(16)
   }
 
   return Web3.utils.fromWei(wei)
-})
+}
+Vue.filter('toEther', toEther)
 
 Vue.filter('toEtherFixed', function(wei) {
   if (typeof wei == 'number') {
@@ -68,6 +72,28 @@ Vue.filter('toEtherFixed', function(wei) {
 
 Vue.filter('toENS', function(obj, field) {
   return !!obj[`${field}Ens`] ? obj[`${field}Ens`] : obj[field]
+})
+
+const toUSDString = (amount, symbol = 'USD') => {
+  if (
+    !process.env.SHOW_PRICE_IN_USD ||
+    amount <= 0 ||
+    !store.usdRate ||
+    isNaN(amount)
+  ) {
+    return ''
+  }
+
+  const usd = amount * store.usdRate
+  let out = floor(parseFloat(usd), 4).toFixed(4)
+  if (symbol) out += ` ${symbol}`
+  return `${out}`
+}
+Vue.filter('toUSDString', toUSDString)
+
+Vue.filter('weiToUSDString', function(wei, symbol = 'USD') {
+  const ether = toEther(wei)
+  return toUSDString(ether, symbol)
 })
 
 new Vue({
