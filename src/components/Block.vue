@@ -1,6 +1,6 @@
 <template>
-  <div id="block_wrapper">
-    <h1><img src="@/assets/img/ic_blocks.png" class="title_img" alt />Block</h1>
+  <div id="page-wrapper">
+    <h1><img src="@/assets/img/ic_blocks.png" alt />Block</h1>
     <div class="panel">
       <div class="widget_wrapper">
         <div class="widget">
@@ -43,7 +43,7 @@
     </div>
     <div class="panel">
       <h2>Details</h2>
-      <div class="tablewrapper">
+      <div class="table-wrapper">
         <table>
           <tr>
             <td class="headcol">Hash</td>
@@ -251,20 +251,7 @@ a.btn img {
   text-align: center;
   vertical-align: 3px;
 }
-#block_wrapper {
-  opacity: 0;
-}
-#block_wrapper.active {
-  opacity: 1;
-  display: block;
-}
 
-div.blockMeta td {
-  color: #5b5b5b;
-}
-div.blockMeta td:last-child {
-  font-weight: 500;
-}
 a {
   text-decoration: none;
 }

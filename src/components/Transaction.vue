@@ -1,13 +1,13 @@
 <template>
-  <div id="block_wrapper">
+  <div id="page-wrapper">
     <h1>
-      <img src="@/assets/img/ic_transactions.png" class="title_img" alt />
+      <img src="@/assets/img/ic_transactions.png" alt />
       <span v-if="isContractCreation">Contract Creation</span>
       <span v-else>Transaction</span>
     </h1>
     <div class="panel">
       <div class="widget_wrapper">
-        <div class="tablewrapper">
+        <div class="table-wrapper">
           <table>
             <tr>
               <td class="absolute">
@@ -109,7 +109,7 @@
 
     <div class="panel">
       <h2>Details</h2>
-      <div class="tablewrapper">
+      <div class="table-wrapper">
         <table>
           <tr>
             <td class="headcol">TxHash</td>
@@ -375,13 +375,6 @@ tr:nth-child(odd) {
   background: #fff;
 }
 
-#block_wrapper {
-  opacity: 0;
-}
-#block_wrapper.active {
-  opacity: 1;
-  display: block;
-}
 .block {
   color: #000000;
 }
@@ -412,7 +405,7 @@ span.txstatus_badge {
   margin-left: 4px;
 }
 span.txstatus_badge.success {
-  background: url('@/assets/img/ic_check.png') no-repeat #fff;
+  background: url('../assets/img/ic_check.png') no-repeat #fff;
   background-size: 16px;
   background-position: right 6px center;
 }

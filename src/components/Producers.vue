@@ -1,5 +1,5 @@
 <template>
-  <div id="producers_wrapper">
+  <div id="producers-wrapper" class="tab-wrapper">
     <small>
       There are
       <strong>{{ witnesses.length >= 21 ? 21 : witnesses.length }}</strong>
@@ -7,10 +7,10 @@
       <strong>{{ witnesses.length }}</strong> witnesses.
     </small>
 
-    <ul class="tabResults labels">
-      <li id="list_title">
-        <span class="delegateID">#</span>
-        <span class="producer">
+    <ul class="tab-results labels">
+      <li class="list-title">
+        <span class="col id">#</span>
+        <span class="col address producer">
           <input
             ref="filterField"
             v-model="filterAddressQuery"
@@ -19,21 +19,21 @@
             @keyup="filterByAddress()"
           />
         </span>
-        <span class="stake">Stake</span>
-        <span class="vote"></span>
+        <span class="col amount">Stake</span>
+        <span class="col vote"></span>
       </li>
     </ul>
     <div class="scroll inner">
-      <ul class="tabResults main">
+      <ul class="tab-results main">
         <li
           v-for="(witness, idx) in displayedWitnesses"
           :key="`${witness.Id}-${idx}`"
           :class="{ changed: isChanged(witness.Id) }"
         >
           <span class="mobileLabel">#</span>
-          <span class="delegateID">{{ idx + 1 }}</span>
+          <span class="col id">{{ idx + 1 }}</span>
           <span class="mobileLabel">Address</span>
-          <span class="producer address">
+          <span class="col address producer">
             <router-link
               :to="{ path: '/search/' + witness.Id }"
               :title="witness.Id"
@@ -42,11 +42,11 @@
             </router-link>
           </span>
           <span class="mobileLabel">Stake</span>
-          <span class="stake"
+          <span class="col amount"
             >{{ (witness.Stake / 10000).toFixed(4) }} <small>EBK</small></span
           >
           <span class="mobileLabel">Vote</span>
-          <span class="vote">
+          <span class="col vote">
             <button
               v-if="!isMyVotesLoading && isMyVotesLoaded"
               @click="toggleVote(witness.Id)"
@@ -63,17 +63,17 @@
           class="placeholder"
         >
           <span class="mobileLabel">#</span>
-          <span class="delegateID"><ContentLoader :width="14"/></span>
+          <span class="col id"><ContentLoader :width="14"/></span>
           <span class="mobileLabel">Address</span>
-          <span class="producer address">
+          <span class="col address producer">
             <ContentLoader :width="400" />
           </span>
           <span class="mobileLabel">Stake</span>
-          <span class="stake">
+          <span class="col amount">
             <ContentLoader :width="60" /> <small>EBK</small>
           </span>
           <span class="mobileLabel">Vote</span>
-          <span class="vote">
+          <span class="col vote">
             <ContentLoader :width="50" :height="22" />
           </span>
         </li>
@@ -89,24 +89,24 @@
       </ul>
     </div>
 
-    <div class="actions_area">
+    <div class="actions-area">
       <span v-if="ebakusWalletAllowed && isMyVotesLoaded">
         You have used {{ newVoting.length }} out of {{ MaxVotes }} votes.
       </span>
       <span
         v-else-if="hasUserConsented && !ebakusWalletAllowed"
-        class="warning"
+        class="txt-warning"
       >
         In order to vote, you have to allow ebakus wallet to store browser
         cookies.
         <button class="allowCookies" @click="allowEbakusWallet">Allow</button>
       </span>
 
-      <span v-if="hasReachedMaxVotes && error === ''" class="danger">
+      <span v-if="hasReachedMaxVotes && error === ''" class="txt-danger">
         Maximum number of votes reached.
       </span>
 
-      <span v-if="error !== ''" class="danger">
+      <span v-if="error !== ''" class="txt-danger">
         {{ error }}
       </span>
 
@@ -523,28 +523,22 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-#producers_wrapper {
-  display: none;
-  height: 50px;
-  height: 100%;
-  /* padding-right: 200px; */
-}
-#producers_wrapper.active {
-  opacity: 1;
-  display: block;
-}
-.container {
-  margin: 0 auto;
+<style scoped lang="scss">
+@import '../assets/css/variables';
+#tabbar .scroll.inner {
+  height: calc(100% - 150px - 110px) !important;
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    height: calc(100% - 57px - 93px) !important;
+    overflow-x: hidden !important;
+  }
 }
 
-.actions_area {
+.actions-area {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  /* right: 200px; */
   min-height: 22px;
   padding: 24px;
   border-top: 1px solid #c6c6c6;
@@ -552,246 +546,111 @@ export default {
 
   opacity: 0;
   animation: fadeIn 0.3s ease-in forwards;
-}
 
-.actions_area span {
-  float: left;
-}
-.actions_area .danger {
-  margin-left: 4px;
-}
-
-.actions_area button {
-  float: right;
-  display: block;
-  padding: 12px 18px;
-  margin: -10px 0;
-  border-radius: 10px;
-  color: white;
-  background: #fe4184;
-  font-size: 16px;
-  font-weight: 600;
-  transition: 0.5s all ease;
-  transform: scale(1);
-  border: 0;
-  cursor: pointer;
-  outline: none;
-}
-
-.actions_area .allowCookies {
-  margin-left: 12px;
-  border-radius: 4px;
-  border: solid 1px #acb4c9;
-  background-color: #f8f9fb;
-  color: #112f42;
-}
-
-#tabbar .scroll.inner {
-  height: calc(100% - 150px - 110px) !important;
-}
-
-li {
-  animation: fadeIn 0.2s ease-in;
-}
-
-li.placeholder,
-li a {
-  padding: 22px 1%;
-}
-
-li a {
-  display: block;
-  padding: 22px 1%;
-  transition: 0.1s all ease-in-out;
-  text-decoration: none;
-  color: #31baf3;
-  opacity: 0.85;
-}
-li a:visited {
-  color: #31baf3;
-}
-li a:hover {
-  box-shadow: 0 2px 33px 0 rgba(17, 47, 66, 0.1);
-  opacity: 1;
-}
-li span {
-  display: inline-block;
-  width: 10%;
-  margin: 0 1%;
-  text-align: center;
-  vertical-align: middle;
-}
-li button {
-  min-width: 70px;
-  padding: 6px 12px;
-  border-radius: 4px;
-  background: #f8f8f8;
-  font-size: 12px;
-  outline: none;
-}
-li.changed {
-  background-color: #e6ffeb;
-}
-.delegateID {
-  width: 6%;
-  text-align: left;
-  margin: 0;
-}
-span.delegateID {
-  font-weight: 600;
-}
-span.producer {
-  width: 50%;
-  margin: 0;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
-.labels span.producer {
-  text-align: left;
-}
-.labels span.producer input {
-  width: 100%;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  box-sizing: border-box;
-  font-size: 14px;
-  font-weight: 400;
-  color: #828383 !important;
-  opacity: 0.8;
-}
-.missedBlocks small,
-.density small {
-  display: none;
-}
-.missedBlocks p,
-.density p {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-#list_title {
-  padding: 0px 1%;
-}
-#list_title span {
-  font-size: 14px;
-  color: #828383 !important;
-  font-weight: 400;
-  opacity: 0.8;
-}
-.scroll {
-  overflow: auto;
-  height: 100%;
-  -webkit-overflow-scrolling: touch;
-}
-.mobileLabel {
-  display: none;
-}
-.warning {
-  color: #ff9800;
-}
-.danger {
-  color: #f44336;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@media (max-width: 560px) {
-  #tabbar .scroll.inner {
-    height: calc(100% - 57px - 93px) !important;
-    overflow-x: hidden !important;
+  span {
+    float: left;
   }
 
-  li {
-    position: relative;
-    width: 100vw;
-    overflow: hidden;
-    padding-top: 10px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #f0f0f0;
+  .danger {
+    margin-left: 4px;
   }
-  li span {
+
+  button {
+    float: right;
     display: block;
-    width: 100vw;
-    margin: 0px;
-  }
-  li span:first-child {
-    margin: 0px;
-  }
-  li a {
-    display: initial;
-    padding: 0;
-  }
-  span.producer {
-    width: calc(100% - 80px);
-  }
-  li.placeholder,
-  a {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-
-    border-bottom: 2px solid #f0f0f0;
-  }
-  li span {
-    font-size: 14px;
-    text-align: left;
-    padding-left: 80px;
+    padding: 12px 18px;
+    margin: -10px 0;
+    border-radius: 10px;
+    color: white;
+    background: #fe4184;
+    font-size: 16px;
     font-weight: 600;
+    transition: 0.5s all ease;
+    transform: scale(1);
+    border: 0;
+    cursor: pointer;
+    outline: none;
   }
-  .mobileLabel {
-    display: block;
-    width: 70px;
-    font-size: 13px;
-    margin-bottom: 10px !important;
-    position: absolute;
-    left: 0px;
-    padding-left: 10px !important;
-    background: #fff;
-    font-weight: 400;
-  }
-  li.changed .mobileLabel {
-    background-color: #e6ffeb;
-  }
-  .missedBlocks small,
-  .density small {
-    display: inline-block;
+
+  .allowCookies {
+    margin-left: 12px;
+    border-radius: 4px;
+    border: solid 1px #acb4c9;
+    background-color: #f8f9fb;
     color: #112f42;
   }
-  .time {
-    display: none;
-  }
-  li button {
-    min-width: 70px;
-    padding: 4px 8px;
-    font-size: 10px;
-  }
-  .actions_area {
+
+  @media (max-width: $mobile-grid-breakpoint) {
     padding: 8px;
     text-align: center;
+
+    span {
+      float: none;
+      font-size: 14px;
+    }
+
+    button {
+      float: none;
+      margin: 6px auto 0;
+      padding: 8px 14px;
+      font-size: 14px;
+    }
   }
-  .actions_area span {
-    float: none;
-    font-size: 14px;
-  }
-  .actions_area button {
-    float: none;
-    margin: 6px auto 0;
-    padding: 8px 14px;
-    font-size: 14px;
+
+  @media (max-width: 670px) {
+    .allowCookies {
+      display: block;
+      float: none;
+      margin: 12px auto 0;
+    }
   }
 }
-@media (max-width: 670px) {
-  .actions_area .allowCookies {
-    display: block;
-    float: none;
-    margin: 12px auto 0;
+
+.main li {
+  animation: fadeIn 0.2s ease-in;
+
+  &.changed {
+    background-color: #e6ffeb;
+
+    @media (max-width: $mobile-grid-breakpoint) {
+      .mobileLabel {
+        background-color: #e6ffeb;
+      }
+    }
   }
+
+  button {
+    min-width: 70px;
+    font-size: 12px;
+
+    @media (max-width: $mobile-grid-breakpoint) {
+      min-width: 70px;
+      padding: 4px 8px;
+      font-size: 10px;
+    }
+  }
+}
+
+.labels .producer {
+  text-align: left;
+
+  input {
+    width: 100%;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+    font-weight: 400;
+    color: #828383 !important;
+    opacity: 0.8;
+  }
+}
+
+.producer {
+  text-align: left;
+}
+
+.vote {
+  max-width: 90px;
 }
 </style>

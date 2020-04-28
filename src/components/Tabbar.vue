@@ -1,6 +1,6 @@
 <template>
   <div id="tabbar" :class="{ active: tabbarActive }">
-    <div class="scroll">
+    <div class="horizontal-scroll">
       <ul id="tabbarOptions">
         <li
           :id="RouteNames.BLOCKS"
@@ -15,9 +15,9 @@
           @click="toggleTab(RouteNames.TRANSACTIONS)"
         >
           <img src="@/assets/img/ic_transactions.png" alt />
-          <span class="txs-button"></span>
+          <span class="txsButton"></span>
         </li>
-        <li class="mobile-only"></li>
+        <li class="mobileOnly"></li>
         <li
           :id="RouteNames.PRODUCERS"
           :class="{ active: $route.name === RouteNames.PRODUCERS }"
@@ -158,135 +158,124 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="scss">
+@import '../assets/css/variables';
+
 #tabbar {
   position: fixed;
-  background: #fff;
   left: 0px;
   right: 0px;
   bottom: 0px;
   height: 76px;
-  /* Rectangle 3: */
+
+  background: #fff;
+  box-shadow: 0 2px 43px 0 rgba(172, 180, 201, 0.4);
 
   transition: 0.35s height ease-in-out;
-  /* Rectangle 3: */
 
-  box-shadow: 0 2px 43px 0 rgba(172, 180, 201, 0.4);
+  &.active {
+    height: calc(100% - 215px);
+  }
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    .horizontal-scroll {
+      overflow-x: auto;
+    }
+  }
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    height: 60px;
+
+    &.active {
+      height: calc(100% - 100px);
+    }
+  }
+
+  @media (max-width: 350px) {
+    height: 102px;
+  }
 }
 
 #tabbarOptions {
   width: 584px;
   margin: 15px auto;
   padding-left: 0;
-}
 
-#tabbarOptions li {
-  margin: 4px;
-}
-#tabbarOptions li.mobile-only {
-  display: none;
-}
+  li {
+    display: inline-block;
 
-li {
-  display: inline-block;
-  /* Rectangle 2: */
+    margin: 4px;
+    padding: 8px 18px;
 
-  border-radius: 4px;
+    color: #34393d;
 
-  border: 2px solid #acb4c9;
-  color: #34393d;
-  padding: 8px 18px;
-  margin: 0px 10px;
-  background: #f8f9fb;
-  font-weight: 600;
-  -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none; /* Safari */
-  -khtml-user-select: none; /* Konqueror HTML */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* Internet Explorer/Edge */
-  user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome and Opera */
-}
-li.active {
-  background: #34393d;
-  color: white;
-  border: 2px solid #34393d;
-}
-li:hover {
-  box-shadow: 0 2px 43px 0 rgba(0, 0, 0, 0.1);
-}
-li img {
-  width: 14px;
-  vertical-align: -1px;
-}
-li.active img {
-  filter: invert(100%) grayscale(100%);
-}
-#tabbar.active {
-  height: calc(100% - 215px);
-}
-#tabContentWrapper {
-  height: 100%;
+    border: 2px solid #acb4c9;
+    border-radius: 4px;
 
-  overflow: auto;
-}
-.container {
-  margin: 0 auto;
-}
-ul.tabbarOptions li.img {
-  -webkit-user-select: none; /* Chrome all / Safari all */
-  -moz-user-select: none; /* Firefox all */
-  -ms-user-select: none; /* IE 10+ */
-  user-select: none;
-  cursor: pointer;
-}
-.txs-button:after {
-  content: 'Transactions';
-  padding-left: 2px;
-}
+    background: #f8f9fb;
 
-@media (max-width: 560px) {
-  .scroll {
-    overflow-x: auto;
+    font-weight: 600;
+
+    user-select: none;
+
+    &:hover {
+      box-shadow: 0 2px 43px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    img {
+      width: 14px;
+      vertical-align: -1px;
+    }
+
+    &.active {
+      color: white;
+      background: #34393d;
+      border: 2px solid #34393d;
+
+      img {
+        filter: invert(100%) grayscale(100%);
+      }
+    }
+
+    &.mobileOnly {
+      display: none;
+
+      @media (max-width: 350px) {
+        display: block;
+        height: 0;
+        margin: 0;
+        padding: 0;
+        background-color: transparent;
+        border: transparent;
+      }
+    }
   }
-  #tabbarOptions {
+
+  @media (max-width: $mobile-grid-breakpoint) {
     width: 100%;
     max-width: 352px;
 
     margin: 12px auto;
     padding: 0px;
     white-space: normal;
-  }
-  #tabbarOptions li {
-    padding: 5px 7px;
-    font-size: 14px;
-  }
-  #tabbarOptions img {
-    width: 12px;
-  }
-  .txs-button:after {
-    content: 'Txs';
-  }
-  #tabbar {
-    height: 60px;
-  }
-  #tabbar.active {
-    height: calc(100% - 100px);
+
+    li {
+      padding: 5px 7px;
+      font-size: 14px;
+    }
+
+    img {
+      width: 12px;
+    }
   }
 }
 
-@media (max-width: 350px) {
-  #tabbar {
-    height: 102px;
-  }
-  #tabbarOptions li.mobile-only {
-    display: block;
-    height: 0;
-    margin: 0;
-    padding: 0;
-    background-color: transparent;
-    border: transparent;
+.txsButton:after {
+  content: 'Transactions';
+  padding-left: 2px;
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    content: 'Txs';
   }
 }
 </style>

@@ -429,7 +429,7 @@ export default {
 input[type='text'] {
   width: 100%;
   /* Rectangle: */
-  background: url('@/assets/img/ic_search.png') no-repeat #ffffff;
+  background: url('../assets/img/ic_search.png') no-repeat #ffffff;
   background-size: 20px;
   background-position: 15px 20px;
   box-shadow: 0 2px 14px 0 rgba(0, 0, 0, 0.08);

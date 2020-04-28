@@ -1,5 +1,5 @@
 <template>
-  <div id="block_wrapper">
+  <div id="page-wrapper">
     <h1>Address</h1>
 
     <div class="panel">
@@ -60,7 +60,7 @@
                 <td
                   v-for="(stats, idx) in statsData.data"
                   :key="idx"
-                  :class="{ danger: stats.missedBlocks > 0 }"
+                  :class="{ txt-danger: stats.missedBlocks > 0 }"
                 >
                   {{ stats.missedBlocks }}
                 </td>
@@ -262,13 +262,7 @@ tr:nth-child(odd) {
 td:nth-child(2) {
   font-weight: inherit;
 }
-#block_wrapper {
-  opacity: 0;
-}
-#block_wrapper.active {
-  opacity: 1;
-  display: block;
-}
+
 h3.address {
   font-size: 22px;
 }
