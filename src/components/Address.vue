@@ -1,5 +1,5 @@
 <template>
-  <div id="page-wrapper">
+  <div class="page-wrapper">
     <h1>Address</h1>
 
     <div class="panel">
@@ -27,7 +27,7 @@
           <small> EBK</small>
         </div>
       </div>
-      <div v-if="addressData.block_rewards == 0" class="chart_wrapper">
+      <div v-if="addressData.block_rewards == 0" class="chart-wrapper">
         <Chart v-if="chartDataLoaded" :chart-data="balanceData" :height="300" />
         <ContentLoader v-else :width="1000" :height="300" />
       </div>
@@ -250,110 +250,95 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-table {
-  text-align: left;
-}
+<style scoped lang="scss">
+@import '../assets/css/variables';
 
-tr:nth-child(odd) {
-  background: #fff;
-}
-td:nth-child(2) {
-  font-weight: inherit;
-}
+.ens {
+  .title {
+    margin: 2px 0 11px 7px;
+    font-size: 18px;
+    font-weight: 600;
 
-h3.address {
-  font-size: 22px;
-}
-.ens .title {
-  margin: 2px 0 11px 7px;
-  font-size: 18px;
-  font-weight: 600;
-}
+    @media (max-width: $mobile-grid-breakpoint) {
+      margin-left: 0;
+    }
+  }
 
-.ens .address {
-  color: #acb4c9;
+  .address {
+    color: #acb4c9;
+  }
 }
 
 .twocol {
   display: inline-block;
   width: 49%;
+
+  &.right {
+    text-align: right;
+  }
+
+  & > .address {
+    padding-left: 7px;
+  }
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    display: block;
+    width: 100%;
+    margin: 0px;
+    padding: $spacer-2 0px;
+    overflow-x: auto;
+
+    &.right {
+      text-align: left;
+    }
+
+    .address {
+      padding-left: 0px;
+      font-size: 14px;
+    }
+  }
 }
-.twocol > span.address {
-  padding-left: 7px;
-}
-.twocol.right {
-  text-align: right;
-}
-.valignCenter {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.balanceLabel {
-  font-weight: 400;
-  color: #acb4c9;
-  margin-right: 10px;
-}
+
 .balance {
   font-size: 24px;
   font-weight: 600;
 }
-.chart_wrapper {
+
+.balanceLabel {
+  margin-right: 10px;
+  font-weight: 400;
+  color: #acb4c9;
+}
+
+.chart-wrapper {
   position: relative;
   width: 100% !important;
   padding-top: 40px;
   overflow: hidden;
-}
 
-.panel h2:not(:first-child) {
-  margin-top: 22px;
+  @media (max-width: $mobile-grid-breakpoint) {
+    padding-top: 10px;
+  }
 }
 
 .missedBlocks {
   margin: -4px -6px;
+
+  th:first-child {
+    min-width: 150px;
+
+    @media (max-width: $mobile-grid-breakpoint) {
+      min-width: auto;
+    }
+  }
+
+  th:not(:first-child),
+  td:not(:first-child) {
+    text-align: right;
+  }
 }
-.missedBlocks th:first-child {
-  min-width: 150px;
-}
-.missedBlocks th:not(:first-child),
-.missedBlocks td:not(:first-child) {
-  text-align: right;
-}
-.danger {
-  color: #f44336;
-}
+
 .no-data {
   text-align: center;
-}
-@media (max-width: 800px) {
-  .valignCenter {
-    display: block;
-  }
-  .missedBlocks th:first-child {
-    min-width: auto;
-  }
-  .twocol {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    padding: 0px;
-    margin: 0px;
-    padding: 8px 0px;
-  }
-  .ens .title {
-    margin-left: 0;
-  }
-  div.twocol span.address {
-    font-size: 14px;
-    padding-left: 0px;
-  }
-  .twocol.right {
-    text-align: left;
-  }
-  .chart_wrapper {
-    padding-top: 10px;
-  }
 }
 </style>

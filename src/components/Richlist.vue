@@ -20,7 +20,7 @@
           <span class="col address"> <ContentLoader :width="400"/></span>
           <span class="mobileLabel">Amount</span>
           <span class="col amount"
-            ><ContentLoader :width="150" /> <small>EBK</small></span
+            ><ContentLoader :width="60" /> <small>EBK</small></span
           >
         </li>
         <li v-for="(data, idx) in addresses" :key="`${data.address}:${idx}`">

@@ -1,19 +1,19 @@
 <template>
-  <div id="page-wrapper">
+  <div class="page-wrapper">
     <h1><img src="@/assets/img/ic_blocks.png" alt />Block</h1>
     <div class="panel">
-      <div class="widget_wrapper">
+      <div class="widget-wrapper">
         <div class="widget">
           <img src="@/assets/img/ic_blocks.png" alt />
           <h3>BLOCK #</h3>
           <router-link
-            class="left"
+            class="left-arrow"
             :to="{ name: RouteNames.SEARCH, params: { query: previousBlock } }"
           >
             <img src="@/assets/img/ic_prev.png" alt />
           </router-link>
           <router-link
-            class="right"
+            class="right-arrow"
             :to="{ name: RouteNames.SEARCH, params: { query: nextBlock } }"
           >
             <img src="@/assets/img/ic_next.png" alt />
@@ -35,9 +35,7 @@
           <h3>GAS USED</h3>
           <h2 v-if="blockData.gasUsed >= 0">{{ gasUsed }}%</h2>
           <ContentLoader v-else :width="100" :height="20" />
-          <div class="progress_wrapper">
-            <div class="progress" :style="gasUsedCss"></div>
-          </div>
+          <progress :value="gasUsed" max="100">{{ gasUsed }}%</progress>
         </div>
       </div>
     </div>
@@ -71,7 +69,7 @@
           <tr>
             <td class="headcol">Produced by</td>
             <td class="long">
-              <span v-if="hasData" class="account">
+              <span v-if="hasData" class="address">
                 <router-link
                   :to="{
                     name: RouteNames.SEARCH,
@@ -120,7 +118,7 @@
                 <li
                   v-for="(delegate, idx) in blockData.delegates"
                   :key="idx"
-                  class="account"
+                  class="address"
                 >
                   <router-link
                     :to="{
@@ -220,119 +218,31 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-table {
-  text-align: left;
-}
-tr:nth-child(odd) {
-  background: #fff;
-}
-a.btn {
-  background: #ffffff;
-  box-shadow: 0 2px 4px 0 rgba(17, 47, 66, 0.09);
-  border-radius: 10px;
-  padding: 0px 14px 2px 14px;
-  margin: 0px 15px;
-  vertical-align: 3px;
-  transition: 0.2s all ease-out;
-  transform: scale(0.95);
-}
+<style scoped lang="scss">
+@import '../assets/css/variables';
 
-a.btn:hover {
-  box-shadow: 0 2px 17px 0 rgba(17, 47, 66, 0.17);
-}
-a.btn:active {
-  transform: scale(0.95);
-}
-
-a.btn img {
-  height: 10px;
-  text-align: center;
-  vertical-align: 3px;
-}
-
-a {
-  text-decoration: none;
-}
-h2 {
-  margin-left: 20px;
-  margin-bottom: 0px;
-}
-
-.widget_wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  align-content: stretch;
-  height: 190px;
-}
 .widget {
-  position: relative;
-  padding: 20px 0px;
-  border: 1px solid #edeef0;
-  text-align: center;
-  flex-grow: 1;
-  margin: 10px;
+  a.left-arrow {
+    position: absolute;
+    top: 34px;
+    left: 30px;
+  }
+  a.right-arrow {
+    position: absolute;
+    top: 34px;
+    right: 30px;
+  }
 }
-.widget img:first-child {
-  position: absolute;
-  top: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-.widget h3 {
-  position: absolute;
-  top: 50px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 13px;
-  font-weight: 600;
-}
-.widget h2,
-.widget svg {
-  position: absolute;
-  bottom: 40px;
-  left: 50%;
-  margin: 0px;
-  padding: 0px;
-  transform: translateX(-50%);
-  font-size: 32px;
-  font-weight: 600;
-  color: #34393d;
-}
-.widget img {
-  height: 16px;
-}
-.widget a.left {
-  position: absolute;
-  top: 34px;
-  left: 30px;
-}
-.widget a.right {
-  position: absolute;
-  top: 34px;
-  right: 30px;
-}
-.progress_wrapper {
+
+progress {
   position: absolute;
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
   width: 80%;
-  background: #cff9ed;
-  height: 4px;
 }
-.progress {
-  background: #66eec7;
-  width: 10%;
-  height: 4px;
-}
-@media (max-width: 560px) {
-  .widget_wrapper {
-    flex-direction: column;
-    height: 550px !important;
-  }
 
+@media (max-width: $mobile-grid-breakpoint) {
   .loader {
     padding: 0 5% !important;
   }

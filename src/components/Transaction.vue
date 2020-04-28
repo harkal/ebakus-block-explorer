@@ -1,109 +1,96 @@
 <template>
-  <div id="page-wrapper">
+  <div class="page-wrapper">
     <h1>
       <img src="@/assets/img/ic_transactions.png" alt />
       <span v-if="isContractCreation">Contract Creation</span>
       <span v-else>Transaction</span>
     </h1>
-    <div class="panel">
-      <div class="widget_wrapper">
-        <div class="table-wrapper">
-          <table>
-            <tr>
-              <td class="absolute">
-                <h3>FROM</h3>
-              </td>
-              <td class>
-                <router-link
-                  v-if="hasData"
-                  class="address lon"
-                  :to="{
-                    name: RouteNames.SEARCH,
-                    params: { query: transactionData.from },
-                  }"
-                  >{{ transactionData.from }}</router-link
-                >
-                <ContentLoader v-else :width="400" />
-              </td>
-            </tr>
-            <tr>
-              <td class></td>
-              <td>
-                <img
-                  class="ic_to absolute"
-                  src="@/assets/img/ic_from_to.png"
-                  alt
-                />
-              </td>
-            </tr>
-            <tr v-if="!isContractCreation">
-              <td class="absolute">
-                <h3>TO</h3>
-              </td>
-              <td class>
-                <router-link
-                  v-if="hasData"
-                  class="address lon"
-                  :to="{
-                    name: RouteNames.SEARCH,
-                    params: { query: transactionData.to },
-                  }"
-                  >{{ transactionData.to }}</router-link
-                >
-                <ContentLoader v-else :width="400" />
-              </td>
-            </tr>
-            <tr v-if="isContractCreation">
-              <td class="absolute">
-                <h3>CONTRACT ADDRESS</h3>
-              </td>
-              <td>
-                <router-link
-                  v-if="hasData"
-                  class="address lon"
-                  :to="{
-                    name: RouteNames.SEARCH,
-                    params: { query: transactionData.contractAddress },
-                  }"
-                  >{{ transactionData.contractAddress }}</router-link
-                >
-                <ContentLoader v-else :width="300" />
-              </td>
-            </tr>
-          </table>
-        </div>
-        <ul
-          class="status"
-          :class="{
-            success: hasData && transactionData.status,
-            failed: hasData && transactionData.status === 0,
-          }"
-        >
-          <li>
-            <h3>AMOUNT</h3>
-          </li>
-          <li>
-            <h1 v-if="hasData">{{ transactionData.value | toEtherFixed }}</h1>
-            <ContentLoader v-else :width="25" :height="22" />
-          </li>
-          <li>
-            <small>EBK</small>
-          </li>
-          <li>
-            <img
-              v-if="hasData && transactionData.status"
-              class="ic_check"
-              src="@/assets/img/ic_check.png"
-              alt="Successfull transaction"
-            />
-            <img
-              v-else
-              class="ic_check"
-              src="@/assets/img/ic_error.svg"
-              alt="Failed transaction"
-            />
-          </li>
-        </ul>
+    <div class="panel info-wrapper">
+      <div class="table-wrapper">
+        <table>
+          <tr>
+            <td>
+              <h3>FROM</h3>
+            </td>
+            <td class>
+              <router-link
+                v-if="hasData"
+                class="address lon"
+                :to="{
+                  name: RouteNames.SEARCH,
+                  params: { query: transactionData.from },
+                }"
+                >{{ transactionData.from }}</router-link
+              >
+              <ContentLoader v-else :width="400" />
+            </td>
+          </tr>
+          <tr v-if="!isContractCreation">
+            <td>
+              <h3>TO</h3>
+            </td>
+            <td class>
+              <router-link
+                v-if="hasData"
+                class="address lon"
+                :to="{
+                  name: RouteNames.SEARCH,
+                  params: { query: transactionData.to },
+                }"
+                >{{ transactionData.to }}</router-link
+              >
+              <ContentLoader v-else :width="400" />
+            </td>
+          </tr>
+          <tr v-if="isContractCreation">
+            <td>
+              <h3>CONTRACT ADDRESS</h3>
+            </td>
+            <td>
+              <router-link
+                v-if="hasData"
+                class="address lon"
+                :to="{
+                  name: RouteNames.SEARCH,
+                  params: { query: transactionData.contractAddress },
+                }"
+                >{{ transactionData.contractAddress }}</router-link
+              >
+              <ContentLoader v-else :width="300" />
+            </td>
+          </tr>
+          <tr
+            class="status"
+            :class="{
+              success: hasData && transactionData.status,
+              failed: hasData && transactionData.status === 0,
+            }"
+          >
+            <td>
+              <h3>AMOUNT</h3>
+            </td>
+            <td>
+              <h1 v-if="hasData">
+                {{ transactionData.value | toEtherFixed }} <small>EBK</small>
+              </h1>
+              <ContentLoader v-else :width="25" :height="22" />
+            </td>
+            <td>
+              <img
+                v-if="hasData && transactionData.status"
+                class="ic_check"
+                src="@/assets/img/ic_check.png"
+                alt="Successfull transaction"
+              />
+              <img
+                v-else
+                class="ic_check"
+                src="@/assets/img/ic_error.svg"
+                alt="Failed transaction"
+              />
+            </td>
+          </tr>
+        </table>
       </div>
     </div>
 
@@ -114,15 +101,7 @@
           <tr>
             <td class="headcol">TxHash</td>
             <td class="long">
-              <router-link
-                v-if="hasData"
-                class="transaction"
-                :to="{
-                  name: RouteNames.SEARCH,
-                  params: { query: transactionData.hash },
-                }"
-                >{{ transactionData.hash }}</router-link
-              >
+              <span v-if="hasData">{{ transactionData.hash }}</span>
               <ContentLoader v-else :width="600" />
             </td>
           </tr>
@@ -138,15 +117,7 @@
           <tr>
             <td class="headcol">Block hash</td>
             <td class="long">
-              <router-link
-                v-if="hasData"
-                class="account"
-                :to="{
-                  name: RouteNames.SEARCH,
-                  params: { query: transactionData.blockHash },
-                }"
-                >{{ transactionData.blockHash }}</router-link
-              >
+              <span v-if="hasData">{{ transactionData.blockHash }}</span>
               <ContentLoader v-else :width="600" />
             </td>
           </tr>
@@ -160,8 +131,9 @@
                     name: RouteNames.SEARCH,
                     params: { query: transactionData.blockNumber },
                   }"
-                  >{{ transactionData.blockNumber }}</router-link
                 >
+                  {{ transactionData.blockNumber }}
+                </router-link>
               </strong>
               <ContentLoader v-else />
             </td>
@@ -171,7 +143,7 @@
             <td class="long">
               <router-link
                 v-if="hasData"
-                class="account"
+                class="address"
                 :to="{
                   name: RouteNames.SEARCH,
                   params: { query: transactionData.producer },
@@ -256,11 +228,12 @@
               {{ decodedInput.args }}
               <strong>)</strong>
               <a
-                id="downloadAbi"
+                class="downloadAbi"
                 :href="downloadAbiContent.data"
                 :download="downloadAbiContent.filename"
-                >Get ABI</a
               >
+                Get ABI
+              </a>
             </td>
           </tr>
           <tr
@@ -366,142 +339,84 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-table {
-  text-align: left;
-}
-tr:nth-child(odd) {
-  background: #fff;
-}
+<style scoped lang="scss">
+@import '../assets/css/variables';
 
-.block {
-  color: #000000;
-}
-th,
-td {
-  padding: 4px 6p x;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-td {
-  color: #5b5b5b;
-}
-td:last-child {
-  font-weight: 500;
-}
-strong {
-  color: #000;
-}
-
-span.txstatus_badge {
-  font-size: 16px;
-  font-weight: 500;
-  background: #fff;
-  border-radius: 6px;
-  padding: 4px 30px 4px 12px;
-  box-shadow: 0 2px 33px 0 rgba(17, 47, 66, 0.1);
-  vertical-align: 4px;
-  margin-left: 4px;
-}
-span.txstatus_badge.success {
-  background: url('../assets/img/ic_check.png') no-repeat #fff;
-  background-size: 16px;
-  background-position: right 6px center;
-}
-span.txstatus_badge.pending {
-  color: #6f6f6f;
-}
-
-.panel {
+.info-wrapper {
   position: relative;
+  padding: 0;
+
+  h1,
+  h3 {
+    margin-bottom: auto;
+    margin-top: auto;
+  }
+
+  h3 {
+    font-size: 12px;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  tr:nth-child(1) td {
+    padding-top: 40px;
+  }
+
+  tr:nth-child(2) td {
+    padding-bottom: 40px;
+  }
+
+  td {
+    padding: $spacer-3 0;
+
+    &:first-child {
+      width: 60px;
+      padding-left: $spacer-4;
+      padding-right: $spacer-4;
+    }
+  }
+
+  .status {
+    border-radius: 0px 0px 4px 4px;
+
+    &.success {
+      background: #e6faf4;
+    }
+    &.failed {
+      background: #f7dbdb;
+    }
+  }
+
+  img.ic_check {
+    width: 34px;
+  }
 }
 
-.widget_wrapper h3 {
-  font-size: 12px;
-}
-.widget_wrapper img.ic_to {
-  width: 18px;
-  transform: rotate(90deg);
-}
-.widget_wrapper tr {
-  position: relative;
-  line-height: 42px;
-  padding: 2px 10px;
-}
-.widget_wrapper table {
-  margin-bottom: 55px;
-}
-.widget_wrapper ul {
-  position: absolute;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  align-content: space-between;
-  height: 50px;
-  bottom: 0px;
-  left: 0px;
-  padding: 0px;
-  padding-top: 14px;
-  padding-bottom: 10px;
-  align-items: center;
-  background: #fafafa;
-  width: 100%;
-  margin: 0px;
-  border-radius: 0px 0px 4px 4px;
-  transition: all 0.5s ease-out;
-}
-.widget_wrapper li:first-child {
-  margin-left: 40px;
-}
-.widget_wrapper li {
-  margin-right: 10px;
-}
-.widget_wrapper li:last-child {
-  margin-left: auto;
-  margin-right: 30px;
-}
-
-.widget_wrapper img.ic_check {
-  width: 34px;
-}
-li h3 {
-  margin-top: 20px;
-}
-li span {
-  display: block;
-  margin-top: 5px;
-}
-ul.status.success {
-  background: #e6faf4;
-}
-ul.status.failed {
-  background: #f7dbdb;
-}
-
-.absolute {
-  position: absolute;
-  background: #fff;
-  top: auto;
-  width: 66px;
-}
-td.absolute + td {
-  padding-left: 66px;
-}
-img.ic_to.absolute {
-  display: none;
-}
 .lon {
   display: inline-block;
   word-break: break-all;
 }
-.input-data td {
-  font-size: 0.85em;
+
+.input-data {
+  td {
+    font-size: 0.85em;
+
+    &:last-child {
+      background-color: #f3f3f3;
+    }
+
+    @media (max-width: $mobile-grid-breakpoint) {
+      &:first-child {
+        background-color: transparent;
+        white-space: inherit;
+      }
+    }
+  }
 }
-.input-data td:last-child {
-  background-color: #f3f3f3;
-}
-#downloadAbi {
+
+.downloadAbi {
   float: right;
   padding: 1px 8px;
   border-radius: 4px;
@@ -509,33 +424,9 @@ img.ic_to.absolute {
   color: #34393d;
   background: #f8f9fb;
   font-size: 0.8em;
-}
-#downloadAbi:hover {
-  box-shadow: 0 2px 43px 0 rgba(0, 0, 0, 0.1);
-}
-@media (max-width: 560px) {
-  .absolute {
-    position: absolute;
-    background: #fff;
-    top: auto;
-    left: 15px;
-  }
-  img.ic_to.absolute {
-    display: none;
-  }
-  .widget_wrapper li:first-child {
-    margin-left: 20px;
-  }
-  .widget_wrapper a {
-    font-size: 13.5px;
-    line-height: 20px;
-  }
-  .widget_wrapper table {
-    margin-bottom: 70px;
-  }
-  .input-data td:first-child {
-    background-color: transparent;
-    white-space: inherit;
+
+  &:hover {
+    box-shadow: 0 2px 43px 0 rgba(0, 0, 0, 0.1);
   }
 }
 </style>

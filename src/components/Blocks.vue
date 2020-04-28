@@ -128,6 +128,7 @@ export default {
 
 <style scoped lang="scss">
 @import '../assets/css/variables';
+
 .col {
   &.tx-count {
     font-weight: 300;
@@ -146,30 +147,6 @@ export default {
 }
 
 progress {
-  margin: 0 8px;
-  vertical-align: 2px;
-  background: #95a0a7;
-  height: 4px !important;
-  border-radius: 2px;
-
-  &::-webkit-progress-bar {
-    background: #f0f0f0;
-    height: 4px;
-    border-radius: 2px;
-  }
-
-  &::-webkit-progress-value {
-    background: #95a0a7;
-    height: 4px;
-    border-radius: 2px;
-  }
-
-  &::-moz-progress-bar {
-    background: #fff;
-  }
-
-  @media (max-width: $mobile-grid-breakpoint) {
-    margin: 0;
-  }
+  margin: 0 $spacer-2;
 }
 </style>

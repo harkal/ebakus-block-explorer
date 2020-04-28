@@ -51,6 +51,18 @@ a {
   color: $link-color;
 }
 
+/* ---- Helpers ---- */
+
+.valignCenter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    display: block;
+  }
+}
+
 /* ---- Generics ---- */
 
 %hashes {
@@ -61,6 +73,11 @@ a {
   a {
     color: inherit;
   }
+}
+
+.block {
+  @extend %hashes;
+  color: #000;
 }
 
 .address {
@@ -96,12 +113,17 @@ ul.unstyled {
 
 button {
   padding: 6px 12px;
-  border-radius: $spacer-1;
+  border-radius: 4px;
   background: #f8f8f8;
   outline: none;
 }
 
 /* ---- Tables ---- */
+
+table {
+  text-align: left;
+  border-spacing: 0;
+}
 
 th,
 td {
@@ -111,6 +133,8 @@ td {
 }
 
 td {
+  color: #5b5b5b;
+
   &:nth-child(2) {
     font-weight: 500;
   }
@@ -216,7 +240,7 @@ td {
   }
 
   @media (min-width: $mobile-grid-breakpoint + 1px) {
-    #page-wrapper & {
+    .page-wrapper & {
       .scroll {
         margin-left: -15px;
         margin-right: -15px;
@@ -233,7 +257,7 @@ td {
 
 /* ---- Page and Tab  ---- */
 
-#page-wrapper {
+.page-wrapper {
   display: none;
   margin-top: 60px;
   padding: 0px 5px;
@@ -488,6 +512,69 @@ td {
   }
 }
 
+/* ---- Widgets ---- */
+
+.widget-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: start;
+  align-items: stretch;
+  align-content: stretch;
+
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    flex-direction: column;
+  }
+}
+
+.widget {
+  position: relative;
+
+  flex-grow: 1;
+
+  margin: 10px;
+  padding: $spacer-3 0;
+
+  border: 1px solid #edeef0;
+  text-align: center;
+
+  height: 136px;
+
+  img:first-child {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  h2,
+  svg {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    margin: 0px;
+    padding: 0px;
+    transform: translateX(-50%);
+    font-size: 32px;
+    font-weight: 600;
+    color: #34393d;
+  }
+
+  h3 {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  img {
+    height: 16px;
+  }
+}
+
 /* ---- Elements ---- */
 
 .load-more {
@@ -516,6 +603,33 @@ td {
   }
   &:hover {
     transform: scale(0.98);
+  }
+}
+
+progress {
+  vertical-align: 2px;
+  background: #cff9ed;
+  height: 4px !important;
+  border-radius: 2px;
+
+  &::-webkit-progress-bar {
+    background: #cff9ed;
+    height: 4px;
+    border-radius: 2px;
+  }
+
+  &::-webkit-progress-value {
+    background: #66eec7;
+    height: 4px;
+    border-radius: 2px;
+  }
+
+  &::-moz-progress-bar {
+    background: #cff9ed;
+  }
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    margin: 0;
   }
 }
 
