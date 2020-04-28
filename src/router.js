@@ -4,6 +4,8 @@ import Router from 'vue-router'
 import { mutations } from '@/store'
 
 import App from '@/App'
+import Home from '@/components/Home'
+import Richlist from '@/components/Richlist'
 
 Vue.use(Router)
 
@@ -31,7 +33,7 @@ const router = new Router({
     {
       path: '/',
       name: RouteNames.HOME,
-      component: App,
+      component: Home,
     },
     {
       path: '/search/:query?',
@@ -59,7 +61,7 @@ const router = new Router({
     {
       path: '/richlist',
       name: RouteNames.RICHLIST,
-      component: App,
+      component: Richlist,
     },
 
     { path: '/statistics', redirect: '/producers' },

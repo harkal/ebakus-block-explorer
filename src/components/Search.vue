@@ -1,18 +1,6 @@
 <template>
-  <div id="topbar" :class="{ withTabbar: isActive }">
-    <img
-      src="@/assets/img/blockExplorer_logo_2.png"
-      alt
-      :class="{ withTabbar: isActive }"
-      @click="$router.push('/')"
-    />
-    <img
-      id="logo"
-      alt="New block produced"
-      src="@/assets/img/blockExplorer_logo.png"
-      :class="{ withTabbar: isActive }"
-    />
-    <div id="search_wrapper" :class="{ withTabbar: isActive }">
+  <div>
+    <div id="search-wrapper" :class="{ withTabbar: isActive }">
       <input
         ref="searchField"
         v-model="searchInput"
@@ -30,24 +18,6 @@
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-
-    <Block
-      v-if="block && !error"
-      :class="{ active: isBlockActive }"
-      :block-data="block"
-      :txs="txs"
-    />
-    <Address
-      v-if="address && !error"
-      :class="{ active: isAddressActive }"
-      :address-data="address"
-      :txs="txs"
-    />
-    <Transaction
-      v-if="transaction && !error"
-      :class="{ active: isTransactionActive }"
-      :transaction-data="transaction"
-    />
   </div>
 </template>
 
@@ -60,11 +30,6 @@ import Transaction from '@/components/Transaction'
 import { getAddressForEns, storeEnsNameForAddress } from '@/utils/ens'
 
 export default {
-  components: {
-    Address,
-    Block,
-    Transaction,
-  },
   props: {
     tabbarActive: {
       type: Boolean,
@@ -388,199 +353,112 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-#topbar {
-  position: absolute;
-  width: 100%;
-  top: 50%;
-  transition: 0.35s all ease-out;
-  left: 50%;
-  transform: translate(-50%, -100px);
-  padding-bottom: 100px;
-}
-#topbar img {
-  position: relative;
-  height: 60px;
-  float: right;
-  transition: 0.2s all ease;
-  z-index: 1;
-}
-#topbar img:first-child {
-  position: relative;
+<style scoped lang="scss">
+@import '../assets/css/variables';
 
-  left: 0px;
-  float: left;
-}
-#logo {
-  animation: beat 0.5s infinite alternate;
-  transform-origin: center;
-}
-@keyframes beat {
-  to {
-    transform: scale(1.1);
-  }
-}
-#search_wrapper {
+#search-wrapper {
   position: relative;
-  padding-top: 90px;
   display: block;
+  margin-top: $spacer-3;
 }
+
 input[type='text'] {
-  width: 100%;
-  /* Rectangle: */
+  width: calc(100% - 50px - #{$spacer-2});
+  height: 52px;
+
+  padding-left: 50px;
+
+  color: #112f42;
+
   background: url('../assets/img/ic_search.png') no-repeat #ffffff;
   background-size: 20px;
-  background-position: 15px 20px;
-  box-shadow: 0 2px 14px 0 rgba(0, 0, 0, 0.08);
-  border-radius: 10px;
-  /* Search by Address or: */
-  font-size: 22px;
+  background-position: 15px 18px;
+
+  border: solid 1px rgba(17, 47, 66, 0.15);
+  border-radius: 4px;
+
+  font-size: 18px;
   text-align: center;
-  border: 0px;
-  height: 60px;
-  color: #112f42;
+
   transition: 0.5s all ease;
   opacity: 1;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &::-moz-placeholder,
+  &::-webkit-input-placeholder {
+    color: #a7b2b9;
+  }
+
+  @media (max-width: 960px) {
+    text-align: left;
+    text-overflow: ellipsis;
+    font-size: 16px;
+    background-size: 15px;
+    background-position: 15px 20px;
+  }
 }
-input[type='text']:hover {
-  opacity: 1;
-}
-input[type='text']::-moz-placeholder,
-input[type='text']::-webkit-input-placeholder {
-  color: #a7b2b9;
-}
+
 input:focus,
 button:focus {
   outline: none;
-  box-shadow: 0 10px 32px 0 rgba(0, 0, 0, 0.12);
   opacity: 1;
   transform: scale(1);
 }
+
 input:focus + button {
   opacity: 1;
   transform: scale(1);
 }
+
 button {
   position: absolute;
-  top: 92px;
-  right: 2px;
-  height: 56px;
-  border-radius: 10px;
-  width: 56px;
-  color: white;
+  top: 5px;
+  right: 8px;
+  width: 54px;
+  height: 46px;
+
   background: #fe4184;
+  color: white;
+
+  border: 0;
+  border-radius: 4px;
+
   font-size: 20px;
   font-weight: 600;
+
   opacity: 0;
+
   transition: 0.5s all ease;
   transform: scale(0.9);
-  border: 0;
-}
-button:active {
-  transform: scale(0.9);
-}
-p.error {
-  position: absolute;
-  color: #fe4184;
-  transition: 0.5s opacity ease;
-}
-p.error.hide {
-  opacity: 0;
-}
-#topbar.withTabbar {
-  top: 10px;
-  transform: translate(-50%, 0);
-}
-#topbar img.withTabbar {
-  height: 40px;
-}
-#search_wrapper.withTabbar {
-  padding-top: 60px;
-}
-#search_wrapper.withTabbar button {
-  top: 63px;
-}
-@media (max-width: 960px) {
-  #topbar img {
-    height: 9vw;
-  }
-  #topbar {
-    width: 90%;
 
-    top: 40%;
+  &:active {
+    transform: scale(0.9);
   }
 
-  #search_wrapper {
-    padding-top: 60px;
-  }
-  input[type='text'] {
-    width: 84%;
-    text-align: left;
-    text-overflow: ellipsis;
-    font-size: 16px;
-    padding-left: 14%;
-    background-size: 15px;
-    background-position: 15px 26px;
-  }
-}
-@media (max-width: 560px) {
-  #topbar img {
-    height: 30px;
-  }
-  #topbar img.withTabbar {
-    top: 0px;
-    height: 25px;
-  }
-  #topbar img:first-child {
-    left: 2%;
-  }
-  #topbar img {
-    right: 2%;
-  }
-  #topbar {
-    width: 95%;
+  @media (max-width: $mobile-grid-breakpoint) {
+    top: 0;
+    right: 0;
 
-    top: 48%;
-  }
+    height: 56px;
 
-  #topbar.withTabbar {
-    top: 10px;
-  }
-
-  #search_wrapper {
-    padding-top: 50px;
-  }
-  #search_wrapper.withTabbar {
-    padding-top: 35px;
-  }
-  #search_wrapper.withTabbar button#searchBtn {
-    top: 35px;
-  }
-  input[type='text'] {
-    height: 44px;
-    padding: 0px;
-    background-position: 14px 18px;
-    background-size: 13px;
-    padding-left: 34px;
-    width: 87%;
-  }
-
-  button#searchBtn {
-    height: 44px;
-    width: 42px;
     font-size: 16px;
     font-weight: 600;
-    top: 50px;
-    border-bottom-left-radius: 3px;
-    border-top-left-radius: 3px;
-    box-shadow: 0px 2px 30px 0 rgba(254, 65, 134, 0.5);
+
+    border-radius: 0 4px 4px 0;
   }
-  button span {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+}
+
+.error {
+  margin-bottom: 0;
+  text-align: left;
+  color: #fe4184;
+  transition: 0.5s opacity ease;
+
+  &.hide {
+    opacity: 0;
   }
 }
 </style>

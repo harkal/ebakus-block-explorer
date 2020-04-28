@@ -17,20 +17,13 @@
           <img src="@/assets/img/ic_transactions.png" alt />
           <span class="txsButton"></span>
         </li>
-        <li class="mobileOnly"></li>
+        <!-- <li class="mobileOnly"></li> -->
         <li
           :id="RouteNames.PRODUCERS"
           :class="{ active: $route.name === RouteNames.PRODUCERS }"
           @click="toggleTab(RouteNames.PRODUCERS)"
         >
           <img src="@/assets/img/ic_stats.png" alt /> Producers
-        </li>
-        <li
-          :id="RouteNames.RICHLIST"
-          :class="{ active: $route.name === RouteNames.RICHLIST }"
-          @click="toggleTab(RouteNames.RICHLIST)"
-        >
-          <img src="@/assets/img/ic_richlist.png" alt /> Richlist
         </li>
       </ul>
     </div>
@@ -48,10 +41,6 @@
         key="tabbar-stats"
         :class="{ active: $route.name == RouteNames.PRODUCERS }"
       />
-      <Richlist
-        key="tabbar-richlist"
-        :class="{ active: $route.name == RouteNames.RICHLIST }"
-      />
     </div>
   </div>
 </template>
@@ -61,18 +50,16 @@ import router, { RouteNames } from '@/router'
 import { store, mutations } from '@/store'
 
 import Blocks from '@/components/Blocks'
-import Richlist from '@/components/Richlist'
 import Producers from '@/components/Producers'
 
 export const TabNames = {
   BLOCKS: 'blocks',
   TRANSACTIONS: 'transactions',
-  RICHLIST: 'richlist',
   PRODUCERS: 'producers',
 }
 
 export default {
-  components: { Blocks, Richlist, Producers },
+  components: { Blocks, Producers },
   props: {
     tabbarActive: {
       type: Boolean,
@@ -97,7 +84,6 @@ export default {
       return [
         RouteNames.BLOCKS,
         RouteNames.TRANSACTIONS,
-        RouteNames.RICHLIST,
         RouteNames.PRODUCERS,
       ].includes(router.app.$route.name)
     },
@@ -109,7 +95,6 @@ export default {
         [
           RouteNames.BLOCKS,
           RouteNames.TRANSACTIONS,
-          RouteNames.RICHLIST,
           RouteNames.PRODUCERS,
         ].includes(to.name)
       )
@@ -237,18 +222,18 @@ export default {
       }
     }
 
-    &.mobileOnly {
-      display: none;
+    // &.mobileOnly {
+    //   display: none;
 
-      @media (max-width: 350px) {
-        display: block;
-        height: 0;
-        margin: 0;
-        padding: 0;
-        background-color: transparent;
-        border: transparent;
-      }
-    }
+    //   @media (max-width: 350px) {
+    //     display: block;
+    //     height: 0;
+    //     margin: 0;
+    //     padding: 0;
+    //     background-color: transparent;
+    //     border: transparent;
+    //   }
+    // }
   }
 
   @media (max-width: $mobile-grid-breakpoint) {

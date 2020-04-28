@@ -1,54 +1,60 @@
 <template>
-  <div id="richlist-wrapper" class="tab-wrapper">
-    <ul class="tab-results labels">
-      <li class="list-title">
-        <span class="col id">#</span>
-        <span class="col address">Address</span>
-        <span class="col amount">Amount</span>
-      </li>
-    </ul>
-    <div class="scroll inner tx">
-      <ul class="tab-results main">
-        <li
-          v-for="index in addresses.length == 0 ? 4 : 0"
-          :key="index"
-          class="placeholder"
-        >
-          <span class="mobileLabel">#</span>
-          <span class="col id"><ContentLoader :width="14"/></span>
-          <span class="mobileLabel">Address</span>
-          <span class="col address"> <ContentLoader :width="400"/></span>
-          <span class="mobileLabel">Amount</span>
-          <span class="col amount"
-            ><ContentLoader :width="60" /> <small>EBK</small></span
-          >
-        </li>
-        <li v-for="(data, idx) in addresses" :key="`${data.address}:${idx}`">
-          <span class="mobileLabel">#</span>
-          <span class="col id">{{ idx + 1 }}</span>
-          <span class="mobileLabel">Address</span>
-          <span class="col address">
-            <router-link
-              :to="{ name: RouteNames.SEARCH, params: { query: data.address } }"
-              :title="data.address"
-            >
-              {{ data | toENS('address') }}
-            </router-link>
-          </span>
-          <span class="mobileLabel">Amount</span>
-          <span class="col amount">
-            {{ data.amount.toFixed(4) }} <small>EBK</small>
-          </span>
+  <div id="richlist-wrapper" class="page-wrapper active">
+    <h1><img src="@/assets/img/ic-richlist.svg" alt />Richlist</h1>
+    <div class="panel">
+      <ul class="tab-results labels">
+        <li class="list-title">
+          <span class="col id">#</span>
+          <span class="col address">Address</span>
+          <span class="col amount">Amount</span>
         </li>
       </ul>
+      <div class="scroll inner tx">
+        <ul class="tab-results main">
+          <li
+            v-for="index in addresses.length == 0 ? 4 : 0"
+            :key="index"
+            class="placeholder"
+          >
+            <span class="mobileLabel">#</span>
+            <span class="col id"><ContentLoader :width="14"/></span>
+            <span class="mobileLabel">Address</span>
+            <span class="col address"> <ContentLoader :width="400"/></span>
+            <span class="mobileLabel">Amount</span>
+            <span class="col amount"
+              ><ContentLoader :width="60" /> <small>EBK</small></span
+            >
+          </li>
+          <li v-for="(data, idx) in addresses" :key="`${data.address}:${idx}`">
+            <span class="mobileLabel">#</span>
+            <span class="col id">{{ idx + 1 }}</span>
+            <span class="mobileLabel">Address</span>
+            <span class="col address">
+              <router-link
+                :to="{
+                  name: RouteNames.SEARCH,
+                  params: { query: data.address },
+                }"
+                :title="data.address"
+              >
+                {{ data | toENS('address') }}
+              </router-link>
+            </span>
+            <span class="mobileLabel">Amount</span>
+            <span class="col amount">
+              {{ data.amount.toFixed(4) }} <small>EBK</small>
+            </span>
+          </li>
+        </ul>
 
-      <button
-        v-if="numberOfRemaining > 0 || isShowingLatest"
-        class="load-more"
-        @click="loadRichlist()"
-      >
-        Show {{ numberOfRemaining > 0 ? numberOfRemaining : '' }} More
-      </button>
+        <button
+          v-if="numberOfRemaining > 0 || isShowingLatest"
+          class="load-more"
+          @click="loadRichlist()"
+        >
+          Show {{ numberOfRemaining > 0 ? numberOfRemaining : '' }} More
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -133,7 +139,6 @@ export default {
 <style scoped lang="scss">
 @import '../assets/css/variables';
 ul {
-  max-width: 680px;
   margin: 0 auto;
 }
 </style>

@@ -148,5 +148,18 @@ export default {
 
 progress {
   margin: 0 $spacer-2;
+  background: #95a0a7;
+
+  &::-webkit-progress-bar {
+    background: #f0f0f0;
+  }
+
+  &::-webkit-progress-value {
+    background: #95a0a7;
+  }
+
+  &::-moz-progress-bar {
+    background: #fff;
+  }
 }
 </style>
