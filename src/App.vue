@@ -4,14 +4,15 @@
       <div class="container">
         <Header />
         <!-- <Search :search-query="searchQuery" :tabbar-active="contentActive" /> -->
-        <Search :search-query="searchQuery" :tabbar-active="false" />
+        <Search />
       </div>
     </header>
 
     <div class="container content">
       <router-view></router-view>
     </div>
-    <Tabbar :search-query="searchQuery" :tabbar-active="contentActive" />
+
+    <Tabbar :tabbar-active="contentActive" />
 
     <CookiePolicy />
   </div>

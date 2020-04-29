@@ -1,5 +1,5 @@
 <template>
-  <div id="blocks-wrapper" class="tab-wrapper">
+  <div id="blocks-wrapper" class="tab-wrapper active">
     <ul class="tab-results labels">
       <li class="list-title">
         <span class="col block-number">Block #</span>
@@ -19,7 +19,7 @@
           <span class="mobileLabel">Block #</span>
           <span class="col block-number"><ContentLoader :width="90"/></span>
           <span class="mobileLabel">Tx count</span>
-          <span class="col tx-count">
+          <span class="col tx-count transaction">
             <strong><ContentLoader :width="14" fixed/></strong> transactions
           </span>
           <span class="mobileLabel">Gas used</span>
@@ -44,7 +44,7 @@
             </router-link>
           </span>
           <span class="mobileLabel">Tx count</span>
-          <span class="col tx-count">
+          <span class="col tx-count transaction">
             <strong>{{ block.transactionCount }}</strong> transactions
           </span>
           <span class="mobileLabel">Gas used</span>

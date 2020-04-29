@@ -87,9 +87,6 @@ export default {
     },
   },
   watch: {
-    $route(to, from) {
-      if (to.name !== from.name) this.reloadFresh()
-    },
     addresses: function() {
       if (this.addresses.length > 0) {
         this.showTitle = true
@@ -138,7 +135,21 @@ export default {
 
 <style scoped lang="scss">
 @import '../assets/css/variables';
-ul {
-  margin: 0 auto;
+.tab-results {
+  &.labels {
+    margin-top: 0;
+  }
+
+  &.main {
+    .col {
+      &.address {
+        text-align: left;
+      }
+
+      &.amount {
+        text-align: right;
+      }
+    }
+  }
 }
 </style>

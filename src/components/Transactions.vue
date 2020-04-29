@@ -133,6 +133,10 @@ export default {
       type: String,
       default: '',
     },
+    latest: {
+      type: Boolean,
+      default: false,
+    },
     maxOffset: {
       type: Number,
       default: 0,
@@ -174,7 +178,8 @@ export default {
   },
   watch: {
     $route(to, from) {
-      if (to.name !== from.name) this.reloadFresh()
+      if (to.name !== from.name && this.$isTabbarNavigation(to.name))
+        this.reloadFresh()
     },
     address(val, oldVal) {
       if (val !== oldVal) this.reloadFresh()
@@ -263,7 +268,7 @@ export default {
               )
             }
           )
-      } else {
+      } else if (this.latest) {
         const limit = 10
         this.$http
           .get(

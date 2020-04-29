@@ -31,22 +31,21 @@
     </section>
 
     <section>
-      <h1><img src="@/assets/img/ic-ens.png" alt />Name Service</h1>
-      <div class="panel">
-        <h2>Register a Name for your address</h2>
-      </div>
+      <RegisterEns />
     </section>
   </div>
 </template>
 
 <script>
 import ContentLoader from './ContentLoader'
+import RegisterEns from './RegisterEns'
 import { RouteNames } from '@/router'
 import { timeConverter } from '@/utils'
 
 export default {
   components: {
     ContentLoader,
+    RegisterEns,
   },
   props: {
     blockData: {

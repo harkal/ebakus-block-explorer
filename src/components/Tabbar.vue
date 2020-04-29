@@ -29,18 +29,7 @@
     </div>
 
     <div class="container">
-      <Blocks
-        key="tabbar-blocks"
-        :class="{ active: $route.name == RouteNames.BLOCKS }"
-      />
-      <Transactions
-        key="tabbar-transactions"
-        :class="{ active: $route.name == RouteNames.TRANSACTIONS }"
-      />
-      <Producers
-        key="tabbar-stats"
-        :class="{ active: $route.name == RouteNames.PRODUCERS }"
-      />
+      <router-view name="tabbar"></router-view>
     </div>
   </div>
 </template>
@@ -59,19 +48,11 @@ export const TabNames = {
 }
 
 export default {
-  components: { Blocks, Producers },
+  // components: { Blocks, Producers },
   props: {
     tabbarActive: {
       type: Boolean,
       default: false,
-    },
-    selectedByRoute: {
-      type: String,
-      default: '',
-    },
-    searchQuery: {
-      type: String,
-      default: '',
     },
   },
 
@@ -79,35 +60,20 @@ export default {
     TabNames: () => TabNames,
     RouteNames: () => RouteNames,
     isContentActive: () => store.contentActive,
-
-    isTabbarNavigation: function() {
-      return [
-        RouteNames.BLOCKS,
-        RouteNames.TRANSACTIONS,
-        RouteNames.PRODUCERS,
-      ].includes(router.app.$route.name)
-    },
   },
   watch: {
     $route(to, from) {
-      if (
-        to.name !== from.name &&
-        [
-          RouteNames.BLOCKS,
-          RouteNames.TRANSACTIONS,
-          RouteNames.PRODUCERS,
-        ].includes(to.name)
-      )
+      if (to.name !== from.name && this.$isTabbarNavigation(to.name))
         mutations.setContentActive(true)
     },
   },
   created: function() {
-    mutations.setContentActive(this.isTabbarNavigation)
+    mutations.setContentActive(this.$isTabbarNavigation())
   },
   methods: {
     toggleTab: function(routeName) {
       if (this.isContentActive) {
-        if (this.isTabbarNavigation && this.$route.name !== routeName) {
+        if (this.$isTabbarNavigation() && this.$route.name !== routeName) {
           this.$router.replace(
             {
               name: routeName,
@@ -117,9 +83,8 @@ export default {
         } else {
           this.$router.go(-1)
           mutations.setContentActive(false)
-
           setTimeout(() => {
-            if (this.isTabbarNavigation) {
+            if (this.$isTabbarNavigation()) {
               this.$router.replace(
                 {
                   name: RouteNames.HOME,
@@ -159,7 +124,7 @@ export default {
   transition: 0.35s height ease-in-out;
 
   &.active {
-    height: calc(100% - 215px);
+    height: calc(100% - 190px);
   }
 
   @media (max-width: $mobile-grid-breakpoint) {
@@ -172,13 +137,13 @@ export default {
     height: 60px;
 
     &.active {
-      height: calc(100% - 100px);
+      height: calc(100% - 205px);
     }
   }
 
-  @media (max-width: 350px) {
-    height: 102px;
-  }
+  // @media (max-width: 350px) {
+  //   height: 102px;
+  // }
 }
 
 #tabbarOptions {

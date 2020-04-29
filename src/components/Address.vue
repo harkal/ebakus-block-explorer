@@ -4,47 +4,66 @@
 
     <div class="panel">
       <div class="valignCenter">
-        <div v-if="!!addressData.addressEns" class="twocol ens">
-          <p class="title">{{ addressData.addressEns }}</p>
-          <span class="address">{{ addressData.address }}</span>
+        <div v-if="!!address.addressEns" class="twocol ens">
+          <p class="title">{{ address.addressEns }}</p>
+          <span class="address">{{ address.address }}</span>
         </div>
         <div v-else class="twocol">
-          <span class="address">{{ addressData.address }}</span>
+          <span v-if="address.address" class="address">{{
+            address.address
+          }}</span>
+          <ContentLoader v-else :width="400" />
         </div>
         <div class="twocol right">
           <span class="balanceLabel">Liquid balance</span>
           <span v-if="hasData" v-pure-tooltip="balanceInUSD" class="balance">
-            {{ addressData.balance | toEtherFixed }}
+            {{ address.balance | toEtherFixed }}
           </span>
           <ContentLoader v-else :width="84" :height="20" />
           <small> EBK</small>
           <br />
           <span class="balanceLabel">Staked balance</span>
           <span v-if="hasData" v-pure-tooltip.down="stakeInUSD" class="balance">
-            {{ (addressData.stake / 10000).toFixed(4) }}
+            {{ (address.stake / 10000).toFixed(4) }}
           </span>
           <ContentLoader v-else :width="84" :height="20" />
           <small> EBK</small>
         </div>
       </div>
-      <div v-if="addressData.block_rewards == 0" class="chart-wrapper">
+      <div
+        v-if="!chartDataLoaded || address.block_rewards == 0"
+        class="chart-wrapper"
+      >
         <Chart v-if="chartDataLoaded" :chart-data="balanceData" :height="300" />
         <ContentLoader v-else :width="1000" :height="300" />
       </div>
     </div>
-    <div v-if="addressData.stats" class="panel">
+    <!-- <transition name="slide-fade" appear> -->
+    <div
+      class="panel panel-collapsable"
+      :class="{ collapsed: !statsData || !statsData.stake }"
+    >
       <h2>Producer Info</h2>
       <table>
         <tr>
           <td>Block rewards</td>
           <td>
-            {{ addressData.block_rewards | toEtherFixed }}
-            <small>EBK</small>
+            <span v-if="address.block_rewards">
+              {{ address.block_rewards | toEtherFixed }}
+            </span>
+            <ContentLoader v-else :width="60" />
+            <small> EBK</small>
           </td>
         </tr>
         <tr>
           <td>Votes</td>
-          <td>{{ statsData.stake / 10000 }} <small>EBK</small></td>
+          <td>
+            <span v-if="statsData && statsData.stake">
+              {{ statsData.stake / 10000 }}
+            </span>
+            <ContentLoader v-else :width="60" />
+            <small> EBK</small>
+          </td>
         </tr>
         <!-- <tr>
           <td colspan="2">
@@ -76,24 +95,29 @@
         </tr> -->
       </table>
     </div>
-    <div v-if="addressData.address" class="panel">
+    <!-- </transition> -->
+    <div class="panel">
       <h2>Transactions</h2>
       <Transactions
-        :key="`txs-for-address-${addressData.address}`"
-        :address="addressData.address"
-        :max-offset="addressData.tx_count"
+        :key="`txs-for-address-${address.address}`"
+        :address="address.address"
+        :max-offset="address.tx_count"
         :class="{ active: txs.length > 0 }"
       />
-      <p v-if="txs.length == 0" class="no-data">There are no transactions.</p>
+      <p v-if="address.address && txs.length == 0" class="no-data">
+        There are no transactions.
+      </p>
     </div>
   </div>
 </template>
 
 <script>
 import Web3 from 'web3'
-import Chart from './Chart'
+
+import { store } from '@/store'
 import { timeConverter } from '@/utils'
 
+import Chart from './Chart'
 import ContentLoader from './ContentLoader'
 
 export default {
@@ -101,28 +125,20 @@ export default {
     ContentLoader,
     Chart,
   },
-  props: {
-    addressData: {
-      type: Object,
-      default: () => ({}),
-    },
-    txs: {
-      type: Array,
-      default: () => [],
-    },
-  },
   data() {
     return {
-      address: '',
+      address: {},
+      txs: [],
       chartDataLoaded: false,
     }
   },
   computed: {
+    searchQuery: () => store.searchQuery,
     hasData() {
-      return !!this.addressData.address
+      return !!this.address.address
     },
     balanceData: function() {
-      const data = this.addressData
+      const data = this.address
       if (!data || !data.address) return
 
       const BN = Web3.utils.BN
@@ -190,22 +206,24 @@ export default {
       return balanceData
     },
     balanceInUSD: function() {
-      return !!this.addressData.balance
-        ? this.$options.filters.weiToUSDString(this.addressData.balance)
-        : null
+      return !!this.address.balance
+        ? this.$options.filters.weiToUSDString(this.address.balance)
+        : {}
     },
     stakeInUSD: function() {
-      return !!this.addressData.stake
+      return !!this.address.stake
         ? this.$options.filters.toUSDString(
-            (this.addressData.stake / 10000).toFixed(4)
+            (this.address.stake / 10000).toFixed(4)
           )
-        : null
+        : {}
     },
     statsData: function() {
-      const [delegateInfo, ...rest] = this.addressData.stats.delegates.filter(
+      if (typeof this.address.stats === 'undefined') return {}
+
+      const [delegateInfo, ...rest] = this.address.stats.delegates.filter(
         delegate => {
           const lastPeriod = delegate[delegate.length - 1]
-          return lastPeriod.address === this.addressData.address
+          return lastPeriod.address === this.address.address
         }
       )
 
@@ -238,14 +256,79 @@ export default {
     },
   },
   watch: {
-    addressData: function() {},
+    searchQuery: function(val, oldVal) {
+      if (val !== oldVal) {
+        this.search()
+      }
+    },
+    // address: function() {},
     txs: function() {
       this.chartDataLoaded = true
     },
   },
-  created: function() {},
+  created: function() {
+    this.search()
+  },
   methods: {
     timeConverter: timeConverter,
+
+    search: function() {
+      if (typeof this.searchQuery !== 'undefined' && this.searchQuery) {
+        this.address = {}
+        this.txs = []
+
+        const address = this.searchQuery.replace(/ /g, '')
+        this.getAddress(address)
+      }
+    },
+
+    getAddress: function(address) {
+      this.txs = []
+
+      this.$http.get(process.env.API_ENDPOINT + '/address/' + address).then(
+        function(response) {
+          this.address = response.data
+
+          if (this.address.block_rewards > 0) {
+            // extra API call to retrieve block producer, later this will be returned by the API tx call itself
+            this.$http.get(process.env.API_ENDPOINT + '/stats/' + address).then(
+              function(response) {
+                this.$set(this.address, 'stats', response.data)
+              },
+              function(err) {
+                console.error(
+                  `Failed to fetch stats for address "${address}": `,
+                  err
+                )
+              }
+            )
+          }
+        },
+        function(err) {
+          console.error(`Failed to fetch address info for "${address}": `, err)
+          this.error = 'Failed to get address informations.'
+        }
+      )
+
+      this.$http
+        .get(
+          process.env.API_ENDPOINT +
+            '/transaction/all/' +
+            address +
+            '?offset=0&limit=20&order=desc'
+        )
+        .then(
+          function(response) {
+            this.$set(this, 'txs', response.data)
+          },
+          function(err) {
+            console.error(
+              `Failed to fetch transactions for address "${address}": `,
+              err
+            )
+          }
+        )
+    },
   },
 }
 </script>

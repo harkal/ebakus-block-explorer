@@ -10,12 +10,12 @@
     <nav>
       <ul>
         <li>
-          <router-link :to="{ name: RouteNames.HOME }" :title="Home">
+          <router-link :to="{ name: RouteNames.HOME }" title="Home" exact>
             <img src="@/assets/img/ic-home.svg" alt /> Home
           </router-link>
         </li>
         <li>
-          <router-link :to="{ name: RouteNames.RICHLIST }" :title="Richlist">
+          <router-link :to="{ name: RouteNames.RICHLIST }" title="Richlist">
             <img src="@/assets/img/ic-richlist.svg" alt /> Richlist
           </router-link>
         </li>

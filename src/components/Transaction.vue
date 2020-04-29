@@ -17,10 +17,10 @@
                 v-if="hasData"
                 class="address lon"
                 :to="{
-                  name: RouteNames.SEARCH,
-                  params: { query: transactionData.from },
+                  name: RouteNames.ADDRESS,
+                  params: { query: transaction.from },
                 }"
-                >{{ transactionData.from }}</router-link
+                >{{ transaction.from }}</router-link
               >
               <ContentLoader v-else :width="400" />
             </td>
@@ -34,10 +34,10 @@
                 v-if="hasData"
                 class="address lon"
                 :to="{
-                  name: RouteNames.SEARCH,
-                  params: { query: transactionData.to },
+                  name: RouteNames.ADDRESS,
+                  params: { query: transaction.to },
                 }"
-                >{{ transactionData.to }}</router-link
+                >{{ transaction.to }}</router-link
               >
               <ContentLoader v-else :width="400" />
             </td>
@@ -51,10 +51,10 @@
                 v-if="hasData"
                 class="address lon"
                 :to="{
-                  name: RouteNames.SEARCH,
-                  params: { query: transactionData.contractAddress },
+                  name: RouteNames.ADDRESS,
+                  params: { query: transaction.contractAddress },
                 }"
-                >{{ transactionData.contractAddress }}</router-link
+                >{{ transaction.contractAddress }}</router-link
               >
               <ContentLoader v-else :width="300" />
             </td>
@@ -62,8 +62,8 @@
           <tr
             class="status"
             :class="{
-              success: hasData && transactionData.status,
-              failed: hasData && transactionData.status === 0,
+              success: hasData && transaction.status,
+              failed: hasData && transaction.status === 0,
             }"
           >
             <td>
@@ -71,19 +71,19 @@
             </td>
             <td>
               <h1 v-if="hasData">
-                {{ transactionData.value | toEtherFixed }} <small>EBK</small>
+                {{ transaction.value | toEtherFixed }} <small>EBK</small>
               </h1>
               <ContentLoader v-else :width="25" :height="22" />
             </td>
             <td>
               <img
-                v-if="hasData && transactionData.status"
+                v-if="hasData && transaction.status"
                 class="ic_check"
                 src="@/assets/img/ic_check.png"
                 alt="Successfull transaction"
               />
               <img
-                v-else
+                v-else-if="hasData && !transaction.status"
                 class="ic_check"
                 src="@/assets/img/ic_error.svg"
                 alt="Failed transaction"
@@ -101,7 +101,7 @@
           <tr>
             <td class="headcol">TxHash</td>
             <td class="long">
-              <span v-if="hasData">{{ transactionData.hash }}</span>
+              <span v-if="hasData">{{ transaction.hash }}</span>
               <ContentLoader v-else :width="600" />
             </td>
           </tr>
@@ -109,7 +109,7 @@
             <td class="headcol">Timestamp</td>
             <td class="long">
               <span v-if="hasData">
-                {{ timeConverter(transactionData.timestamp) }}
+                {{ timeConverter(transaction.timestamp) }}
               </span>
               <ContentLoader v-else :width="150" />
             </td>
@@ -117,7 +117,7 @@
           <tr>
             <td class="headcol">Block hash</td>
             <td class="long">
-              <span v-if="hasData">{{ transactionData.blockHash }}</span>
+              <span v-if="hasData">{{ transaction.blockHash }}</span>
               <ContentLoader v-else :width="600" />
             </td>
           </tr>
@@ -128,11 +128,11 @@
                 <router-link
                   class="block"
                   :to="{
-                    name: RouteNames.SEARCH,
-                    params: { query: transactionData.blockNumber },
+                    name: RouteNames.BLOCK,
+                    params: { query: transaction.blockNumber },
                   }"
                 >
-                  {{ transactionData.blockNumber }}
+                  {{ transaction.blockNumber }}
                 </router-link>
               </strong>
               <ContentLoader v-else />
@@ -145,10 +145,10 @@
                 v-if="hasData"
                 class="address"
                 :to="{
-                  name: RouteNames.SEARCH,
-                  params: { query: transactionData.producer },
+                  name: RouteNames.ADDRESS,
+                  params: { query: transaction.producer },
                 }"
-                >{{ transactionData.producer }}</router-link
+                >{{ transaction.producer }}</router-link
               >
               <ContentLoader v-else :width="350" />
             </td>
@@ -157,7 +157,7 @@
             <td class="headcol">Gas limit</td>
             <td class="long">
               <span v-if="hasData">
-                {{ transactionData.gasLimit }}
+                {{ transaction.gasLimit }}
               </span>
               <ContentLoader v-else />
             </td>
@@ -166,7 +166,7 @@
             <td class="headcol">Gas used</td>
             <td class="long">
               <span v-if="hasData">
-                {{ transactionData.gasUsed }}
+                {{ transaction.gasUsed }}
               </span>
               <ContentLoader v-else />
             </td>
@@ -175,7 +175,7 @@
             <td class="headcol">Cumulative gas used</td>
             <td class="long">
               <span v-if="hasData">
-                {{ transactionData.cumulativeGasUsed }}
+                {{ transaction.cumulativeGasUsed }}
               </span>
               <ContentLoader v-else />
             </td>
@@ -184,7 +184,7 @@
             <td class="headcol">Nonce</td>
             <td class="long">
               <span v-if="hasData">
-                {{ transactionData.nonce }}
+                {{ transaction.nonce }}
               </span>
               <ContentLoader v-else />
             </td>
@@ -193,7 +193,7 @@
             <td class="headcol">Work nonce</td>
             <td class="long">
               <span v-if="hasData">
-                {{ transactionData.workNonce }}
+                {{ transaction.workNonce }}
               </span>
               <ContentLoader v-else />
             </td>
@@ -202,7 +202,7 @@
             <td class="headcol">Transaction index</td>
             <td class="long">
               <span v-if="hasData">
-                {{ transactionData.transactionIndex }}
+                {{ transaction.transactionIndex }}
               </span>
               <ContentLoader v-else />
             </td>
@@ -210,7 +210,7 @@
           <tr>
             <td class="headcol">Status</td>
             <td class="long">
-              <span v-if="hasData">{{ transactionData.status }} </span>
+              <span v-if="hasData">{{ transaction.status }} </span>
               <ContentLoader v-else />
             </td>
           </tr>
@@ -221,7 +221,7 @@
               <ContentLoader v-else />
             </td>
           </tr>
-          <tr v-if="transactionData.abi">
+          <tr v-if="transaction.abi">
             <td class="headcol">Input</td>
             <td class="long">
               <strong>{{ decodedInput.name }}(</strong>
@@ -248,11 +248,11 @@
               {{ param.value }}
             </td>
           </tr>
-          <tr v-if="!transactionData.abi">
+          <tr v-if="!transaction.abi">
             <td class="headcol">Input</td>
             <td class="long">
               <span v-if="hasData">
-                {{ transactionData.input }}
+                {{ transaction.input }}
               </span>
               <ContentLoader v-else :width="600" :height="48" />
             </td>
@@ -265,39 +265,38 @@
 
 <script>
 import { RouteNames } from '@/router'
-import { store } from '@/store'
+import { store, mutations } from '@/store'
 import { timeConverter, isZeroHash } from '@/utils'
 import { decodeDataUsingAbi } from '@/utils/abi'
+
 import ContentLoader from './ContentLoader'
 
 export default {
   components: {
     ContentLoader,
   },
-  props: {
-    transactionData: {
-      type: Object,
-      default: () => ({}),
-    },
-  },
   data() {
     return {
+      transaction: {},
       confirmationsCount: 0,
     }
   },
   computed: {
     RouteNames: () => RouteNames,
+
+    searchQuery: () => store.searchQuery,
+
     hasData() {
-      return !!this.transactionData.from
+      return !!this.transaction.from
     },
     globalBlockHeight: () => store.blockHeight,
     isContractCreation: function() {
-      return this.hasData && !isZeroHash(this.transactionData.contractAddress)
+      return this.hasData && !isZeroHash(this.transaction.contractAddress)
     },
     decodedInput: function() {
       const data = decodeDataUsingAbi(
-        this.transactionData.abi,
-        this.transactionData.input
+        this.transaction.abi,
+        this.transaction.input
       )
 
       if (typeof data === 'object' && data.name) {
@@ -315,26 +314,107 @@ export default {
       return {
         data:
           'data:text/json;charset=utf-8,' +
-          encodeURIComponent(JSON.stringify(this.transactionData.abi, 0, 2)),
-        filename: `${this.transactionData.to}-abi.json`,
+          encodeURIComponent(JSON.stringify(this.transaction.abi, 0, 2)),
+        filename: `${this.transaction.to}-abi.json`,
       }
     },
   },
   watch: {
-    transactionData: function() {
-      if (this.globalBlockHeight > this.transactionData.blockNumber) {
+    searchQuery: function(val, oldVal) {
+      if (val !== oldVal) {
+        this.search()
+      }
+    },
+    transaction: function() {
+      if (this.globalBlockHeight > this.transaction.blockNumber) {
         this.$set(
           this,
           'confirmationsCount',
-          this.globalBlockHeight - this.transactionData.blockNumber
+          this.globalBlockHeight - this.transaction.blockNumber
         )
       }
     },
   },
-  created: function() {},
+  created: function() {
+    this.search()
+  },
   methods: {
     timeConverter: timeConverter,
     decodeDataUsingAbi: decodeDataUsingAbi,
+
+    search: function() {
+      if (typeof this.searchQuery !== 'undefined' && this.searchQuery) {
+        const txHash = this.searchQuery.replace(/ /g, '')
+        this.getTransaction(txHash)
+      }
+    },
+    getTransaction: function(txHash) {
+      return new Promise((resolve, reject) => {
+        this.$http.get(process.env.API_ENDPOINT + '/block/-1?range=1').then(
+          function(response) {
+            mutations.setBlockHeight(response.data[0].number)
+            this.$http
+              .get(process.env.API_ENDPOINT + '/transaction/' + txHash)
+              .then(
+                function(response) {
+                  this.transaction = response.data
+
+                  if (!['', '0x', null].includes(this.transaction.input)) {
+                    this.getABI(this.transaction.to)
+                  }
+
+                  // extra API call to retrieve block producer, later this will be returned by the API tx call itself
+                  this.$http
+                    .get(
+                      process.env.API_ENDPOINT +
+                        '/block/' +
+                        this.transaction.blockNumber
+                    )
+                    .then(
+                      function(response) {
+                        this.$set(
+                          this.transaction,
+                          'producer',
+                          response.data.producer
+                        )
+                        resolve(response)
+                      },
+                      function(err) {
+                        console.error(
+                          `Failed to fetch block "${this.transaction.blockNumber}": `,
+                          err
+                        )
+                        reject(err)
+                      }
+                    )
+                },
+                function(err) {
+                  console.error(
+                    `Failed to fetch transaction "${txHash}": `,
+                    err
+                  )
+                  this.error = 'Failed to get transaction.'
+                  reject(err)
+                }
+              )
+          },
+          function(err) {
+            console.error('Failed to fetch latest block:', err)
+            reject(err)
+          }
+        )
+      })
+    },
+    getABI: function(contractAddress) {
+      this.$http.get(process.env.API_ENDPOINT + '/abi/' + contractAddress).then(
+        function(response) {
+          this.$set(this.transaction, 'abi', response.data)
+        },
+        function(err) {
+          console.error(`Failed to fetch ABI for "${contractAddress}": `, err)
+        }
+      )
+    },
   },
 }
 </script>

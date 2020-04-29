@@ -254,6 +254,10 @@ td {
         margin-left: -15px;
         margin-right: -15px;
       }
+
+      .scroll {
+        margin-bottom: -15px;
+      }
     }
   }
 
@@ -267,18 +271,30 @@ td {
 /* ---- Page and Tab  ---- */
 
 .page-wrapper {
-  display: none;
+  // display: none;
   // margin-top: 60px;
   padding: 0px 5px;
 
   text-align: left;
   transition: 0.3s all ease;
 
-  opacity: 0;
+  // opacity: 0;
 
   &.active {
     display: block;
     opacity: 1;
+  }
+
+  .panel-collapsable {
+    overflow:hidden;
+    max-height: auto;
+    transition: max-height .15s ease-in,padding .15s ease-in;
+  }
+  .panel-collapsable.collapsed {
+    transition: max-height .15s ease-in,padding .15s ease-in;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
   }
 
   & > section:not(:first-child) {
@@ -308,7 +324,7 @@ td {
 }
 
 .tab-wrapper {
-  display: none;
+  // display: none;
   height: 50px;
   height: 100%;
 
@@ -533,7 +549,7 @@ td {
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
-  justify-content: start;
+  justify-content: flex-start;
   align-items: stretch;
   align-content: stretch;
 

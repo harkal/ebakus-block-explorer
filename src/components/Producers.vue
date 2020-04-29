@@ -209,6 +209,21 @@ export default {
       this.connect()
     }
   },
+  beforeDestroy: function() {
+    window.removeEventListener(
+      'ebakusCurrentProviderEndpoint',
+      this.ebakusCurrentProviderEndpointListener
+    )
+
+    window.removeEventListener(
+      'ebakusConnectionStatus',
+      this.ebakusConnectionStatusListener
+    )
+
+    window.removeEventListener('ebakusAccount', this.ebakusAccountListener)
+
+    window.removeEventListener('ebakusStaked', this.ebakusStakedListener)
+  },
   methods: {
     allowEbakusWallet: function() {
       mutations.setAllowEbakusWallet(true)
@@ -217,45 +232,53 @@ export default {
       if (this.isEbakusWalletLoaded || !this.ebakusWalletAllowed) return
       this.isEbakusWalletLoaded = true
 
-      const self = this
+      window.addEventListener(
+        'ebakusCurrentProviderEndpoint',
+        this.ebakusCurrentProviderEndpointListener
+      )
 
-      window.addEventListener('ebakusCurrentProviderEndpoint', function({
-        detail: endpoint,
-      }) {
-        self.resetWeb3Connection()
-        self.displayedWitnesses = []
-        self.connect()
-      })
+      window.addEventListener(
+        'ebakusConnectionStatus',
+        this.ebakusConnectionStatusListener
+      )
 
-      window.addEventListener('ebakusConnectionStatus', function({
-        detail: status,
-      }) {
-        self.resetWeb3Connection()
+      window.addEventListener('ebakusAccount', this.ebakusAccountListener)
 
-        if (status == 'connected') {
-          self.connect()
-        }
-      })
-
-      window.addEventListener('ebakusAccount', ({ detail: address }) => {
-        self.resetWeb3Connection()
-        self.connect()
-      })
-
-      window.addEventListener('ebakusStaked', function({ detail: staked }) {
-        if (!web3) {
-          return
-        }
-        self.loadWitnesses()
-        self.loadCurrentlyVoted()
-      })
+      window.addEventListener('ebakusStaked', this.ebakusStakedListener)
 
       const opts = {}
       if (process.env.WALLET_ENDPOINT) {
         opts.walletEndpoint = process.env.WALLET_ENDPOINT
       }
 
-      ebakusWallet.init(opts)
+      if (!ebakusWallet.isWalletFrameLoaded()) {
+        ebakusWallet.init(opts)
+      } else {
+        this.connect()
+      }
+    },
+    ebakusCurrentProviderEndpointListener: function({ detail: endpoint }) {
+      this.resetWeb3Connection()
+      this.displayedWitnesses = []
+      this.connect()
+    },
+    ebakusConnectionStatusListener: function({ detail: status }) {
+      this.resetWeb3Connection()
+
+      if (status == 'connected') {
+        this.connect()
+      }
+    },
+    ebakusAccountListener: function({ detail: address }) {
+      this.resetWeb3Connection()
+      this.connect()
+    },
+    ebakusStakedListener: function({ detail: staked }) {
+      if (!web3) {
+        return
+      }
+      this.loadWitnesses()
+      this.loadCurrentlyVoted()
     },
     checkWeb3ConnectionError: async function(err) {
       const self = this
@@ -310,13 +333,15 @@ export default {
 
         this.web3Connecting = false
       } catch (err) {
-        console.error('Failed to retrieve provider endpoint from wallet', err)
+        if (!(await this.checkWeb3ConnectionError(err))) {
+          console.error('Failed to retrieve provider endpoint from wallet', err)
 
-        this.web3Connecting = false
+          this.web3Connecting = false
 
-        this.error = 'Failed to connect, retrying...'
+          this.error = 'Failed to connect, retrying...'
 
-        this.resetWeb3Connection()
+          this.resetWeb3Connection()
+        }
       }
     }, DEBOUNCE_DELAY),
     fetchAccount: async function() {
@@ -328,8 +353,10 @@ export default {
 
         this.loadCurrentlyVoted()
       } catch (err) {
-        console.error('Failed to retrieve user address from wallet', err)
-        ebakusWallet.unlockWallet()
+        if (!(await this.checkWeb3ConnectionError(err))) {
+          console.error('Failed to retrieve user address from wallet', err)
+          ebakusWallet.unlockWallet()
+        }
       }
     },
     getWeb3ContractInstance: async function() {
@@ -644,6 +671,10 @@ export default {
     color: #828383 !important;
     opacity: 0.8;
   }
+}
+
+.main .amount {
+  text-align: right;
 }
 
 .producer {
