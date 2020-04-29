@@ -4,26 +4,26 @@
     <div class="panel">
       <div class="widget-wrapper">
         <div class="widget">
-          <img src="@/assets/img/ic_blocks.png" alt />
+          <img src="@/assets/img/ic-block.svg" alt />
           <h3>BLOCK #</h3>
           <router-link
-            class="left-arrow"
+            class="nav-button left"
             :to="{ name: RouteNames.BLOCK, params: { query: previousBlock } }"
           >
-            <img src="@/assets/img/ic_prev.png" alt />
+            <img src="@/assets/img/ic-left-arrow.svg" alt />
           </router-link>
           <router-link
-            class="right-arrow"
+            class="nav-button right"
             :to="{ name: RouteNames.BLOCK, params: { query: nextBlock } }"
           >
-            <img src="@/assets/img/ic_next.png" alt />
+            <img src="@/assets/img/ic-right-arrow.svg" alt />
           </router-link>
           <h2 v-if="block.number">{{ block.number }}</h2>
           <ContentLoader v-else :width="100" :height="20" />
         </div>
 
         <div class="widget">
-          <img src="@/assets/img/ic_transactions.png" alt />
+          <img src="@/assets/img/ic-transaction.svg" alt />
           <h3>TRANSACTIONS</h3>
           <h2 v-if="block.transactionCount >= 0">
             {{ block.transactionCount }}
@@ -262,18 +262,18 @@ export default {
 <style scoped lang="scss">
 @import '../assets/css/variables';
 
-.widget {
-  a.left-arrow {
-    position: absolute;
-    top: 34px;
-    left: 30px;
-  }
-  a.right-arrow {
-    position: absolute;
-    top: 34px;
-    right: 30px;
-  }
-}
+// .widget {
+//   a.left-arrow {
+//     position: absolute;
+//     top: 34px;
+//     left: 30px;
+//   }
+//   a.right-arrow {
+//     position: absolute;
+//     top: 34px;
+//     right: 30px;
+//   }
+// }
 
 progress {
   position: absolute;

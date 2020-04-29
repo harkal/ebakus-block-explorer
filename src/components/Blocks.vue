@@ -1,5 +1,5 @@
 <template>
-  <div id="blocks-wrapper" class="tab-wrapper active">
+  <div id="blocks-wrapper" class="tab-wrapper">
     <ul class="tab-results labels">
       <li class="list-title">
         <span class="col block-number">Block #</span>
@@ -36,7 +36,7 @@
           <span class="col block-number">
             <router-link
               :to="{
-                name: RouteNames.SEARCH,
+                name: RouteNames.BLOCK,
                 params: { query: String(block.number) },
               }"
             >
@@ -57,7 +57,7 @@
           <span class="col address">
             <router-link
               :to="{
-                name: RouteNames.SEARCH,
+                name: RouteNames.ADDRESS,
                 params: { query: block.producer },
               }"
               :title="block.producer"

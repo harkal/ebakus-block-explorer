@@ -31,7 +31,7 @@ const checkEnsConnectionError = async err => {
       resetContract()
     },
     postInit: async () => {
-      await getEnsContract()()
+      await getEnsContract()
     },
   })
 }

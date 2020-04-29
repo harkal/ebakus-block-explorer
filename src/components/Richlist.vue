@@ -1,5 +1,5 @@
 <template>
-  <div id="richlist-wrapper" class="page-wrapper active">
+  <div id="richlist-wrapper" class="page-wrapper">
     <h1><img src="@/assets/img/ic-richlist.svg" alt />Richlist</h1>
     <div class="panel">
       <ul class="tab-results labels">
@@ -32,7 +32,7 @@
             <span class="col address">
               <router-link
                 :to="{
-                  name: RouteNames.SEARCH,
+                  name: RouteNames.ADDRESS,
                   params: { query: data.address },
                 }"
                 :title="data.address"

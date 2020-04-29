@@ -1,7 +1,7 @@
 <template>
   <div class="page-wrapper">
     <h1>
-      <img src="@/assets/img/ic_transactions.png" alt />
+      <img src="@/assets/img/ic-transaction.svg" alt />
       <span v-if="isContractCreation">Contract Creation</span>
       <span v-else>Transaction</span>
     </h1>

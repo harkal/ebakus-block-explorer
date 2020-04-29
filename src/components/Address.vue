@@ -1,6 +1,6 @@
 <template>
   <div class="page-wrapper">
-    <h1>Address</h1>
+    <h1><img src="@/assets/img/ic-ens.png" alt />Address</h1>
 
     <div class="panel">
       <div class="valignCenter">

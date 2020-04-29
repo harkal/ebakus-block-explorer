@@ -53,26 +53,10 @@ export default {
   display: table;
   clear: both;
 }
-/* #topbar {
-  position: absolute;
-  width: 100%;
-  top: 10px;
-  left: 0;
-  padding-bottom: 100px;
-
-  @media (max-width: 960px) {
-    left: 10px;
-    width: 90%;
-  }
-} */
 
 .logo {
-  /* position: relative;
-  left: 0px; */
   float: left;
   height: 40px;
-  /* transition: 0.2s all ease; */
-  /* z-index: 1; */
 }
 
 nav {
@@ -107,7 +91,9 @@ nav {
       }
 
       img {
-        margin-bottom: -4px;
+        width: 24px;
+        vertical-align: -4px;
+        object-fit: contain;
       }
     }
   }
@@ -115,30 +101,5 @@ nav {
   @media (max-width: $mobile-grid-breakpoint) {
     float: left;
   }
-}
-
-@media (max-width: 560px) {
-  // #topbar img {
-  //   height: 30px;
-  // }
-  // #topbar img.withTabbar {
-  //   top: 0px;
-  //   height: 25px;
-  // }
-  // #topbar img:first-child {
-  //   left: 2%;
-  // }
-  // #topbar img {
-  //   right: 2%;
-  // }
-  // #topbar {
-  //   width: 95%;
-
-  //   top: 48%;
-  // }
-
-  // #topbar.withTabbar {
-  //   top: 10px;
-  // }
 }
 </style>

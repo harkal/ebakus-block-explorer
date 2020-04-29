@@ -49,7 +49,6 @@ const searchRouteBeforeEnter = async (to, from, next) => {
           return
         }
       } else {
-        console.log('searchRouteBeforeEnter -> next')
         next(false)
         return
       }
@@ -79,7 +78,7 @@ const RouteNames = {
 }
 
 const SearchableRoutes = [
-  RouteNames.SEARCH,
+  // RouteNames.SEARCH, ignore logical search route
   RouteNames.BLOCK,
   RouteNames.TRANSACTION,
   RouteNames.ADDRESS,

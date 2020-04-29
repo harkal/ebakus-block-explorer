@@ -7,14 +7,14 @@
           :class="{ active: $route.name === RouteNames.BLOCKS }"
           @click="toggleTab(RouteNames.BLOCKS)"
         >
-          <img src="@/assets/img/ic_blocks.png" alt /> Blocks
+          <img src="@/assets/img/ic-block.svg" alt /> Blocks
         </li>
         <li
           :id="RouteNames.TRANSACTIONS"
           :class="{ active: $route.name === RouteNames.TRANSACTIONS }"
           @click="toggleTab(RouteNames.TRANSACTIONS)"
         >
-          <img src="@/assets/img/ic_transactions.png" alt />
+          <img src="@/assets/img/ic-transaction.svg" alt />
           <span class="txsButton"></span>
         </li>
         <!-- <li class="mobileOnly"></li> -->
@@ -23,7 +23,7 @@
           :class="{ active: $route.name === RouteNames.PRODUCERS }"
           @click="toggleTab(RouteNames.PRODUCERS)"
         >
-          <img src="@/assets/img/ic_stats.png" alt /> Producers
+          <img src="@/assets/img/ic-stats.svg" alt /> Producers
         </li>
       </ul>
     </div>
@@ -173,8 +173,9 @@ export default {
     }
 
     img {
-      width: 14px;
-      vertical-align: -1px;
+      width: 24px;
+      vertical-align: -6px;
+      object-fit: contain;
     }
 
     &.active {

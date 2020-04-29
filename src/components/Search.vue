@@ -60,10 +60,14 @@ export default {
           name: RouteNames.SEARCH,
           params: { query },
         },
-        () => {},
+        success => {
+          mutations.setQuery(query)
+        },
         err => {
-          this.error =
-            'Please enter a txid, a block number, an account address or an ENS name.'
+          if (typeof err !== 'undefined') {
+            this.error =
+              'Please enter a txid, a block number, an account address or an ENS name.'
+          }
         }
       )
     },

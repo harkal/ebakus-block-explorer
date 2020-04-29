@@ -45,7 +45,7 @@
           <span class="mobileLabel">Tx hash</span>
           <span class="col tx-hash transaction">
             <router-link
-              :to="{ name: RouteNames.SEARCH, params: { query: tx.hash } }"
+              :to="{ name: RouteNames.TRANSACTION, params: { query: tx.hash } }"
               :title="tx.hash"
             >
               {{ tx.hash }}
@@ -55,7 +55,7 @@
           <span class="col address">
             <router-link
               v-if="tx.from !== 'this'"
-              :to="{ name: RouteNames.SEARCH, params: { query: tx.from } }"
+              :to="{ name: RouteNames.ADDRESS, params: { query: tx.from } }"
               :title="tx.from"
             >
               {{ tx | toENS('from') }}
@@ -72,7 +72,7 @@
           <span class="col address">
             <router-link
               v-if="!['this', 'contract creation'].includes(tx.to)"
-              :to="{ name: RouteNames.SEARCH, params: { query: tx.to } }"
+              :to="{ name: RouteNames.ADDRESS, params: { query: tx.to } }"
               :title="tx.to"
             >
               {{ tx | toENS('to') }}
@@ -80,7 +80,7 @@
             <router-link
               v-else-if="tx.to === 'contract creation'"
               :to="{
-                name: RouteNames.SEARCH,
+                name: RouteNames.ADDRESS,
                 params: { query: tx.contractAddress },
               }"
               :title="tx.contractAddress"
