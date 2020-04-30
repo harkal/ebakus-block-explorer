@@ -2,6 +2,7 @@ import Vue from 'vue'
 import memoize from 'lodash/memoize'
 import debounce from 'lodash/debounce'
 import namehash from 'eth-ens-namehash'
+import ebakusWallet from 'ebakus-web-wallet-loader'
 
 import { web3, checkConnectionError } from '@/utils/web3ebakus'
 import { isZeroHash } from '.'
@@ -70,7 +71,24 @@ const registerNameForAddress = async (name, address) => {
     const contract = await getEnsContract()
     if (!contract) throw new Error("ENS contract can't be loaded")
 
-    await contract.methods.register(hash).send()
+    const registrationAmount = await contract.methods
+      .getRegistrationAmount()
+      .call()
+
+    const cmd = contract.methods.register(hash, address)
+
+    const tx = {
+      to: ContractAddress,
+      value: registrationAmount,
+      data: cmd.encodeABI(),
+    }
+
+    const gas = await web3.eth.estimateGas(tx)
+    tx.gas = gas + 10000
+
+    const res = await ebakusWallet.sendTransaction(tx)
+
+    return res && res.status
   } catch (err) {
     if (await checkEnsConnectionError(err)) {
       return await registerNameForAddress(name, address)
@@ -124,6 +142,6 @@ export {
   registerNameForAddress,
   getAddressForEns,
   getEnsNameForAddress,
-  resetContract,
+  resetContract as resetEnsContract,
   storeEnsNameForAddress,
 }

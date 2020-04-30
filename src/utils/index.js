@@ -40,4 +40,22 @@ const isZeroHash = hash => {
   return /^(0x)?0*$/.test(hash)
 }
 
-export { timeConverter, isZeroHash }
+const waitUntil = function(
+  checkSuccess = () => false,
+  checkError = () => false,
+  time = 500
+) {
+  return new Promise((resolve, reject) => {
+    const interval = setInterval(() => {
+      if (checkSuccess()) {
+        clearInterval(interval)
+        resolve()
+      } else if (checkError()) {
+        clearInterval(interval)
+        reject()
+      }
+    }, time)
+  })
+}
+
+export { timeConverter, isZeroHash, waitUntil }

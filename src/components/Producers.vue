@@ -230,9 +230,6 @@ export default {
     },
 
     ebakusWalletOnConnectSuccess: async function() {
-      // resetSystemContract()
-      // resetEnsContract()
-
       await this.fetchAccount()
       this.systemContractInstance = await getSystemContract()
 

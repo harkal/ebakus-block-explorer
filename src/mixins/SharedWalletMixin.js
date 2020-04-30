@@ -3,10 +3,8 @@ import ebakusWallet from 'ebakus-web-wallet-loader'
 import { debounce } from 'lodash'
 
 import { setProvider, checkConnectionError } from '@/utils/web3ebakus'
-import {
-  getEnsNameForAddress,
-  resetContract as resetEnsContract,
-} from '@/utils/ens'
+import { resetEnsContract } from '@/utils/ens'
+import { resetSystemContract } from '@/utils/systemContract'
 import { store, mutations } from '@/store'
 
 const noop = () => {}
@@ -216,9 +214,10 @@ export default {
             this._web3Endpoint = endpoint
             setProvider(this._web3Endpoint)
 
+            resetSystemContract()
             resetEnsContract()
 
-            this.walletError = null
+            this.walletError = ''
           }
         }
 
@@ -242,7 +241,8 @@ export default {
     }, DEBOUNCE_DELAY),
 
     ebakusWalletFetchAccount: async function() {
-      if (!this.ebakusWalletAllowed) return
+      if (!this.isEbakusWalletAllowed)
+        throw new Error('Please allow cookies for Ebakus wallet first.')
 
       try {
         this.walletAddress = await ebakusWallet.getAccount()

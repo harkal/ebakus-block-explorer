@@ -1,41 +1,69 @@
 <template>
   <div class="panel-wrapper">
-    <h1><img src="@/assets/img/ic-ens.png" alt />Name Service</h1>
+    <h1><img src="@/assets/img/ic-ens.svg" alt />Name Service</h1>
     <div class="panel">
       <h2>Register a Name for your address</h2>
 
       <div class="row">
         <label for="name">Name</label>
-        <input v-model="name" type="text" />
+        <input v-model="name" type="text" autocomplete="off" />
       </div>
       <div class="row">
         <label for="address">Address</label>
-        <input v-model="address" type="text" />
+        <input v-model="address" type="text" autocomplete="off" />
       </div>
 
-      <div v-if="error" class="row txt-error">
-        {{ error }}
+      <div v-if="isEbakusWalletAllowed" class="row buttons">
+        <button @click="registerEns">
+          Register
+        </button>
+
+        <span
+          v-if="error !== '' || walletError !== ''"
+          key="error"
+          class="txt-error"
+        >
+          {{ error || walletError }}
+        </span>
+        <span v-if="warning !== ''" key="warning" class="txt-warning">
+          {{ warning }}
+        </span>
+
+        <strong v-if="registered" key="registered">
+          Registered successfully!
+        </strong>
       </div>
 
-      <div class="row">
-        <button @click="registerEns">Register</button>
+      <div v-if="!isEbakusWalletAllowed" class="row buttons">
+        <button @click="allowEbakusWallet">Allow wallet</button>
+        <span class="txt-warning">
+          In order to register an ENS name, you have to allow ebakus wallet to
+          store browser cookies.
+        </span>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import SharedWalletMixin from '@/mixins/SharedWalletMixin'
+import { store } from '@/store'
 import { registerNameForAddress, storeEnsNameForAddress } from '@/utils/ens'
 import { web3 } from '@/utils/web3ebakus'
+import { waitUntil } from '../utils'
 
 export default {
+  mixins: [SharedWalletMixin],
   data() {
     return {
       name: '',
       address: '',
+      registered: false,
+      warning: '',
       error: '',
     }
   },
+  computed: { hasUserConsented: () => store.hasUserConsented },
   watch: {
     name: function() {
       this.error = ''
@@ -43,9 +71,19 @@ export default {
     address: function() {
       this.error = ''
     },
+    registered: function(val) {
+      const self = this
+      if (val) {
+        setTimeout(function() {
+          self.registered = false
+        }, 6000)
+      }
+    },
   },
   methods: {
     registerEns: async function() {
+      const self = this
+
       this.error = ''
 
       if (!this.name) {
@@ -59,11 +97,32 @@ export default {
       }
 
       try {
-        await registerNameForAddress(this.name, this.address)
+        // check if locked
+        const from = await this.ebakusWalletFetchAccount()
 
-        await storeEnsNameForAddress(this.name, this.address)
+        if (!from) {
+          this.warning = 'Please unlock the wallet first.'
+
+          await waitUntil(() => self.walletAddress !== null)
+
+          this.warning = ''
+        }
+
+        const success = await registerNameForAddress(this.name, this.address)
+
+        if (success) {
+          await storeEnsNameForAddress(this.name, this.address)
+
+          this.name = ''
+          this.address = ''
+          this.error = ''
+          this.registered = true
+        } else {
+          this.error = 'Something went wrong. Please try again.'
+        }
       } catch (err) {
-        this.error = 'Something went wrong.'
+        console.log('err', err)
+        this.error = 'Something went wrong. Please try again.'
       }
     },
   },
@@ -104,9 +163,15 @@ input {
   }
 }
 
-.txt-error,
-button {
+.buttons {
   margin-left: 120px;
+
+  strong,
+  span {
+    display: block;
+    max-width: 400px;
+    margin-left: $spacer-3;
+  }
 }
 
 button {
