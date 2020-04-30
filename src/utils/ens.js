@@ -63,6 +63,23 @@ const getAddressForEns = async name => {
   }
 }
 
+const registerNameForAddress = async (name, address) => {
+  const hash = namehash.hash(name)
+
+  try {
+    const contract = await getEnsContract()
+    if (!contract) throw new Error("ENS contract can't be loaded")
+
+    await contract.methods.register(hash).send()
+  } catch (err) {
+    if (await checkEnsConnectionError(err)) {
+      return await registerNameForAddress(name, address)
+    }
+
+    throw err
+  }
+}
+
 const getEnsNameForAddressWithCaching = memoize(async address => {
   try {
     const res = await Vue.http.get(process.env.API_ENDPOINT + '/ens/' + address)
@@ -104,8 +121,9 @@ const storeEnsNameForAddress = async (name, address) => {
 }
 
 export {
-  getEnsNameForAddress,
+  registerNameForAddress,
   getAddressForEns,
+  getEnsNameForAddress,
   resetContract,
   storeEnsNameForAddress,
 }

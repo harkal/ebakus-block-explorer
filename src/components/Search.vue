@@ -91,28 +91,20 @@ input[type='text'] {
   padding-left: 50px;
   padding-right: $spacer-2;
 
-  color: #112f42;
-
   background: url('../assets/img/ic_search.png') no-repeat #ffffff;
   background-size: 20px;
   background-position: 15px 18px;
 
-  border: solid 1px rgba(17, 47, 66, 0.15);
   border-radius: 4px;
 
   font-size: 18px;
   text-align: center;
 
   transition: 0.5s all ease;
-  opacity: 1;
 
-  &:hover {
-    opacity: 1;
-  }
-
-  &::-moz-placeholder,
-  &::-webkit-input-placeholder {
-    color: #a7b2b9;
+  &:focus {
+    border-color: rgba(17, 47, 66, 0.15);
+    box-shadow: inherit;
   }
 
   @media (max-width: 960px) {
@@ -168,7 +160,7 @@ button {
 
   @media (max-width: $mobile-grid-breakpoint) {
     top: 0;
-    right: -1px;
+    right: -2px;
 
     height: 44px;
 

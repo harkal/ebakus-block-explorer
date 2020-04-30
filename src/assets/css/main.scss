@@ -51,6 +51,27 @@ a {
   color: $link-color;
 }
 
+input {
+  display: block;
+
+  color: #112f42;
+  background-color: #fff;
+  border: solid 1px rgba(17, 47, 66, 0.15);
+
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+  &::-moz-placeholder,
+  &::-webkit-input-placeholder {
+    color: #a7b2b9;
+  }
+
+  &:focus {
+    border-color: rgba(17, 47, 66, .45);
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(17, 47, 66, .15);
+  }
+}
+
 /* ---- Helpers ---- */
 
 .valignCenter {
@@ -93,7 +114,8 @@ a {
 .txt-warning {
   color: #ff9800;
 }
-.txt-danger {
+.txt-danger,
+.txt-error {
   color: #f44336;
 }
 
@@ -242,7 +264,7 @@ td {
   box-shadow: 0 5px 5px 0 rgba(172, 180, 201, 0.15);
 
   h2 {
-    margin: 0 6px 20px 6px;
+    margin: 0 0 20px;
     color: $panel-title-color;
     font-size: 18px;
   }
