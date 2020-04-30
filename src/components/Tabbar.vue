@@ -23,7 +23,7 @@
           :class="{ active: $route.name === RouteNames.PRODUCERS }"
           @click="toggleTab(RouteNames.PRODUCERS)"
         >
-          <img src="@/assets/img/ic-stats.svg" alt /> Producers
+          <img src="@/assets/img/ic-producers.svg" alt /> Producers
         </li>
       </ul>
     </div>

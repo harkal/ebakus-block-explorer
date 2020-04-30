@@ -90,11 +90,11 @@
     </div>
 
     <div class="actions-area">
-      <span v-if="ebakusWalletAllowed && isMyVotesLoaded">
+      <span v-if="isEbakusWalletAllowed && isMyVotesLoaded">
         You have used {{ newVoting.length }} out of {{ MaxVotes }} votes.
       </span>
       <span
-        v-else-if="hasUserConsented && !ebakusWalletAllowed"
+        v-else-if="hasUserConsented && !isEbakusWalletAllowed"
         class="txt-warning"
       >
         In order to vote, you have to allow ebakus wallet to store browser
@@ -165,10 +165,8 @@ export default {
     }
   },
   computed: {
-    RouteNames: () => RouteNames,
     MaxVotes: () => MAX_VOTES,
     hasUserConsented: () => store.hasUserConsented,
-    ebakusWalletAllowed: () => store.ebakusWalletAllowed,
     hasChangedVotes: function() {
       return (
         !this.newVoting.every(address =>
@@ -202,6 +200,7 @@ export default {
   //   },
   // },
   methods: {
+    /* Start Ebakus wallet mixin overrides */
     ebakusWalletCurrentProviderEndpointChanged: function(endpoint) {
       this.displayedWitnesses = []
     },
@@ -240,6 +239,7 @@ export default {
       this.loadWitnesses()
       this.loadCurrentlyVoted()
     },
+    /* End Ebakus wallet mixin overrides */
 
     fetchAccount: async function() {
       await this.ebakusWalletFetchAccount()
@@ -296,7 +296,7 @@ export default {
       if (
         this.isMyVotesLoading ||
         this.systemContractInstance === null ||
-        !this.ebakusWalletAllowed
+        !this.isEbakusWalletAllowed
       )
         return
 

@@ -31,7 +31,7 @@
           <ContentLoader v-else :width="100" :height="20" />
         </div>
         <div class="widget">
-          <img src="@/assets/img/ic_gas.png" alt />
+          <img src="@/assets/img/ic-gas.svg" alt />
           <h3>GAS USED</h3>
           <h2 v-if="block.gasUsed >= 0">{{ gasUsed }}%</h2>
           <ContentLoader v-else :width="100" :height="20" />
