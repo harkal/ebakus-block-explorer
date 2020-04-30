@@ -66,6 +66,9 @@ export default {
       if (to.name !== from.name && this.$isTabbarNavigation(to.name))
         mutations.setContentActive(true)
     },
+    isContentActive: val => {
+      document.body.style.overflowY = val ? 'hidden' : ''
+    },
   },
   created: function() {
     mutations.setContentActive(this.$isTabbarNavigation())
