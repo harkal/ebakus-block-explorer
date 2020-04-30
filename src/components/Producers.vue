@@ -57,7 +57,7 @@
         </li>
         <li
           v-for="index in displayedWitnesses.length == 0 || isWitnessesLoading
-            ? 4
+            ? 3
             : 0"
           :key="index"
           class="placeholder"
@@ -110,6 +110,10 @@
         {{ error }}
       </span>
 
+      <span v-if="walletError !== ''" class="txt-danger">
+        {{ walletError }}
+      </span>
+
       <button v-if="hasChangedVotes" @click="submitVotes()">
         Submit changes
       </button>
@@ -123,20 +127,25 @@ import { debounce } from 'lodash'
 
 import { RouteNames } from '@/router'
 import { web3, setProvider, checkConnectionError } from '@/utils/web3ebakus'
-import { getEnsNameForAddress, resetContract } from '@/utils/ens'
+import { getEnsNameForAddress, resetEnsContract } from '@/utils/ens'
+import {
+  SystemContractAddress,
+  resetSystemContract,
+  getSystemContract,
+} from '@/utils/systemContract'
 import { store, mutations } from '@/store'
+
+import SharedWalletMixin from '@/mixins/SharedWalletMixin'
 
 import ContentLoader from './ContentLoader'
 
 const MAX_VOTES = 20
-const DEBOUNCE_DELAY = 1000
-
-const SystemContractAddress = '0x0000000000000000000000000000000000000101'
 
 export default {
   components: {
     ContentLoader,
   },
+  mixins: [SharedWalletMixin],
   data() {
     return {
       witnesses: [],
@@ -144,15 +153,10 @@ export default {
       currentlyVoted: [],
       newVoting: [],
       filterAddressQuery: '',
-      myAddress: null,
       showTitle: false,
 
-      web3Endpoint: process.env.WEB3JS_NODE_ENDPOINT,
-      web3Connecting: false,
-      isWalletConnected: false,
-      contractInstance: null,
+      systemContractInstance: null,
 
-      isEbakusWalletLoaded: false,
       isWitnessesLoaded: false,
       isWitnessesLoading: false,
       isMyVotesLoading: false,
@@ -177,210 +181,74 @@ export default {
       return this.newVoting.length >= MAX_VOTES
     },
   },
-  watch: {
-    $route: async function(to, from) {
-      if (to.name !== from.name && to.name === RouteNames.PRODUCERS) {
-        if (this.contractInstance !== null) {
-          try {
-            await web3.eth.net.getId()
-            await this.fetchAccount()
-            this.loadWitnesses()
-            this.loadCurrentlyVoted()
-          } catch (err) {
-            if (!(await this.checkWeb3ConnectionError(err))) {
-              this.connect()
-            }
-          }
-        } else {
-          this.connect()
-        }
-      }
-    },
-    ebakusWalletAllowed: function(val, oldVal) {
-      if (val && val !== oldVal) {
-        this.initEbakusWallet()
-      }
-    },
-  },
-  mounted: function() {
-    if (this.ebakusWalletAllowed) {
-      this.initEbakusWallet()
-    } else {
-      this.connect()
-    }
-  },
-  beforeDestroy: function() {
-    window.removeEventListener(
-      'ebakusCurrentProviderEndpoint',
-      this.ebakusCurrentProviderEndpointListener
-    )
-
-    window.removeEventListener(
-      'ebakusConnectionStatus',
-      this.ebakusConnectionStatusListener
-    )
-
-    window.removeEventListener('ebakusAccount', this.ebakusAccountListener)
-
-    window.removeEventListener('ebakusStaked', this.ebakusStakedListener)
-  },
+  // watch: {
+  //   $route: async function(to, from) {
+  //     if (to.name !== from.name && to.name === RouteNames.PRODUCERS) {
+  //       if (this.systemContractInstance !== null) {
+  //         try {
+  //           await web3.eth.net.getId()
+  //           await this.fetchAccount()
+  //           this.loadWitnesses()
+  //           this.loadCurrentlyVoted()
+  //         } catch (err) {
+  //           if (!(await this.ebakusWalletCheckConnectionError(err))) {
+  //             this.ebakusWalletConnect()
+  //           }
+  //         }
+  //       } else {
+  //         this.ebakusWalletConnect()
+  //       }
+  //     }
+  //   },
+  // },
   methods: {
-    allowEbakusWallet: function() {
-      mutations.setAllowEbakusWallet(true)
-    },
-    initEbakusWallet: function() {
-      if (this.isEbakusWalletLoaded || !this.ebakusWalletAllowed) return
-      this.isEbakusWalletLoaded = true
-
-      window.addEventListener(
-        'ebakusCurrentProviderEndpoint',
-        this.ebakusCurrentProviderEndpointListener
-      )
-
-      window.addEventListener(
-        'ebakusConnectionStatus',
-        this.ebakusConnectionStatusListener
-      )
-
-      window.addEventListener('ebakusAccount', this.ebakusAccountListener)
-
-      window.addEventListener('ebakusStaked', this.ebakusStakedListener)
-
-      const opts = {}
-      if (process.env.WALLET_ENDPOINT) {
-        opts.walletEndpoint = process.env.WALLET_ENDPOINT
-      }
-
-      if (!ebakusWallet.isWalletFrameLoaded()) {
-        ebakusWallet.init(opts)
-      } else {
-        this.connect()
-      }
-    },
-    ebakusCurrentProviderEndpointListener: function({ detail: endpoint }) {
-      this.resetWeb3Connection()
+    ebakusWalletCurrentProviderEndpointChanged: function(endpoint) {
       this.displayedWitnesses = []
-      this.connect()
     },
-    ebakusConnectionStatusListener: function({ detail: status }) {
-      this.resetWeb3Connection()
 
-      if (status == 'connected') {
-        this.connect()
-      }
+    ebakusWalletAccountChanged: function(address) {
+      this.ebakusWalletOnConnectSuccess()
     },
-    ebakusAccountListener: function({ detail: address }) {
-      this.resetWeb3Connection()
-      this.connect()
-    },
-    ebakusStakedListener: function({ detail: staked }) {
+
+    ebakusWalletStakedChanged: function(staked) {
       if (!web3) {
         return
       }
+
       this.loadWitnesses()
       this.loadCurrentlyVoted()
     },
-    checkWeb3ConnectionError: async function(err) {
-      const self = this
-      return await checkConnectionError(err, {
-        getProviderEndpoint: async () => {
-          if (this.ebakusWalletAllowed) {
-            const endpoint = await ebakusWallet.getCurrentProviderEndpoint()
 
-            if (endpoint) return endpoint
-          }
-          return process.env.WEB3JS_NODE_ENDPOINT
-        },
-        preInit: async () => {
-          self.resetWeb3Connection()
-        },
-        postInit: async () => {
-          self.error = ''
-          self.connect()
-        },
-      })
+    ebakusWalletOnResetConnection: function() {
+      resetSystemContract()
+      resetEnsContract()
+
+      this.systemContractInstance = null
     },
-    resetWeb3Connection: function() {
-      this.$set(this, 'isWalletConnected', false)
-      this.$set(this, 'contractInstance', null)
+
+    ebakusWalletCheckRouteAllowed: function() {
+      return this.$route.name === RouteNames.PRODUCERS
     },
-    connect: debounce(async function() {
-      if (this.web3Connecting || this.$route.name !== RouteNames.PRODUCERS) {
-        return
-      }
 
-      this.web3Connecting = true
-      try {
-        if (this.ebakusWalletAllowed) {
-          const endpoint = await ebakusWallet.getCurrentProviderEndpoint()
+    ebakusWalletOnConnectSuccess: async function() {
+      // resetSystemContract()
+      // resetEnsContract()
 
-          if (endpoint !== this.web3Endpoint) {
-            this.web3Endpoint = endpoint
-            setProvider(this.web3Endpoint)
-            resetContract()
+      await this.fetchAccount()
+      this.systemContractInstance = await getSystemContract()
 
-            this.error = null
-          }
-        }
+      this.loadWitnesses()
+      this.loadCurrentlyVoted()
+    },
 
-        await this.fetchAccount()
-        await this.getWeb3ContractInstance()
-
-        this.loadWitnesses()
-        this.loadCurrentlyVoted()
-
-        this.$set(this, 'isWalletConnected', true)
-
-        this.web3Connecting = false
-      } catch (err) {
-        if (!(await this.checkWeb3ConnectionError(err))) {
-          console.error('Failed to retrieve provider endpoint from wallet', err)
-
-          this.web3Connecting = false
-
-          this.error = 'Failed to connect, retrying...'
-
-          this.resetWeb3Connection()
-        }
-      }
-    }, DEBOUNCE_DELAY),
     fetchAccount: async function() {
-      if (!this.ebakusWalletAllowed) return
-
-      try {
-        const address = await ebakusWallet.getAccount()
-        this.myAddress = address
-
-        this.loadCurrentlyVoted()
-      } catch (err) {
-        if (!(await this.checkWeb3ConnectionError(err))) {
-          console.error('Failed to retrieve user address from wallet', err)
-          ebakusWallet.unlockWallet()
-        }
-      }
-    },
-    getWeb3ContractInstance: async function() {
-      if (this.contractInstance !== null) {
-        return this.contractInstance
-      }
-
-      let systemContractABI = await web3.eth.getAbiForAddress(
-        SystemContractAddress
-      )
-      systemContractABI = JSON.parse(systemContractABI)
-
-      const systemContract = new web3.eth.Contract(
-        systemContractABI,
-        SystemContractAddress
-      )
-
-      this.$set(this, 'contractInstance', systemContract)
-
-      return systemContract
+      await this.ebakusWalletFetchAccount()
+      this.loadCurrentlyVoted()
     },
 
     loadWitnesses: async function() {
-      if (this.isWitnessesLoading || this.contractInstance === null) return
+      if (this.isWitnessesLoading || this.systemContractInstance === null)
+        return
 
       try {
         this.isWitnessesLoading = true
@@ -416,7 +284,7 @@ export default {
         this.isWitnessesLoaded = false
         this.showTitle = false
 
-        if (!(await this.checkWeb3ConnectionError(err))) {
+        if (!(await this.ebakusWalletCheckConnectionError(err))) {
           console.error('Failed to fetch witnesses', err)
         }
       }
@@ -427,7 +295,7 @@ export default {
     loadCurrentlyVoted: async function() {
       if (
         this.isMyVotesLoading ||
-        this.contractInstance === null ||
+        this.systemContractInstance === null ||
         !this.ebakusWalletAllowed
       )
         return
@@ -441,7 +309,7 @@ export default {
         const iter = await web3.db.select(
           SystemContractAddress,
           'Delegations',
-          'Id LIKE ' + this.myAddress,
+          'Id LIKE ' + this.walletAddress,
           '',
           'latest'
         )
@@ -461,7 +329,7 @@ export default {
       } catch (err) {
         this.isMyVotesLoaded = false
 
-        if (!(await this.checkWeb3ConnectionError(err))) {
+        if (!(await this.ebakusWalletCheckConnectionError(err))) {
           console.error('Failed to fetch voted witnesses', err)
         }
       }
@@ -493,7 +361,7 @@ export default {
       }
     },
     submitVotes: async function() {
-      if (this.contractInstance === null) {
+      if (this.systemContractInstance === null) {
         this.error = 'Please check that wallet is connected.'
         return
       }
@@ -504,9 +372,9 @@ export default {
         let cmd,
           isVoting = this.newVoting.length > 0
         if (isVoting) {
-          cmd = this.contractInstance.methods.vote(this.newVoting)
+          cmd = this.systemContractInstance.methods.vote(this.newVoting)
         } else {
-          cmd = this.contractInstance.methods.unvote()
+          cmd = this.systemContractInstance.methods.unvote()
         }
 
         const tx = {
@@ -517,7 +385,7 @@ export default {
         const staked = await ebakusWallet.getStaked()
         if (staked > 0) {
           const estimatedGas = await cmd.estimateGas({
-            from: this.myAddress,
+            from: this.walletAddress,
           })
           tx.gas = estimatedGas + 10000
         }
@@ -531,7 +399,7 @@ export default {
         console.error('Voting failed', err)
         this.error = 'Something went wrong. Please try again.'
 
-        await this.checkWeb3ConnectionError(err)
+        await this.ebakusWalletCheckConnectionError(err)
       }
     },
     filterByAddress: function() {
