@@ -139,21 +139,6 @@
             </td>
           </tr>
           <tr>
-            <td class="headcol">Produced by</td>
-            <td class="long">
-              <router-link
-                v-if="hasData"
-                class="address"
-                :to="{
-                  name: RouteNames.ADDRESS,
-                  params: { query: transaction.producer },
-                }"
-                >{{ transaction.producer }}</router-link
-              >
-              <ContentLoader v-else :width="350" />
-            </td>
-          </tr>
-          <tr>
             <td class="headcol">Gas limit</td>
             <td class="long">
               <span v-if="hasData">
@@ -362,31 +347,6 @@ export default {
                   if (!['', '0x', null].includes(this.transaction.input)) {
                     this.getABI(this.transaction.to)
                   }
-
-                  // extra API call to retrieve block producer, later this will be returned by the API tx call itself
-                  this.$http
-                    .get(
-                      process.env.API_ENDPOINT +
-                        '/block/' +
-                        this.transaction.blockNumber
-                    )
-                    .then(
-                      function(response) {
-                        this.$set(
-                          this.transaction,
-                          'producer',
-                          response.data.producer
-                        )
-                        resolve(response)
-                      },
-                      function(err) {
-                        console.error(
-                          `Failed to fetch block "${this.transaction.blockNumber}": `,
-                          err
-                        )
-                        reject(err)
-                      }
-                    )
                 },
                 function(err) {
                   console.error(
