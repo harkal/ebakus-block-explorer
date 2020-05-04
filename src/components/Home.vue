@@ -1,10 +1,10 @@
 <template>
   <div class="page-wrapper">
-    <section>
+    <section id="stats">
       <Statistics />
     </section>
 
-    <section>
+    <section id="ens">
       <RegisterEns />
     </section>
   </div>

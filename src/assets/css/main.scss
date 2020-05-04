@@ -231,6 +231,11 @@ td {
 .header {
   padding: 46px $spacer-3 32px;
   background-color: rgba(255, 255, 255, 0.62);
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    padding-top: $spacer-3;
+    padding-bottom: $spacer-3;
+  }
 }
 
 .container {
