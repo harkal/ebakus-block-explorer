@@ -218,19 +218,28 @@ td {
   margin: 0 auto;
   height: 100%;
 
+  padding-top: 190px;
   padding-bottom: 76px;
 
   @media (max-width: $mobile-grid-breakpoint) {
     top: 0;
     margin: 0;
     padding: 0;
+    padding-top: 110px;
     padding-bottom: 60px;
   }
 }
 
 .header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+
   padding: 46px $spacer-3 32px;
-  background-color: rgba(255, 255, 255, 0.62);
+  background-color: #fbfbfc; //rgba(255, 255, 255, 0.62);
+
+  z-index: 10;
 
   @media (max-width: $mobile-grid-breakpoint) {
     padding-top: $spacer-3;
@@ -527,7 +536,7 @@ td {
       }
 
       @media (max-width: $mobile-grid-breakpoint) {
-        svg{
+        svg {
           max-width: 100px;
         }
       }
