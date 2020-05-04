@@ -48,7 +48,7 @@
           <span class="mobileLabel">Vote</span>
           <span class="col vote">
             <button
-              v-if="!isMyVotesLoading && isMyVotesLoaded"
+              v-if="!isMyVotesLoading && isMyVotesLoaded && walletAddress"
               @click="toggleVote(witness.Id)"
             >
               {{ isVoted(witness.Id) ? 'Unvote' : 'Vote' }}
@@ -417,11 +417,15 @@ export default {
 
 <style scoped lang="scss">
 @import '../assets/css/variables';
-#tabbar .scroll.inner {
-  height: calc(100% - 150px - 110px) !important;
+#tabbar.active .scroll.inner {
+  height: calc(100% - 240px) !important;
+
+  @media (max-width: 960px) {
+    height: calc(100% - 238px) !important;
+  }
 
   @media (max-width: $mobile-grid-breakpoint) {
-    height: calc(100% - 57px - 93px) !important;
+    height: calc(100% - 128px) !important;
     overflow-x: hidden !important;
   }
 }
@@ -456,7 +460,7 @@ export default {
     color: white;
     background: #fe4184;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
     transition: 0.5s all ease;
     transform: scale(1);
     border: 0;
@@ -502,7 +506,7 @@ export default {
   animation: fadeIn 0.2s ease-in;
 
   &.changed {
-    background-color: #e6ffeb;
+    background-color: #e6ffeb !important;
 
     @media (max-width: $mobile-grid-breakpoint) {
       .mobileLabel {
@@ -552,5 +556,9 @@ export default {
 
 .vote {
   max-width: 90px;
+
+  button {
+    font-weight: 700;
+  }
 }
 </style>

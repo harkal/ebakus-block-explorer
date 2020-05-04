@@ -149,6 +149,7 @@ label {
   width: 120px;
   margin: 0;
   padding: 0 0 $spacer-2;
+  font-size: 14px;
 }
 
 input {
@@ -160,6 +161,9 @@ input {
   padding: $spacer-1 $spacer-3;
 
   font-size: 16px;
+
+  border: solid 1px rgba(17, 47, 66, 0.15);
+  border-radius: 0;
 
   @media (max-width: $mobile-grid-breakpoint) {
     height: 32px;
@@ -175,6 +179,12 @@ input {
     display: block;
     max-width: 400px;
     margin-left: $spacer-3;
+
+    @media (max-width: $mobile-grid-breakpoint) {
+      margin-top: $spacer-2;
+      margin-left: 0;
+      font-size: 14px;
+    }
   }
 }
 
@@ -182,6 +192,6 @@ button {
   padding: $spacer-2 $spacer-4;
   border-radius: 0;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
 }
 </style>

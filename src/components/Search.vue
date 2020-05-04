@@ -81,12 +81,12 @@ export default {
 #search-wrapper {
   position: relative;
   display: block;
-  margin-top: $spacer-3;
+  margin-top: 12px;
 }
 
 input[type='text'] {
   width: calc(100% - 50px - #{$spacer-2});
-  height: 52px;
+  height: 48px;
 
   padding-left: 50px;
   padding-right: $spacer-2;
@@ -138,7 +138,7 @@ button {
   top: 5px;
   right: 4px;
   width: 54px;
-  height: 46px;
+  height: 42px;
 
   background: #fe4184;
   color: white;
@@ -147,7 +147,7 @@ button {
   border-radius: 4px;
 
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 700;
 
   opacity: 0;
 
@@ -158,14 +158,14 @@ button {
     transform: scale(0.9);
   }
 
-  @media (max-width: $mobile-grid-breakpoint) {
+  @media (max-width: 960px) {
     top: 0;
     right: -2px;
 
     height: 44px;
 
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
 
     border-radius: 0 4px 4px 0;
     box-shadow: -6px 0px 2px 0px white;

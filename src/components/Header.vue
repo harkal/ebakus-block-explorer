@@ -1,7 +1,7 @@
 <template>
   <div id="topbar">
     <img
-      src="@/assets/img/blockExplorer_logo_2.png"
+      src="@/assets/img/explorer-logo.svg"
       alt="Ebakus Block Explorer"
       class="logo"
       @click="$router.push('/')"
@@ -62,7 +62,6 @@ import Transaction from '@/components/Transaction'
 import { getAddressForEns, storeEnsNameForAddress } from '@/utils/ens'
 
 export default {
-  props: {},
   data() {
     return { menuToggle: false }
   },
@@ -74,8 +73,6 @@ export default {
       }
     },
   },
-  created: function() {},
-  methods: {},
 }
 </script>
 
@@ -94,19 +91,21 @@ export default {
 
 .logo {
   float: left;
-  height: 40px;
+  height: 34px;
+  object-fit: contain;
 
-  @media (max-width: $mobile-grid-breakpoint) {
+  @media (max-width: $mobile-navigation-breakpoint) {
     display: none;
   }
 }
 
 nav {
   position: relative;
-  float: right;
-  margin-top: 10px;
-  width: 300px;
-  text-align: right;
+  float: left;
+  width: 200px;
+  margin-top: 7px;
+  margin-left: 40px;
+  text-align: left;
 
   .text {
     display: none;
@@ -116,7 +115,7 @@ nav {
       transition: all 0.3s ease;
     }
 
-    @media (max-width: $mobile-grid-breakpoint) {
+    @media (max-width: $mobile-navigation-breakpoint) {
       position: absolute;
       display: block;
       top: -9px;
@@ -131,8 +130,8 @@ nav {
   }
 
   .toggle {
-    display: block;
-    width: 22px + ($spacer-3 * 2);
+    display: none;
+    width: 150px;
     height: 7px + ($spacer-3 * 2);
     position: absolute;
     top: -$spacer-3;
@@ -162,12 +161,16 @@ nav {
         content: 'menu';
       }
     }
+
+    @media (max-width: $mobile-navigation-breakpoint) {
+      display: block;
+    }
   }
 
   .hamburger {
     display: none;
 
-    @media (max-width: $mobile-grid-breakpoint) {
+    @media (max-width: $mobile-navigation-breakpoint) {
       display: block;
       width: 22px;
       height: 2px;
@@ -220,7 +223,7 @@ nav {
         color: #112f42;
 
         font-size: 18px;
-        font-weight: 600;
+        font-weight: 700;
 
         opacity: 0.5;
         transition: opacity 0.3s ease;
@@ -233,7 +236,7 @@ nav {
 
       img {
         width: 24px;
-        vertical-align: -4px;
+        vertical-align: -5px;
         object-fit: contain;
       }
     }
@@ -262,7 +265,7 @@ nav {
 
         a {
           font-size: 16px;
-          font-weight: 500;
+          font-weight: 400;
         }
       }
 
@@ -272,11 +275,12 @@ nav {
     }
   }
 
-  @media (max-width: $mobile-grid-breakpoint) {
+  @media (max-width: $mobile-navigation-breakpoint) {
     float: none;
     top: 0;
     left: 0;
     margin-top: 0;
+    margin-left: 0;
 
     z-index: 1;
 
@@ -312,10 +316,16 @@ nav {
       }
 
       ul {
+        position: initial;
+
         margin-top: $spacer-3;
         margin-left: 11px;
-        padding-left: 22px;
+        padding: 0 0 0 22px;
         border-left: 2px solid rgba(151, 151, 151, 0.14);
+
+        box-shadow: none;
+
+        opacity: 1;
 
         li {
           padding: 0;

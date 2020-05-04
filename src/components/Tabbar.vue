@@ -48,14 +48,12 @@ export const TabNames = {
 }
 
 export default {
-  // components: { Blocks, Producers },
   props: {
     tabbarActive: {
       type: Boolean,
       default: false,
     },
   },
-
   computed: {
     TabNames: () => TabNames,
     RouteNames: () => RouteNames,
@@ -160,14 +158,15 @@ export default {
     margin: 4px;
     padding: 8px 18px;
 
-    color: #34393d;
+    color: $heading-text-color;
 
     border: 2px solid #acb4c9;
     border-radius: 4px;
 
     background: #f8f9fb;
 
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
 
     user-select: none;
 
@@ -209,13 +208,13 @@ export default {
     width: 100%;
     max-width: 352px;
 
-    margin: 12px auto;
+    margin: 10px auto;
     padding: 0px;
     white-space: normal;
 
     li {
-      padding: 5px 7px;
-      font-size: 14px;
+      padding: $spacer-1 $spacer-2;
+      font-size: 16px;
     }
 
     img {

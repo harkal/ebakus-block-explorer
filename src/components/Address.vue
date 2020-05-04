@@ -26,6 +26,8 @@
       </div>
     </div>
     <div class="panel">
+      <h2>Address</h2>
+
       <div class="valignCenter">
         <div v-if="!!address.addressEns" class="twocol ens">
           <p class="title">{{ address.addressEns }}</p>
@@ -381,13 +383,9 @@ export default {
 
 .ens {
   .title {
-    margin: 2px 0 11px 7px;
+    margin: 2px 0 15px 0;
     font-size: 18px;
-    font-weight: 600;
-
-    @media (max-width: $mobile-grid-breakpoint) {
-      margin-left: 0;
-    }
+    font-weight: 700;
   }
 
   .address {
@@ -409,9 +407,9 @@ export default {
     text-align: right;
   }
 
-  & > .address {
-    padding-left: 7px;
-  }
+  // & > .address {
+  //   padding-left: 7px;
+  // }
 
   @media (max-width: 640px) {
     display: block;
@@ -437,12 +435,12 @@ export default {
   .button {
     margin-right: $spacer-3;
     color: #112f42;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
 
     img {
       margin-right: $spacer-2;
-      vertical-align: -7px;
+      vertical-align: -6px;
     }
 
     @media (max-width: $mobile-grid-breakpoint) {
@@ -457,12 +455,13 @@ export default {
 
 .balance {
   margin-right: $spacer-1;
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 700;
 }
 
 .balanceLabel {
   margin-right: 10px;
+  font-size: 17px;
   font-weight: 400;
   color: #acb4c9;
 }

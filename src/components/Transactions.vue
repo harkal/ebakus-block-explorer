@@ -365,6 +365,7 @@ export default {
 }
 
 .txAction {
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
 }
 </style>

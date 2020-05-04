@@ -7,7 +7,8 @@
           <img src="@/assets/img/ic-block.svg" alt />
           <h3>BLOCKS</h3>
 
-          <ContentLoader :width="100" :height="20" />
+          <h2 v-if="blockHeight">{{ blockHeight }}</h2>
+          <ContentLoader v-else :width="100" :height="20" />
         </div>
 
         <div class="widget">
@@ -28,17 +29,13 @@
 </template>
 
 <script>
+import { store } from '@/store'
+
 import ContentLoader from './ContentLoader'
 
 export default {
   components: { ContentLoader },
-  props: {},
-  data() {
-    return {}
-  },
-  watch: {},
-  created: function() {},
-  methods: {},
+  computed: { blockHeight: () => store.blockHeight },
 }
 </script>
 
