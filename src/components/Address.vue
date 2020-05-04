@@ -1,7 +1,28 @@
 <template>
   <div class="page-wrapper">
-    <h1><img src="@/assets/img/ic-ens.png" alt />Address</h1>
+    <h1 v-if="address.isContract">
+      <img src="@/assets/img/ic-contract.svg" alt />Contract
+    </h1>
+    <h1 v-else><img src="@/assets/img/ic-ens.svg" alt />Address</h1>
 
+    <div
+      class="panel panel-collapsable actions"
+      :class="{ collapsed: !address.isContract && abi.length > 0 }"
+    >
+      <h2>Actions</h2>
+
+      <a
+        class="button"
+        :href="downloadAbiContent.data"
+        :download="downloadAbiContent.filename"
+      >
+        <img src="@/assets/img/ic-abi.svg" alt />
+        Get ABI
+      </a>
+      <a class="button">
+        <img src="@/assets/img/ic-remix.svg" alt />Interact with contract
+      </a>
+    </div>
     <div class="panel">
       <div class="valignCenter">
         <div v-if="!!address.addressEns" class="twocol ens">
@@ -101,6 +122,8 @@
       <Transactions
         :key="`txs-for-address-${address.address}`"
         :address="address.address"
+        :is-contract-address="address.isContract"
+        :abi="abi"
         :max-offset="address.tx_count"
         :class="{ active: txs.length > 0 }"
       />
@@ -116,6 +139,7 @@ import Web3 from 'web3'
 
 import { store } from '@/store'
 import { timeConverter } from '@/utils'
+import { getAbi } from '@/utils/abi'
 
 import Chart from './Chart'
 import ContentLoader from './ContentLoader'
@@ -129,6 +153,7 @@ export default {
     return {
       address: {},
       txs: [],
+      abi: [],
       chartDataLoaded: false,
     }
   },
@@ -254,6 +279,14 @@ export default {
         stake: delegateInfo[delegateInfo.length - 1].stake,
       }
     },
+    downloadAbiContent: function() {
+      return {
+        data:
+          'data:text/json;charset=utf-8,' +
+          encodeURIComponent(JSON.stringify(this.abi, 0, 2)),
+        filename: `${this.address.address}-abi.json`,
+      }
+    },
   },
   watch: {
     searchQuery: function(val, oldVal) {
@@ -283,11 +316,19 @@ export default {
     },
 
     getAddress: function(address) {
+      const self = this
+
       this.txs = []
 
       this.$http.get(process.env.API_ENDPOINT + '/address/' + address).then(
         function(response) {
           this.address = response.data
+
+          if (this.address.isContract) {
+            getAbi(this.address.address).then(function(abi) {
+              self.$set(self, 'abi', abi)
+            })
+          }
 
           if (this.address.block_rewards > 0) {
             // extra API call to retrieve block producer, later this will be returned by the API tx call itself
@@ -369,7 +410,7 @@ export default {
     width: 100%;
     margin: 0px;
     padding: $spacer-2 0px;
-    overflow-x: auto;
+    // overflow-x: auto;
 
     &.right {
       text-align: left;
@@ -378,6 +419,22 @@ export default {
     .address {
       padding-left: 0px;
       font-size: 14px;
+    }
+  }
+}
+
+.actions {
+  button,
+  .button {
+    height: 45px;
+    margin-right: $spacer-3;
+    color: #112f42;
+    font-size: 16px;
+    font-weight: 600;
+
+    img {
+      margin-right: $spacer-2;
+      vertical-align: -7px;
     }
   }
 }

@@ -4,7 +4,8 @@
       <li class="list-title">
         <span class="col tx-hash">Tx hash</span>
         <span class="col address from">From</span>
-        <span class="col address to">To</span>
+        <span v-if="isContractAddress" class="col">Action</span>
+        <span v-else class="col address to">To</span>
         <span class="col amount">Amount</span>
         <span class="col time">Time</span>
       </li>
@@ -23,13 +24,18 @@
           <span class="mobileLabel">From</span>
           <span class="col address"><ContentLoader :width="150"/></span>
           <img
+            v-if="!isContractAddress"
             src="@/assets/img/ic_from_to.png"
             alt
             class="txDirection"
             :class="{ outgoing: false }"
           />
-          <span class="mobileLabel">To</span>
-          <span class="col address"><ContentLoader :width="150"/></span>
+          <span v-if="isContractAddress" class="mobileLabel">Action</span>
+          <span v-else class="mobileLabel">To</span>
+          <span v-if="isContractAddress" class="col txAction"
+            ><ContentLoader :width="150"
+          /></span>
+          <span v-else class="col address"><ContentLoader :width="150"/></span>
           <span class="mobileLabel">Amount</span>
           <span class="col amount" :class="{ outgoing: false }">
             <ContentLoader :width="50" /> <small>EBK</small>
@@ -63,13 +69,18 @@
             <strong v-else>this</strong>
           </span>
           <img
+            v-if="!isContractAddress"
             src="@/assets/img/ic_from_to.png"
             alt
             class="txDirection"
             :class="{ outgoing: tx.from == 'this' && tx.to != 'this' }"
           />
-          <span class="mobileLabel">To</span>
-          <span class="col address">
+          <span v-if="isContractAddress" class="mobileLabel">Action</span>
+          <span v-else class="mobileLabel">To</span>
+          <span v-if="isContractAddress" class="col txAction">{{
+            tx.inputAction
+          }}</span>
+          <span v-else class="col address">
             <router-link
               v-if="!['this', 'contract creation'].includes(tx.to)"
               :to="{ name: RouteNames.ADDRESS, params: { query: tx.to } }"
@@ -118,7 +129,8 @@
 import { RouteNames } from '@/router'
 import ContentLoader from './ContentLoader'
 
-import { timeConverter, isZeroHash } from '../utils'
+import { timeConverter, isZeroHash } from '@/utils'
+import { getAbi, decodeDataUsingAbi } from '@/utils/abi'
 
 export default {
   components: {
@@ -128,6 +140,14 @@ export default {
     address: {
       type: String,
       default: '',
+    },
+    isContractAddress: {
+      type: Boolean,
+      default: false,
+    },
+    abi: {
+      type: Array,
+      default: () => [],
     },
     blockHash: {
       type: String,
@@ -145,8 +165,8 @@ export default {
   data() {
     return {
       txs: [],
-      showTitle: false,
       offset: 0,
+      showTitle: false,
       showingLatestTxs: false,
     }
   },
@@ -225,9 +245,31 @@ export default {
               '&order=desc'
           )
           .then(
-            function(response) {
-              var new_txs = response.data
-              self.txs.push.apply(self.txs, new_txs)
+            async function(response) {
+              var newTxs = response.data
+              if (self.isContractAddress) {
+                let abi = this.abi
+                if (!abi) {
+                  try {
+                    abi = await getAbi(self.address)
+                  } catch (err) {}
+                }
+
+                newTxs.map(tx => {
+                  if (tx.input) {
+                    const data = decodeDataUsingAbi(abi, tx.input)
+
+                    if (typeof data === 'object' && data.name) {
+                      tx.inputAction = `${data.name}(...)`
+                    } else {
+                      tx.inputAction = tx.input.substring(0, 10)
+                    }
+                  }
+                  return tx
+                })
+              }
+
+              self.txs.push.apply(self.txs, newTxs)
               self.offset += limit
             },
             function(err) {
@@ -257,8 +299,8 @@ export default {
           )
           .then(
             function(response) {
-              var new_txs = response.data
-              self.txs.push.apply(self.txs, new_txs)
+              var newTxs = response.data
+              self.txs.push.apply(self.txs, newTxs)
               self.offset += limit
             },
             function(err) {
@@ -306,5 +348,9 @@ export default {
   @media (max-width: $mobile-grid-breakpoint) {
     display: none;
   }
+}
+
+.txAction {
+  font-weight: 600;
 }
 </style>

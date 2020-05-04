@@ -267,7 +267,7 @@
 import { RouteNames } from '@/router'
 import { store, mutations } from '@/store'
 import { timeConverter, isZeroHash } from '@/utils'
-import { decodeDataUsingAbi } from '@/utils/abi'
+import { getAbi as getAbiFunc, decodeDataUsingAbi } from '@/utils/abi'
 
 import ContentLoader from './ContentLoader'
 
@@ -405,15 +405,13 @@ export default {
         )
       })
     },
-    getABI: function(contractAddress) {
-      this.$http.get(process.env.API_ENDPOINT + '/abi/' + contractAddress).then(
-        function(response) {
-          this.$set(this.transaction, 'abi', response.data)
-        },
-        function(err) {
-          console.error(`Failed to fetch ABI for "${contractAddress}": `, err)
-        }
-      )
+    getABI: async function(contractAddress) {
+      try {
+        const abi = await getAbiFunc(contractAddress)
+        this.$set(this.transaction, 'abi', abi)
+      } catch (err) {
+        console.error(`Failed to fetch ABI for "${contractAddress}": `, err)
+      }
     },
   },
 }
