@@ -138,6 +138,10 @@ export default {
   align-items: center;
 
   margin-bottom: $spacer-3;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 label {
