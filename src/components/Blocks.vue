@@ -161,5 +161,9 @@ progress {
   &::-moz-progress-bar {
     background: #fff;
   }
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    margin-left: 0;
+  }
 }
 </style>

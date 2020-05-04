@@ -1,6 +1,6 @@
 <template>
   <div id="transactions-wrapper" class="tab-wrapper">
-    <ul class="tab-results labels">
+    <ul v-if="isLoading || txs.length > 0" class="tab-results labels">
       <li class="list-title">
         <span class="col tx-hash">Tx hash</span>
         <span class="col address from">From</span>
@@ -10,7 +10,7 @@
         <span class="col time">Time</span>
       </li>
     </ul>
-    <div class="scroll inner tx">
+    <div v-if="isLoading || txs.length > 0" class="scroll inner tx">
       <ul class="tab-results main">
         <li
           v-for="index in txs_.length == 0 ? 4 : 0"
@@ -122,6 +122,10 @@
         Show {{ numberOfRemainingTxs > 0 ? numberOfRemainingTxs : '' }} More
       </button>
     </div>
+
+    <p v-else class="txt-center">
+      There are no transactions.
+    </p>
   </div>
 </template>
 
@@ -166,6 +170,7 @@ export default {
     return {
       txs: [],
       offset: 0,
+      isLoading: true,
       showTitle: false,
       showingLatestTxs: false,
     }
@@ -246,6 +251,8 @@ export default {
           )
           .then(
             async function(response) {
+              this.isLoading = false
+
               var newTxs = response.data
               if (self.isContractAddress) {
                 let abi = this.abi
@@ -277,6 +284,7 @@ export default {
                 `Failed to load transactions for address "${this.address}":`,
                 err
               )
+              this.isLoading = false
             }
           )
 
@@ -299,7 +307,9 @@ export default {
           )
           .then(
             function(response) {
-              var newTxs = response.data
+              this.isLoading = false
+
+              const newTxs = response.data
               self.txs.push.apply(self.txs, newTxs)
               self.offset += limit
             },
@@ -308,6 +318,7 @@ export default {
                 `Failed to load transactions for block "${this.blockHash}":`,
                 err
               )
+              this.isLoading = false
             }
           )
       } else if (this.latest) {
@@ -323,13 +334,16 @@ export default {
           )
           .then(
             function(response) {
-              var newTxs = response.data
+              this.isLoading = false
+
+              const newTxs = response.data
               self.txs.push.apply(self.txs, newTxs)
               self.offset += limit
               self.showingLatestTxs = newTxs.length > 0
             },
             err => {
               console.error('Failed to load latest transactions', err)
+              this.isLoading = false
             }
           )
       }

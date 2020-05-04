@@ -540,6 +540,10 @@ export default {
 
 .main .amount {
   text-align: right;
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    text-align: left;
+  }
 }
 
 .producer {

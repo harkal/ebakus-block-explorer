@@ -11,17 +11,19 @@
     >
       <h2>Actions</h2>
 
-      <a
-        class="button"
-        :href="downloadAbiContent.data"
-        :download="downloadAbiContent.filename"
-      >
-        <img src="@/assets/img/ic-abi.svg" alt />
-        Get ABI
-      </a>
-      <a class="button">
-        <img src="@/assets/img/ic-remix.svg" alt />Interact with contract
-      </a>
+      <div>
+        <a
+          class="button"
+          :href="downloadAbiContent.data"
+          :download="downloadAbiContent.filename"
+        >
+          <img src="@/assets/img/ic-abi.svg" alt />
+          Get ABI
+        </a>
+        <a class="button">
+          <img src="@/assets/img/ic-remix.svg" alt />Interact with contract
+        </a>
+      </div>
     </div>
     <div class="panel">
       <div class="valignCenter">
@@ -30,25 +32,28 @@
           <span class="address">{{ address.address }}</span>
         </div>
         <div v-else class="twocol">
-          <span v-if="address.address" class="address">{{
-            address.address
-          }}</span>
+          <span v-if="address.address" class="address">
+            {{ address.address }}
+          </span>
           <ContentLoader v-else :width="400" />
         </div>
         <div class="twocol right">
           <span class="balanceLabel">Liquid balance</span>
-          <span v-if="hasData" v-pure-tooltip="balanceInUSD" class="balance">
-            {{ address.balance | toEtherFixed }}
-          </span>
+          <span v-if="hasData" v-pure-tooltip="balanceInUSD" class="balance">{{
+            address.balance | toEtherFixed
+          }}</span>
           <ContentLoader v-else :width="84" :height="20" />
-          <small> EBK</small>
+          <small>EBK</small>
           <br />
           <span class="balanceLabel">Staked balance</span>
-          <span v-if="hasData" v-pure-tooltip.down="stakeInUSD" class="balance">
-            {{ (address.stake / 10000).toFixed(4) }}
-          </span>
+          <span
+            v-if="hasData"
+            v-pure-tooltip.down="stakeInUSD"
+            class="balance"
+            >{{ (address.stake / 10000).toFixed(4) }}</span
+          >
           <ContentLoader v-else :width="84" :height="20" />
-          <small> EBK</small>
+          <small>EBK</small>
         </div>
       </div>
       <div
@@ -69,9 +74,9 @@
         <tr>
           <td>Block rewards</td>
           <td>
-            <span v-if="address.block_rewards">
-              {{ address.block_rewards | toEtherFixed }}
-            </span>
+            <span v-if="address.block_rewards">{{
+              address.block_rewards | toEtherFixed
+            }}</span>
             <ContentLoader v-else :width="60" />
             <small> EBK</small>
           </td>
@@ -79,9 +84,9 @@
         <tr>
           <td>Votes</td>
           <td>
-            <span v-if="statsData && statsData.stake">
-              {{ statsData.stake / 10000 }}
-            </span>
+            <span v-if="statsData && statsData.stake">{{
+              statsData.stake / 10000
+            }}</span>
             <ContentLoader v-else :width="60" />
             <small> EBK</small>
           </td>
@@ -113,7 +118,7 @@
               </tr>
             </table>
           </td>
-        </tr> -->
+        </tr>-->
       </table>
     </div>
     <!-- </transition> -->
@@ -127,9 +132,6 @@
         :max-offset="address.tx_count"
         :class="{ active: txs.length > 0 }"
       />
-      <p v-if="address.address && txs.length == 0" class="no-data">
-        There are no transactions.
-      </p>
     </div>
   </div>
 </template>
@@ -393,6 +395,12 @@ export default {
   }
 }
 
+.valignCenter {
+  @media (max-width: 640px) {
+    display: block;
+  }
+}
+
 .twocol {
   display: inline-block;
   width: 49%;
@@ -405,11 +413,12 @@ export default {
     padding-left: 7px;
   }
 
-  @media (max-width: $mobile-grid-breakpoint) {
+  @media (max-width: 640px) {
     display: block;
+
     width: 100%;
-    margin: 0px;
-    padding: $spacer-2 0px;
+    margin: 0;
+    padding: $spacer-2 0;
     // overflow-x: auto;
 
     &.right {
@@ -417,7 +426,7 @@ export default {
     }
 
     .address {
-      padding-left: 0px;
+      padding-left: 0;
       font-size: 14px;
     }
   }
@@ -426,7 +435,6 @@ export default {
 .actions {
   button,
   .button {
-    height: 45px;
     margin-right: $spacer-3;
     color: #112f42;
     font-size: 16px;
@@ -436,10 +444,19 @@ export default {
       margin-right: $spacer-2;
       vertical-align: -7px;
     }
+
+    @media (max-width: $mobile-grid-breakpoint) {
+      margin-bottom: $spacer-2;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
   }
 }
 
 .balance {
+  margin-right: $spacer-1;
   font-size: 24px;
   font-weight: 600;
 }
@@ -476,9 +493,5 @@ export default {
   td:not(:first-child) {
     text-align: right;
   }
-}
-
-.no-data {
-  text-align: center;
 }
 </style>

@@ -282,10 +282,4 @@ progress {
   transform: translateX(-50%);
   width: 80%;
 }
-
-@media (max-width: $mobile-grid-breakpoint) {
-  .loader {
-    padding: 0 5% !important;
-  }
-}
 </style>

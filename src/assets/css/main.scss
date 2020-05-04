@@ -66,9 +66,9 @@ input {
   }
 
   &:focus {
-    border-color: rgba(17, 47, 66, .45);
+    border-color: rgba(17, 47, 66, 0.45);
     outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(17, 47, 66, .15);
+    box-shadow: 0 0 0 0.2rem rgba(17, 47, 66, 0.15);
   }
 }
 
@@ -119,6 +119,10 @@ input {
   color: #f44336;
 }
 
+.txt-center {
+  text-align: center;
+}
+
 ul.unstyled {
   list-style: none;
   margin: 0;
@@ -133,7 +137,9 @@ ul.unstyled {
   }
 }
 
-button, .button {
+button,
+.button {
+  display: inline-block;
   padding: 10px 12px;
   border-radius: 4px;
   border: solid 1px #acb4c9;
@@ -315,14 +321,14 @@ td {
   h1 {
     img {
       width: 28px;
-      margin-bottom: -6px;
+      margin-bottom: -5px;
       margin-right: $spacer-2;
 
       object-fit: contain;
 
       @media (max-width: $mobile-grid-breakpoint) {
         width: 22px;
-        margin-bottom: -5px;
+        margin-bottom: -3px;
       }
     }
   }
@@ -514,6 +520,12 @@ td {
       &.incoming {
         color: darkturquoise;
       }
+
+      @media (max-width: $mobile-grid-breakpoint) {
+        svg{
+          max-width: 100px;
+        }
+      }
     }
 
     &.time {
@@ -612,8 +624,8 @@ td {
     position: absolute;
     bottom: 40px;
     left: 50%;
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
     transform: translateX(-50%);
     font-size: 32px;
     font-weight: 600;
