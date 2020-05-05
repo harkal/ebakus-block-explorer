@@ -22,7 +22,7 @@
             <img src="@/assets/img/ic-home.svg" alt /> Home
           </router-link>
           <ul>
-            <li>
+            <!-- <li>
               <router-link
                 :to="{ name: RouteNames.HOME, hash: '#stats' }"
                 title="Statistics"
@@ -30,7 +30,7 @@
               >
                 <img src="@/assets/img/ic-stats-small.svg" alt /> Statistics
               </router-link>
-            </li>
+            </li> -->
             <li>
               <router-link
                 :to="{ name: RouteNames.HOME, hash: '#ens' }"

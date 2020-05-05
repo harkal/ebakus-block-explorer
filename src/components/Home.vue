@@ -1,8 +1,8 @@
 <template>
   <div class="page-wrapper">
-    <section id="stats">
+    <!-- <section id="stats">
       <Statistics />
-    </section>
+    </section> -->
 
     <section id="ens">
       <RegisterEns />
@@ -14,12 +14,12 @@
 import { timeConverter } from '@/utils'
 
 import RegisterEns from './RegisterEns'
-import Statistics from './Statistics'
+// import Statistics from './Statistics'
 
 export default {
   components: {
     RegisterEns,
-    Statistics,
+    // Statistics,
   },
 }
 </script>
