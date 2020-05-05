@@ -73,7 +73,7 @@
         <ContentLoader v-else :width="1000" :height="300" />
       </div>
     </div>
-    <!-- <transition name="slide-fade" appear> -->
+
     <div
       class="panel panel-collapsable"
       :class="{ collapsed: !statsData || !statsData.stake }"
@@ -130,7 +130,7 @@
         </tr>-->
       </table>
     </div>
-    <!-- </transition> -->
+
     <div class="panel">
       <h2>Transactions</h2>
       <Transactions
