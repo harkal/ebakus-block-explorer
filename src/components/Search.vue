@@ -15,7 +15,7 @@
       ></button>
     </div>
 
-    <p v-if="error" class="error">{{ error }}</p>
+    <p class="error" :class="{ hide: error === '' }">{{ error }}</p>
   </div>
 </template>
 
@@ -29,6 +29,12 @@ import { getAddressForEns, storeEnsNameForAddress } from '@/utils/ens'
 import { RouteNames } from '../router'
 
 export default {
+  props: {
+    onUpdate: {
+      type: Function,
+      default: () => {},
+    },
+  },
   data() {
     return {
       searchInput: store.searchQuery,
@@ -47,6 +53,9 @@ export default {
     searchInput: function() {
       this.error = ''
     },
+  },
+  updated() {
+    this.onUpdate()
   },
   methods: {
     searchWithQuery: async function(e) {
@@ -178,10 +187,13 @@ button {
   margin-bottom: 0;
   text-align: left;
   color: #fe4184;
+
+  opacity: 1;
   transition: 0.5s opacity ease;
 
   &.hide {
     opacity: 0;
+    transition: 0.5s opacity ease;
   }
 }
 </style>

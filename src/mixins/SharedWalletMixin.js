@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import ebakusWallet from 'ebakus-web-wallet-loader'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 
 import { setProvider, checkConnectionError } from '@/utils/web3ebakus'
 import { resetEnsContract } from '@/utils/ens'

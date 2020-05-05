@@ -1,10 +1,9 @@
 <template>
   <div id="app">
-    <header class="header">
+    <header ref="header" class="header">
       <div class="container">
         <Header />
-        <!-- <Search :search-query="searchQuery" :tabbar-active="contentActive" /> -->
-        <Search />
+        <Search :on-update="updateInnerHeight" />
       </div>
     </header>
 
@@ -19,6 +18,8 @@
 </template>
 
 <script>
+import debounce from 'lodash/debounce'
+
 import { RouteNames } from '@/router'
 import { store } from '@/store'
 import { fetchUSDConversionRate } from '@/utils/api'
@@ -43,6 +44,10 @@ export default {
   created() {
     initWeb3()
 
+    this.updateInnerHeight()
+
+    window.addEventListener('resize', debounce(this.updateInnerHeight, 150))
+
     // fetch USD rate every 5 minutes
     if (process.env.SHOW_PRICE_IN_USD) {
       setInterval(() => {
@@ -50,6 +55,20 @@ export default {
       }, 1000 * 60 * 5)
       fetchUSDConversionRate()
     }
+  },
+  updated() {
+    this.updateInnerHeight()
+  },
+  methods: {
+    updateInnerHeight: function() {
+      const self = this
+      this.$nextTick(() => {
+        if (!self.$refs.header) return
+
+        const height = self.$refs.header.clientHeight * 0.01
+        document.documentElement.style.setProperty('--header-vh', `${height}px`)
+      })
+    },
   },
 }
 </script>

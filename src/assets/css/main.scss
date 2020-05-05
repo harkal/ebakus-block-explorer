@@ -2,6 +2,10 @@
 
 /* ---- Resets ---- */
 
+:root {
+  --header-vh: 1.22px; // default for 122px, it updates dynamically from App.vue
+}
+
 * {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -225,14 +229,13 @@ td {
   margin: 0 auto;
   height: 100%;
 
-  padding-top: 128px;
+  padding-top: calc(var(--header-vh, 1vh) * 100);
   padding-bottom: 76px;
 
   @media (max-width: $mobile-grid-breakpoint) {
     top: 0;
     margin: 0;
     padding: 0;
-    padding-top: 106px;
     padding-bottom: 60px;
   }
 }
@@ -282,7 +285,7 @@ td {
 
     #tabbar.active & {
       @media (min-width: $mobile-grid-breakpoint + 1px) and (max-width: $tablet-grid-breakpoint) {
-      height: calc(100% - 113px) !important;
+        height: calc(100% - 113px) !important;
       }
     }
   }

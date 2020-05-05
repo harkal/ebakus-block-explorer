@@ -125,15 +125,11 @@ export default {
   transition: 0.35s height ease-in-out;
 
   &.active {
-    height: calc(100% - 122px - #{$spacer-2});
+    height: calc(100% - (var(--header-vh, 1vh) * 100) - #{$spacer-2});
   }
 
   @media (max-width: $mobile-grid-breakpoint) {
     height: 60px;
-
-    &.active {
-      height: calc(100% - 106px - #{$spacer-2});
-    }
 
     .horizontal-scroll {
       overflow-x: auto;
