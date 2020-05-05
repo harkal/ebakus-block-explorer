@@ -3,11 +3,18 @@
     <h1 v-if="address.isContract">
       <img src="@/assets/img/ic-contract.svg" alt />Contract
     </h1>
-    <h1 v-else><img src="@/assets/img/ic-ens.svg" alt />Address</h1>
+    <h1 v-else>
+      <img
+        src="@/assets/img/ic-ens.png"
+        srcset="@/assets/img/ic-ens@2x.png 2x, @/assets/img/ic-ens@3x.png 3x"
+        alt
+      />
+      Address
+    </h1>
 
     <div
       class="panel panel-collapsable actions"
-      :class="{ collapsed: !address.isContract && abi.length > 0 }"
+      :class="{ collapsed: !address.isContract || abi.length == 0 }"
     >
       <h2>Actions</h2>
 
@@ -20,9 +27,9 @@
           <img src="@/assets/img/ic-abi.svg" alt />
           Get ABI
         </a>
-        <a class="button">
+        <!-- <a class="button">
           <img src="@/assets/img/ic-remix.svg" alt />Interact with contract
-        </a>
+        </a> -->
       </div>
     </div>
     <div class="panel">
@@ -39,13 +46,13 @@
           </span>
           <ContentLoader v-else :width="400" />
         </div>
-        <div class="twocol right">
+        <div class="twocol right balances">
           <span class="balanceLabel">Liquid balance</span>
           <span v-if="hasData" v-pure-tooltip="balanceInUSD" class="balance">{{
             address.balance | toEtherFixed
           }}</span>
           <ContentLoader v-else :width="84" :height="20" />
-          <small>EBK</small>
+          <small> EBK</small>
           <br />
           <span class="balanceLabel">Staked balance</span>
           <span
@@ -55,7 +62,7 @@
             >{{ (address.stake / 10000).toFixed(4) }}</span
           >
           <ContentLoader v-else :width="84" :height="20" />
-          <small>EBK</small>
+          <small> EBK</small>
         </div>
       </div>
       <div
@@ -74,7 +81,7 @@
       <h2>Producer Info</h2>
       <table>
         <tr>
-          <td>Block rewards</td>
+          <td class="headcol">Block rewards</td>
           <td>
             <span v-if="address.block_rewards">{{
               address.block_rewards | toEtherFixed
@@ -84,7 +91,7 @@
           </td>
         </tr>
         <tr>
-          <td>Votes</td>
+          <td class="headcol">Votes</td>
           <td>
             <span v-if="statsData && statsData.stake">{{
               statsData.stake / 10000
@@ -446,15 +453,24 @@ export default {
     @media (max-width: $mobile-grid-breakpoint) {
       margin-bottom: $spacer-2;
 
+      font-size: 14px;
+
       &:last-child {
         margin-bottom: 0;
+      }
+
+      img {
+        width: 20px;
       }
     }
   }
 }
 
+.balances small {
+  font-weight: 700;
+}
+
 .balance {
-  margin-right: $spacer-1;
   font-size: 28px;
   font-weight: 700;
 }

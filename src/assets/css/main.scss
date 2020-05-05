@@ -20,7 +20,6 @@ body {
   overflow-x: hidden;
   overflow-y: scroll;
 
-
   background: $body-bg-color;
   color: $body-text-color;
 
@@ -154,6 +153,18 @@ button,
   border: solid 1px #acb4c9;
   background-color: #f8f9fb;
   outline: none;
+
+  &:disabled,
+  &[disabled],
+  &:disabled:hover,
+  &[disabled]:hover {
+    cursor: not-allowed;
+    color: rgba(17, 47, 66, 0.5);
+  }
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    padding: 6px $spacer-2;
+  }
 }
 
 /* ---- Tables ---- */
@@ -165,7 +176,7 @@ table {
 
 th,
 td {
-  padding: 4px 6px;
+  padding: 6px 8px;
   text-overflow: ellipsis;
   overflow: hidden;
 }
@@ -173,31 +184,19 @@ td {
 td {
   color: #34393d;
   font-size: 14px;
+  vertical-align: top;
 
   &:nth-child(2) {
     font-weight: 400;
   }
 
   &.headcol {
-    vertical-align: top;
-    white-space: nowrap;
+    padding-left: 0;
 
     @media (max-width: $mobile-grid-breakpoint) {
-      position: absolute;
-      top: auto;
-      left: 12px;
-
       width: 75px;
 
-      /*only relevant for first row*/
-      margin-top: -1px;
-      padding-left: 15px;
-
-      /*compensate for top border*/
-      line-height: 20px;
-
       background: #fff;
-      border-top-width: 1px;
       font-size: 13px;
     }
   }
@@ -206,8 +205,6 @@ td {
     word-break: break-all;
 
     @media (max-width: $mobile-grid-breakpoint) {
-      line-height: 18px;
-      padding-left: 90px;
       font-size: 14px;
     }
   }
@@ -262,7 +259,7 @@ td {
   height: 100%;
   margin: 0 auto;
 
-  @media (max-width: 960px) {
+  @media (max-width: $tablet-grid-breakpoint) {
     width: 100%;
   }
 }
@@ -273,18 +270,20 @@ td {
   -webkit-overflow-scrolling: touch;
 
   &.inner {
-    height: calc(100% - 150px) !important;
+    height: calc(100% - 113px) !important;
 
-    @media (max-width: 960px) {
+    @media (min-width: $mobile-grid-breakpoint + 1px) and (max-width: $tablet-grid-breakpoint) {
       height: calc(100% - 142px) !important;
-
-      #tabbar.active & {
-        height: calc(100% - 120px) !important;
-      }
     }
 
     @media (max-width: $mobile-grid-breakpoint) {
-      height: calc(100% - 57px) !important;
+      height: calc(100% - 60px) !important;
+    }
+
+    #tabbar.active & {
+      @media (min-width: $mobile-grid-breakpoint + 1px) and (max-width: $tablet-grid-breakpoint) {
+      height: calc(100% - 113px) !important;
+      }
     }
   }
 }
@@ -462,7 +461,11 @@ td {
   }
 
   &.labels {
-    // margin-bottom: -30px;
+    #tabbar & {
+      position: relative;
+      z-index: 1;
+      box-shadow: -18px 12px 0px 0px white;
+    }
 
     li {
       padding-top: 0;
@@ -488,10 +491,7 @@ td {
       transition: 0.1s all ease-in-out;
 
       &:hover {
-        background: #fff;
-        box-shadow: 0 2px 33px 0 rgba(17, 47, 66, 0.1);
         opacity: 1;
-        z-index: 10;
       }
 
       &.failed {
@@ -537,9 +537,10 @@ td {
     // &.address { }
 
     &.amount {
-      max-width: 150px;
+      max-width: 160px;
       color: #34393d;
       font-weight: 700;
+      white-space: nowrap;
 
       &.outgoing {
         color: #fb5292;
@@ -550,7 +551,7 @@ td {
       }
 
       &.incoming {
-        color: #66eec7;
+        color: #2cc89c;
 
         &:before {
           content: '+';
@@ -581,7 +582,7 @@ td {
     }
 
     &.main {
-      width: 100%;
+      width: calc(100% - 18px); // -scrollbar
       margin-top: 0;
 
       li {
@@ -716,15 +717,14 @@ td {
   position: relative;
   display: block;
 
-  width: 30%;
+  width: 100%;
   margin: 0 auto 20px;
-  padding: 20px 25px;
+  padding: 15px 25px;
 
-  color: white;
-  background: #fe4184;
+  background: #f8f9fb;
 
   border: 0;
-  border-radius: 10px;
+  border-radius: 4px;
 
   font-size: 18px;
   font-weight: 700;
@@ -736,8 +736,15 @@ td {
   &:focus {
     outline: none;
   }
+
   &:hover {
     transform: scale(0.98);
+  }
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    padding: 10px 15px;
+
+    font-size: 16px;
   }
 }
 

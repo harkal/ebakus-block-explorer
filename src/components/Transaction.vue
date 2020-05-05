@@ -419,6 +419,10 @@ export default {
   .status {
     border-radius: 0px 0px 4px 4px;
 
+    td {
+      vertical-align: middle;
+    }
+
     &.success {
       background: #e6faf4;
     }
@@ -438,18 +442,14 @@ export default {
 }
 
 .input-data {
+  background-color: #f3f3f3;
+
   td {
     font-size: 0.85em;
 
-    &:last-child {
-      background-color: #f3f3f3;
-    }
-
-    @media (max-width: $mobile-grid-breakpoint) {
-      &:first-child {
-        background-color: transparent;
-        white-space: inherit;
-      }
+    &.headcol {
+      padding-left: $spacer-2;
+      background-color: transparent;
     }
   }
 }

@@ -37,14 +37,14 @@
             <router-link
               :to="{ path: '/search/' + witness.Id }"
               :title="witness.Id"
+              >{{ witness | toENS('Id') }}</router-link
             >
-              {{ witness | toENS('Id') }}
-            </router-link>
           </span>
           <span class="mobileLabel">Stake</span>
-          <span class="col amount"
-            >{{ (witness.Stake / 10000).toFixed(4) }} <small>EBK</small></span
-          >
+          <span class="col amount">
+            {{ (witness.Stake / 10000).toFixed(4) }}
+            <small>EBK</small>
+          </span>
           <span class="mobileLabel">Vote</span>
           <span class="col vote">
             <button
@@ -63,14 +63,17 @@
           class="placeholder"
         >
           <span class="mobileLabel">#</span>
-          <span class="col id"><ContentLoader :width="14"/></span>
+          <span class="col id">
+            <ContentLoader :width="14" />
+          </span>
           <span class="mobileLabel">Address</span>
           <span class="col address producer">
             <ContentLoader :width="400" />
           </span>
           <span class="mobileLabel">Stake</span>
           <span class="col amount">
-            <ContentLoader :width="60" /> <small>EBK</small>
+            <ContentLoader :width="60" />
+            <small>EBK</small>
           </span>
           <span class="mobileLabel">Vote</span>
           <span class="col vote">
@@ -90,9 +93,9 @@
     </div>
 
     <div class="actions-area">
-      <span v-if="isEbakusWalletAllowed && isMyVotesLoaded">
-        You have used {{ newVoting.length }} out of {{ MaxVotes }} votes.
-      </span>
+      <span v-if="isEbakusWalletAllowed && isMyVotesLoaded"
+        >You have used {{ newVoting.length }} out of {{ MaxVotes }} votes.</span
+      >
       <span
         v-else-if="hasUserConsented && !isEbakusWalletAllowed"
         class="txt-warning"
@@ -102,17 +105,15 @@
         <button class="allowCookies" @click="allowEbakusWallet">Allow</button>
       </span>
 
-      <span v-if="hasReachedMaxVotes && error === ''" class="txt-danger">
-        Maximum number of votes reached.
-      </span>
+      <span v-if="hasReachedMaxVotes && error === ''" class="txt-danger"
+        >Maximum number of votes reached.</span
+      >
 
-      <span v-if="error !== ''" class="txt-danger">
-        {{ error }}
-      </span>
+      <span v-if="error !== ''" class="txt-danger">{{ error }}</span>
 
-      <span v-if="walletError !== ''" class="txt-danger">
-        {{ walletError }}
-      </span>
+      <span v-if="walletError !== ''" class="txt-danger">{{
+        walletError
+      }}</span>
 
       <button v-if="hasChangedVotes" @click="submitVotes()">
         Submit changes
@@ -418,14 +419,10 @@ export default {
 <style scoped lang="scss">
 @import '../assets/css/variables';
 #tabbar.active .scroll.inner {
-  height: calc(100% - 240px) !important;
-
-  @media (max-width: 960px) {
-    height: calc(100% - 238px) !important;
-  }
+  height: calc(100% - 227px) !important;
 
   @media (max-width: $mobile-grid-breakpoint) {
-    height: calc(100% - 128px) !important;
+    height: calc(100% - 121px) !important;
     overflow-x: hidden !important;
   }
 }

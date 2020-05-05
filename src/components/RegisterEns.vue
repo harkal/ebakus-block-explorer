@@ -1,6 +1,13 @@
 <template>
   <div class="panel-wrapper">
-    <h1><img src="@/assets/img/ic-ens.svg" alt />Name Service</h1>
+    <h1>
+      <img
+        src="@/assets/img/ic-ens.png"
+        srcset="@/assets/img/ic-ens@2x.png 2x, @/assets/img/ic-ens@3x.png 3x"
+        alt
+      />
+      Name Service
+    </h1>
     <div class="panel">
       <h2>Register a Name for your address</h2>
 

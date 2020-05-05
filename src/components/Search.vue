@@ -12,9 +12,7 @@
         id="searchBtn"
         ref="submitSearch"
         @click="searchWithQuery('searchBtn')"
-      >
-        <span>Go</span>
-      </button>
+      ></button>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
@@ -78,6 +76,10 @@ export default {
 <style scoped lang="scss">
 @import '../assets/css/variables';
 
+$icon-size: 20px;
+$margin-v: 5px;
+$margin-h: 4px;
+
 #search-wrapper {
   position: relative;
   display: block;
@@ -85,15 +87,11 @@ export default {
 }
 
 input[type='text'] {
-  width: calc(100% - 50px - #{$spacer-2});
+  width: calc(100% - #{$spacer-2 * 2});
   height: 48px;
 
-  padding-left: 50px;
+  padding-left: $spacer-2;
   padding-right: $spacer-2;
-
-  background: url('../assets/img/ic_search.png') no-repeat #ffffff;
-  background-size: 20px;
-  background-position: 15px 18px;
 
   border-radius: 4px;
 
@@ -103,21 +101,19 @@ input[type='text'] {
   transition: 0.5s all ease;
 
   &:focus {
+    width: calc(100% - #{$icon-size * 2 + 4px} - #{$spacer-2 * 2});
+    padding-right: $spacer-2 + ($icon-size * 2 + 4px);
+
     border-color: rgba(17, 47, 66, 0.15);
     box-shadow: inherit;
   }
 
-  @media (max-width: 960px) {
-    width: calc(100% - 36px - #{$spacer-2});
+  @media (max-width: $tablet-grid-breakpoint) {
     height: 40px;
-
-    padding-left: 36px;
 
     text-align: left;
     text-overflow: ellipsis;
     font-size: 16px;
-    background-size: 15px;
-    background-position: 12px 14px;
   }
 }
 
@@ -135,15 +131,18 @@ input:focus + button {
 
 button {
   position: absolute;
-  top: 5px;
-  right: 4px;
-  width: 54px;
-  height: 42px;
+  top: 0;
+  right: 0;
+  width: $icon-size * 2;
+  height: calc(100% - #{$margin-v * 2});
 
-  background: #fe4184;
-  color: white;
+  margin: $margin-v $margin-h;
 
-  border: 0;
+  background: url('../assets/img/ic_search.png') no-repeat #f8f9fb;
+  background-size: $icon-size;
+  background-position: ($icon-size / 2) 11px;
+
+  border: 1px solid #acb4c9;
   border-radius: 4px;
 
   font-size: 20px;
@@ -154,21 +153,24 @@ button {
   transition: 0.5s all ease;
   transform: scale(0.9);
 
+  &:hover {
+    background-color: #f3f5f7;
+  }
+
   &:active {
     transform: scale(0.9);
   }
 
-  @media (max-width: 960px) {
-    top: 0;
-    right: -2px;
+  @media (max-width: $tablet-grid-breakpoint) {
+    $icon-size: 16px;
 
-    height: 44px;
+    width: $icon-size * 2;
+
+    background-size: $icon-size;
+    background-position: ($icon-size / 2) ($icon-size / 2);
 
     font-size: 16px;
     font-weight: 700;
-
-    border-radius: 0 4px 4px 0;
-    box-shadow: -6px 0px 2px 0px white;
   }
 }
 

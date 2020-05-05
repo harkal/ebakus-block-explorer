@@ -125,20 +125,18 @@ export default {
   transition: 0.35s height ease-in-out;
 
   &.active {
-    height: calc(100% - 190px);
-  }
-
-  @media (max-width: $mobile-grid-breakpoint) {
-    .horizontal-scroll {
-      overflow-x: auto;
-    }
+    height: calc(100% - 122px - #{$spacer-2});
   }
 
   @media (max-width: $mobile-grid-breakpoint) {
     height: 60px;
 
     &.active {
-      height: calc(100% - 205px);
+      height: calc(100% - 106px - #{$spacer-2});
+    }
+
+    .horizontal-scroll {
+      overflow-x: auto;
     }
   }
 
@@ -149,7 +147,7 @@ export default {
 
 #tabbarOptions {
   width: 584px;
-  margin: 15px auto;
+  margin: 12px auto;
   padding-left: 0;
 
   li {
@@ -208,7 +206,7 @@ export default {
     width: 100%;
     max-width: 352px;
 
-    margin: 10px auto;
+    margin: 8px auto;
     padding: 0px;
     white-space: normal;
 
