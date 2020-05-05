@@ -96,23 +96,21 @@ $margin-h: 4px;
 }
 
 input[type='text'] {
-  width: calc(100% - #{$spacer-2 * 2});
+  width: calc(100% - #{$icon-size * 2 + 4px} - #{$spacer-2 * 2});
   height: 48px;
 
   padding-left: $spacer-2;
-  padding-right: $spacer-2;
+  padding-right: $spacer-2 + ($icon-size * 2 + 4px);
 
   border-radius: 4px;
 
   font-size: 18px;
   text-align: center;
+  text-overflow: ellipsis;
 
   transition: 0.5s all ease;
 
   &:focus {
-    width: calc(100% - #{$icon-size * 2 + 4px} - #{$spacer-2 * 2});
-    padding-right: $spacer-2 + ($icon-size * 2 + 4px);
-
     border-color: rgba(17, 47, 66, 0.15);
     box-shadow: inherit;
   }
@@ -134,8 +132,14 @@ button:focus {
 }
 
 input:focus + button {
-  opacity: 1;
+  background-color: #f8f9fb;
+  border-color: #acb4c9;
+
   transform: scale(1);
+
+  &:hover {
+    background-color: #f0f3f7;
+  }
 }
 
 button {
@@ -147,28 +151,18 @@ button {
 
   margin: $margin-v $margin-h;
 
-  background: url('../assets/img/ic_search.png') no-repeat #f8f9fb;
+  background: url('../assets/img/ic_search.png') no-repeat transparent;
   background-size: $icon-size;
-  background-position: ($icon-size / 2) 11px;
+  background-position: 9px 10px;
 
-  border: 1px solid #acb4c9;
+  border: 1px solid transparent;
   border-radius: 4px;
 
   font-size: 20px;
   font-weight: 700;
 
-  opacity: 0;
-
   transition: 0.5s all ease;
   transform: scale(0.9);
-
-  &:hover {
-    background-color: #f3f5f7;
-  }
-
-  &:active {
-    transform: scale(0.9);
-  }
 
   @media (max-width: $tablet-grid-breakpoint) {
     $icon-size: 16px;
