@@ -87,9 +87,6 @@ const registerNameForAddress = async (name, address) => {
       data: cmd.encodeABI(),
     }
 
-    const gas = await web3.eth.estimateGas(tx)
-    tx.gas = gas + 10000
-
     const res = await ebakusWallet.sendTransaction(tx)
 
     return res && res.status
