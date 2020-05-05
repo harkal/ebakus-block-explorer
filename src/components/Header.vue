@@ -4,7 +4,7 @@
       src="@/assets/img/explorer-logo.svg"
       alt="Ebakus Block Explorer"
       class="logo"
-      @click="$router.push('/')"
+      @click="$router.push({ name: RouteNames.HOME }).catch(() => {})"
     />
 
     <nav>

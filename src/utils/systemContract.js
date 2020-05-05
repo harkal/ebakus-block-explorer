@@ -10,11 +10,14 @@ const getContract = async () => {
   if (!ContractAddress) return
   if (_contract) return _contract
 
-  let contractABI = await web3.eth.getAbiForAddress(ContractAddress)
-  contractABI = JSON.parse(contractABI)
-
-  _contract = new web3.eth.Contract(contractABI, ContractAddress)
-  return _contract
+  try {
+    let contractABI = await web3.eth.getAbiForAddress(ContractAddress)
+    contractABI = JSON.parse(contractABI)
+    _contract = new web3.eth.Contract(contractABI, ContractAddress)
+    return _contract
+  } catch (err) {
+    await checkContractConnectionError(err)
+  }
 }
 
 const resetContract = async () => {
