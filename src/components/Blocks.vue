@@ -69,6 +69,26 @@
           <span class="col time">{{ timeConverter(block.timestamp) }}</span>
         </li>
       </ul>
+
+      <button
+        v-if="blocks.length > 0"
+        class="load-more"
+        :disabled="isLoading"
+        @click="getNewer()"
+      >
+        Get newer
+      </button>
+      <button
+        v-if="oldestBlockNumber > 0"
+        class="load-more"
+        :disabled="isLoading"
+        @click="getOlder()"
+      >
+        Get older
+      </button>
+      <button class="load-more" :disabled="isLoading" @click="getLatest()">
+        Get latest
+      </button>
     </div>
   </div>
 </template>
@@ -80,23 +100,34 @@ import { timeConverter } from '@/utils'
 
 import ContentLoader from './ContentLoader'
 
+const BLOCKS_OFFSET_RANGE = 10
+
 export default {
   components: {
     ContentLoader,
   },
   data() {
     return {
-      showTitle: false,
       blocks: [],
+      showTitle: false,
+      isLoading: false,
     }
   },
   computed: {
     RouteNames: () => RouteNames,
+    newestBlockNumber: function() {
+      const newestBlock = this.blocks[0]
+      return newestBlock ? newestBlock.number : 0
+    },
+    oldestBlockNumber: function() {
+      const oldestBlock = this.blocks[this.blocks.length - 1]
+      return oldestBlock ? oldestBlock.number : 0
+    },
   },
   watch: {
     $route(to, from) {
       if (to.name !== from.name && to.name === RouteNames.BLOCKS)
-        this.getLatestBlocks()
+        this.getLatest()
     },
     blocks: function() {
       if (this.blocks.length > 0) {
@@ -105,22 +136,58 @@ export default {
     },
   },
   created: function() {
-    this.getLatestBlocks()
+    this.getLatest()
   },
   methods: {
     timeConverter: timeConverter,
-    getLatestBlocks: async function() {
+    fetchBlocks: async function(lookupBlockNumber = '-1') {
+      this.isLoading = true
+
       try {
         const res = await this.$http.get(
-          process.env.API_ENDPOINT + '/block/-1?range=10'
+          process.env.API_ENDPOINT +
+            '/block/' +
+            lookupBlockNumber +
+            '?range=' +
+            BLOCKS_OFFSET_RANGE
         )
+        this.isLoading = false
 
-        this.blocks = res.data
-
-        mutations.setBlockHeight(this.blocks[0].number)
+        return res.data
       } catch (err) {
-        console.error('Failed to load latest blocks', err)
+        console.error('Failed to fetch blocks', err)
+        this.isLoading = false
       }
+    },
+    getLatest: async function() {
+      if (this.isLoading) return
+
+      const latestBlocks = await this.fetchBlocks('-1')
+      this.blocks = latestBlocks
+
+      mutations.setBlockHeight(this.blocks[0].number)
+    },
+    getNewer: async function() {
+      if (this.isLoading) return
+
+      const latestBlock = this.newestBlockNumber
+      const lookupBlock = latestBlock + BLOCKS_OFFSET_RANGE
+
+      const newerBlocks = await this.fetchBlocks(lookupBlock)
+
+      if (newerBlocks[newerBlocks.length - 1].number > latestBlock) {
+        this.blocks.unshift(...newerBlocks)
+      }
+    },
+    getOlder: async function() {
+      if (this.isLoading) return
+
+      const olderBlock = this.oldestBlockNumber
+      const lookupBlock = olderBlock - 1
+
+      const olderBlocks = await this.fetchBlocks(lookupBlock)
+
+      this.blocks.push(...olderBlocks)
     },
   },
 }
