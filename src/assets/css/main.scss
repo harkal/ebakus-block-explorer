@@ -484,7 +484,6 @@ td {
     margin-bottom: 30px;
 
     li {
-      border-radius: 10px;
       text-decoration: none;
       opacity: 0.85;
 
@@ -596,7 +595,6 @@ td {
         background: #fff;
 
         border-bottom: 2px solid #f0f0f0;
-        border-radius: 0;
         opacity: 1;
 
         span:not(.mobileLabel) {
@@ -721,7 +719,8 @@ td {
   margin: 0 auto 20px;
   padding: 15px 25px;
 
-  background: #f8f9fb;
+  color: $elephant;
+  background: #f2f3f5;
 
   border: 0;
   border-radius: 4px;
@@ -738,6 +737,7 @@ td {
   }
 
   &:hover {
+    background: #ecedf0;
     transform: scale(0.98);
   }
 

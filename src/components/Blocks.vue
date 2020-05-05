@@ -31,6 +31,9 @@
           <span class="mobileLabel">Timestamp</span>
           <span class="col time"><ContentLoader :width="80"/></span>
         </li>
+        <li v-if="blocks.length > 0" class="load-more" @click="getNewer()">
+          Show newer
+        </li>
         <li v-for="block in blocks" :key="block.number">
           <span class="mobileLabel">Block #</span>
           <span class="col block-number">
@@ -68,27 +71,15 @@
           <span class="mobileLabel">Timestamp</span>
           <span class="col time">{{ timeConverter(block.timestamp) }}</span>
         </li>
+        <li
+          v-if="oldestBlockNumber > 0"
+          :disabled="isLoading"
+          class="load-more"
+          @click="getOlder()"
+        >
+          Show older
+        </li>
       </ul>
-
-      <button
-        v-if="blocks.length > 0"
-        class="load-more"
-        :disabled="isLoading"
-        @click="getNewer()"
-      >
-        Get newer
-      </button>
-      <button
-        v-if="oldestBlockNumber > 0"
-        class="load-more"
-        :disabled="isLoading"
-        @click="getOlder()"
-      >
-        Get older
-      </button>
-      <button class="load-more" :disabled="isLoading" @click="getLatest()">
-        Get latest
-      </button>
     </div>
   </div>
 </template>
@@ -175,8 +166,11 @@ export default {
 
       const newerBlocks = await this.fetchBlocks(lookupBlock)
 
-      if (newerBlocks[newerBlocks.length - 1].number > latestBlock) {
-        this.blocks.unshift(...newerBlocks)
+      const newerBlocksFiltered = newerBlocks.filter(
+        bl => bl.number > latestBlock
+      )
+      if (newerBlocksFiltered.length > 0) {
+        this.blocks.unshift(...newerBlocksFiltered)
       }
     },
     getOlder: async function() {

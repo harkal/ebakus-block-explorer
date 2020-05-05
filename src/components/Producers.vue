@@ -43,7 +43,7 @@
           <span class="mobileLabel">Stake</span>
           <span class="col amount">
             {{ (witness.Stake / 10000).toFixed(4) }}
-            <small>EBK</small>
+            <small> EBK</small>
           </span>
           <span class="mobileLabel">Vote</span>
           <span class="col vote">
@@ -73,7 +73,7 @@
           <span class="mobileLabel">Stake</span>
           <span class="col amount">
             <ContentLoader :width="60" />
-            <small>EBK</small>
+            <small> EBK</small>
           </span>
           <span class="mobileLabel">Vote</span>
           <span class="col vote">
