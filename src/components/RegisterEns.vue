@@ -23,6 +23,9 @@
       <div v-if="isEbakusWalletAllowed" class="row buttons">
         <button @click="registerEns">
           Register
+          <span v-if="registrationAmount > 0">
+            for {{ registrationAmount | toEther }} EBK
+          </span>
         </button>
 
         <span
@@ -55,7 +58,11 @@
 <script>
 import SharedWalletMixin from '@/mixins/SharedWalletMixin'
 import { store } from '@/store'
-import { registerNameForAddress, storeEnsNameForAddress } from '@/utils/ens'
+import {
+  getRegistrationAmount,
+  registerNameForAddress,
+  storeEnsNameForAddress,
+} from '@/utils/ens'
 import { web3 } from '@/utils/web3ebakus'
 import { waitUntil } from '../utils'
 
@@ -65,12 +72,15 @@ export default {
     return {
       name: '',
       address: '',
+      registrationAmount: null,
       registered: false,
       warning: '',
       error: '',
     }
   },
-  computed: { hasUserConsented: () => store.hasUserConsented },
+  computed: {
+    hasUserConsented: () => store.hasUserConsented,
+  },
   watch: {
     name: function() {
       this.error = ''
@@ -86,6 +96,9 @@ export default {
         }, 6000)
       }
     },
+  },
+  async mounted() {
+    this.registrationAmount = await getRegistrationAmount()
   },
   methods: {
     registerEns: async function() {
@@ -181,8 +194,8 @@ input {
 .buttons {
   margin-left: 120px;
 
-  strong,
-  span {
+  > strong,
+  > span {
     display: block;
     max-width: 400px;
     margin-left: $spacer-3;
