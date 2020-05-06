@@ -21,11 +21,20 @@
       </div>
 
       <div v-if="isEbakusWalletAllowed" class="row buttons">
-        <button @click="registerEns">
+        <button class="registerButton" @click="registerEns">
           Register
-          <span v-if="registrationAmount > 0">
-            for {{ registrationAmount | toEther }} EBK
-          </span>
+          <transition name="fade" appear>
+            <span v-if="registrationAmount > 0">
+              for {{ registrationAmount | toEther }}
+              <small>EBK</small>
+            </span>
+          </transition>
+          <transition name="fade" appear>
+            <span v-if="registrationPeriod > 0">
+              / {{ registrationPeriod }}
+              <small>{{ registrationPeriod > 1 ? 'years' : 'year' }}</small>
+            </span>
+          </transition>
         </button>
 
         <span
@@ -60,6 +69,7 @@ import SharedWalletMixin from '@/mixins/SharedWalletMixin'
 import { store } from '@/store'
 import {
   getRegistrationAmount,
+  getRegistrationPeriod,
   registerNameForAddress,
   storeEnsNameForAddress,
 } from '@/utils/ens'
@@ -73,6 +83,7 @@ export default {
       name: '',
       address: '',
       registrationAmount: null,
+      registrationPeriod: null,
       registered: false,
       warning: '',
       error: '',
@@ -99,6 +110,12 @@ export default {
   },
   async mounted() {
     this.registrationAmount = await getRegistrationAmount()
+
+    const registrationPeriodSeconds = await getRegistrationPeriod()
+    if (registrationPeriodSeconds) {
+      const years = (registrationPeriodSeconds / 31536000) % 365
+      this.registrationPeriod = parseFloat(years.toFixed(2))
+    }
   },
   methods: {
     registerEns: async function() {
@@ -206,6 +223,14 @@ input {
       font-size: 14px;
     }
   }
+
+  @media (max-width: 450px) {
+    margin-left: 0;
+
+    button {
+      width: 100%;
+    }
+  }
 }
 
 button {
@@ -213,5 +238,13 @@ button {
   border-radius: 0;
   font-size: 18px;
   font-weight: 700;
+}
+
+.registerButton {
+  transition: 0.2s all ease-in;
+
+  span {
+    color: rgba(17, 47, 66, 0.7);
+  }
 }
 </style>

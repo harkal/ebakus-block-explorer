@@ -10,7 +10,7 @@ import { isZeroHash, asyncTimeout } from '.'
 const ContractAddress = process.env.ENS_CONTRACT_ADDRESS
 
 let _contract
-let _registrationAmount
+let _registrationAmount, _registrationPeriod
 
 const getEnsContract = async () => {
   if (!ContractAddress) return
@@ -84,6 +84,20 @@ const getRegistrationAmount = async () => {
     return null
   }
   return _registrationAmount
+}
+
+const getRegistrationPeriod = async () => {
+  if (_registrationPeriod > 0) return _registrationPeriod
+
+  const contract = await getEnsContract()
+  if (!contract) return null
+
+  try {
+    _registrationPeriod = await contract.methods.getRegistrationPeriod().call()
+  } catch (err) {
+    return null
+  }
+  return _registrationPeriod
 }
 
 const registerNameForAddress = async (name, address) => {
@@ -161,6 +175,7 @@ export {
   registerNameForAddress,
   getAddressForEns,
   getRegistrationAmount,
+  getRegistrationPeriod,
   getEnsNameForAddress,
   resetContract as resetEnsContract,
   storeEnsNameForAddress,
