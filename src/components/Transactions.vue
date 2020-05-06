@@ -1,38 +1,47 @@
 <template>
-  <div id="transactions_wrapper">
-    <ul class="tabResults labels">
-      <li id="list_title">
-        <span class="txID">Tx hash</span>
-        <span class="from">From</span>
-        <span class="to">To</span>
-        <span class="amount">Amount</span>
-        <span class="time">Time</span>
+  <div id="transactions-wrapper" class="tab-wrapper">
+    <ul v-if="isLoading || txs.length > 0" class="tab-results labels">
+      <li class="list-title">
+        <span class="col tx-hash">Tx hash</span>
+        <span class="col address from">From</span>
+        <span v-if="isContractAddress" class="col">Action</span>
+        <span v-else class="col address to">To</span>
+        <span class="col amount">Amount</span>
+        <span class="col time">Time</span>
       </li>
     </ul>
-    <div class="scroll inner tx">
-      <ul class="tabResults main">
+    <div v-if="isLoading || txs.length > 0" class="scroll inner tx">
+      <ul class="tab-results main">
         <li
           v-for="index in txs_.length == 0 ? 4 : 0"
           :key="index"
           class="placeholder"
         >
           <span class="mobileLabel">Tx hash</span>
-          <span class="txID transaction"> <ContentLoader :width="150"/></span>
+          <span class="col tx-hash transaction">
+            <ContentLoader :width="150"
+          /></span>
           <span class="mobileLabel">From</span>
-          <span class="address"><ContentLoader :width="150"/></span>
+          <span class="col address"><ContentLoader :width="150"/></span>
           <img
-            src="../assets/ic_from_to.png"
+            v-if="!isContractAddress"
+            src="@/assets/img/ic_from_to.png"
             alt
+            class="txDirection"
             :class="{ outgoing: false }"
           />
-          <span class="mobileLabel">To</span>
-          <span class="address"><ContentLoader :width="150"/></span>
+          <span v-if="isContractAddress" class="mobileLabel">Action</span>
+          <span v-else class="mobileLabel">To</span>
+          <span v-if="isContractAddress" class="col txAction"
+            ><ContentLoader :width="150"
+          /></span>
+          <span v-else class="col address"><ContentLoader :width="150"/></span>
           <span class="mobileLabel">Amount</span>
-          <span class="amount_" :class="{ outgoing: false }">
+          <span class="col amount" :class="{ outgoing: false }">
             <ContentLoader :width="50" /> <small>EBK</small>
           </span>
-          <span class="mobileLabel timestamp">Time</span>
-          <span class="time"><ContentLoader :width="80"/></span>
+          <span class="mobileLabel">Time</span>
+          <span class="col time"><ContentLoader :width="80"/></span>
         </li>
         <li
           v-for="(tx, idx) in txs_"
@@ -40,19 +49,19 @@
           :class="{ failed: tx.status === 0 }"
         >
           <span class="mobileLabel">Tx hash</span>
-          <span class="txID transaction">
+          <span class="col tx-hash transaction">
             <router-link
-              :to="{ name: RouteNames.SEARCH, params: { query: tx.hash } }"
+              :to="{ name: RouteNames.TRANSACTION, params: { query: tx.hash } }"
               :title="tx.hash"
             >
               {{ tx.hash }}
             </router-link>
           </span>
           <span class="mobileLabel">From</span>
-          <span class="address">
+          <span class="col address">
             <router-link
               v-if="tx.from !== 'this'"
-              :to="{ name: RouteNames.SEARCH, params: { query: tx.from } }"
+              :to="{ name: RouteNames.ADDRESS, params: { query: tx.from } }"
               :title="tx.from"
             >
               {{ tx | toENS('from') }}
@@ -60,15 +69,21 @@
             <strong v-else>this</strong>
           </span>
           <img
-            src="../assets/ic_from_to.png"
+            v-if="!isContractAddress"
+            src="@/assets/img/ic_from_to.png"
             alt
+            class="txDirection"
             :class="{ outgoing: tx.from == 'this' && tx.to != 'this' }"
           />
-          <span class="mobileLabel">To</span>
-          <span class="address">
+          <span v-if="isContractAddress" class="mobileLabel">Action</span>
+          <span v-else class="mobileLabel">To</span>
+          <span v-if="isContractAddress" class="col txAction">{{
+            tx.inputAction
+          }}</span>
+          <span v-else class="col address">
             <router-link
               v-if="!['this', 'contract creation'].includes(tx.to)"
-              :to="{ name: RouteNames.SEARCH, params: { query: tx.to } }"
+              :to="{ name: RouteNames.ADDRESS, params: { query: tx.to } }"
               :title="tx.to"
             >
               {{ tx | toENS('to') }}
@@ -76,7 +91,7 @@
             <router-link
               v-else-if="tx.to === 'contract creation'"
               :to="{
-                name: RouteNames.SEARCH,
+                name: RouteNames.ADDRESS,
                 params: { query: tx.contractAddress },
               }"
               :title="tx.contractAddress"
@@ -87,25 +102,30 @@
           </span>
           <span class="mobileLabel">Amount</span>
           <span
-            class="amount_"
+            class="col amount"
             :class="{
               outgoing: tx.from == 'this' && tx.to != 'this',
               incoming: tx.from !== 'this' && tx.to == 'this',
             }"
             >{{ tx.value | toEtherFixed }} <small>EBK</small></span
           >
-          <span class="mobileLabel timestamp">Time</span>
-          <span class="time">{{ timeConverter(tx.timestamp) }}</span>
+          <span class="mobileLabel">Time</span>
+          <span class="col time">{{ timeConverter(tx.timestamp) }}</span>
         </li>
       </ul>
 
       <button
         v-if="numberOfRemainingTxs > 0 || showingLatestTxs"
+        class="load-more"
         @click="loadTransactions()"
       >
         Show {{ numberOfRemainingTxs > 0 ? numberOfRemainingTxs : '' }} More
       </button>
     </div>
+
+    <p v-else class="txt-center">
+      There are no transactions.
+    </p>
   </div>
 </template>
 
@@ -113,7 +133,8 @@
 import { RouteNames } from '@/router'
 import ContentLoader from './ContentLoader'
 
-import { timeConverter, isZeroHash } from '../utils'
+import { timeConverter, isZeroHash } from '@/utils'
+import { getAbi, decodeDataUsingAbi } from '@/utils/abi'
 
 export default {
   components: {
@@ -124,9 +145,21 @@ export default {
       type: String,
       default: '',
     },
+    isContractAddress: {
+      type: Boolean,
+      default: false,
+    },
+    abi: {
+      type: Array,
+      default: () => [],
+    },
     blockHash: {
       type: String,
       default: '',
+    },
+    latest: {
+      type: Boolean,
+      default: false,
     },
     maxOffset: {
       type: Number,
@@ -136,8 +169,9 @@ export default {
   data() {
     return {
       txs: [],
-      showTitle: false,
       offset: 0,
+      isLoading: true,
+      showTitle: false,
       showingLatestTxs: false,
     }
   },
@@ -169,7 +203,8 @@ export default {
   },
   watch: {
     $route(to, from) {
-      if (to.name !== from.name) this.reloadFresh()
+      if (to.name !== from.name && this.$isTabbarNavigation(to.name))
+        this.reloadFresh()
     },
     address(val, oldVal) {
       if (val !== oldVal) this.reloadFresh()
@@ -215,9 +250,33 @@ export default {
               '&order=desc'
           )
           .then(
-            function(response) {
-              var new_txs = response.data
-              self.txs.push.apply(self.txs, new_txs)
+            async function(response) {
+              this.isLoading = false
+
+              var newTxs = response.data
+              if (self.isContractAddress) {
+                let abi = this.abi
+                if (!abi) {
+                  try {
+                    abi = await getAbi(self.address)
+                  } catch (err) {}
+                }
+
+                newTxs.map(tx => {
+                  if (tx.input) {
+                    const data = decodeDataUsingAbi(abi, tx.input)
+
+                    if (typeof data === 'object' && data.name) {
+                      tx.inputAction = `${data.name}(...)`
+                    } else {
+                      tx.inputAction = tx.input.substring(0, 10)
+                    }
+                  }
+                  return tx
+                })
+              }
+
+              self.txs.push.apply(self.txs, newTxs)
               self.offset += limit
             },
             function(err) {
@@ -225,6 +284,7 @@ export default {
                 `Failed to load transactions for address "${this.address}":`,
                 err
               )
+              this.isLoading = false
             }
           )
 
@@ -247,8 +307,10 @@ export default {
           )
           .then(
             function(response) {
-              var new_txs = response.data
-              self.txs.push.apply(self.txs, new_txs)
+              this.isLoading = false
+
+              const newTxs = response.data
+              self.txs.push.apply(self.txs, newTxs)
               self.offset += limit
             },
             function(err) {
@@ -256,9 +318,10 @@ export default {
                 `Failed to load transactions for block "${this.blockHash}":`,
                 err
               )
+              this.isLoading = false
             }
           )
-      } else {
+      } else if (this.latest) {
         const limit = 10
         this.$http
           .get(
@@ -271,13 +334,16 @@ export default {
           )
           .then(
             function(response) {
-              var newTxs = response.data
+              this.isLoading = false
+
+              const newTxs = response.data
               self.txs.push.apply(self.txs, newTxs)
               self.offset += limit
               self.showingLatestTxs = newTxs.length > 0
             },
             err => {
               console.error('Failed to load latest transactions', err)
+              this.isLoading = false
             }
           )
       }
@@ -286,248 +352,20 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-button {
-  position: relative;
-  display: block;
-  margin-top: 20px;
-  border-radius: 10px;
-  padding: 20px 25px;
-  color: white;
-  background: #fe4184;
-  font-size: 18px;
-  font-weight: 600;
-  width: 95%;
-  margin: 0 auto 20px;
-  transition: 0.5s all ease;
-  transform: scale(1);
-  border: 0;
-  cursor: pointer;
-}
-*:focus {
-  outline: none;
-}
-button:hover {
-  transform: scale(0.98);
-}
-#transactions_wrapper {
-  display: none;
-  height: 50px;
-  height: 100%;
-}
-#transactions_wrapper.active {
-  opacity: 1;
-  display: block;
-}
-.container {
-  margin: 0 auto;
-}
-img.outgoing {
-  filter: hue-rotate(180deg);
-}
-span.amount_.outgoing {
-  color: deeppink;
-}
-span.amount_.incoming {
-  color: darkturquoise;
-}
-ul {
-  list-style: none;
+<style scoped lang="scss">
+@import '../assets/css/variables';
 
-  width: 99%;
-  padding: 0px;
-}
-li {
-  /* block_list_item: */
-  width: 93%;
-  margin: 0 auto;
-}
-
-.main li {
-  /* display: block; */
-  display: flex;
-  flex-wrap: nowrap;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  align-content: center;
-  padding: 22px 1%;
-  border-radius: 10px;
-  transition: 0.1s all ease-in-out;
-  text-decoration: none;
-  opacity: 0.85;
-}
-.main li:hover {
-  box-shadow: 0 2px 33px 0 rgba(17, 47, 66, 0.1);
-  opacity: 1;
-  background: #fff;
-}
-li.failed,
-li.failed:hover {
-  background-color: #fae6eb;
-}
-li.failed:hover {
-  border-radius: 0;
-}
-li span {
-  display: inline-block;
-  flex: 1 0 auto;
-  width: 19%;
-  margin: 0 1%;
-  text-align: center;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-li span:first-child {
-  text-align: left;
-  margin: 0;
-}
-li span:last-child {
-  text-align: right;
-  margin: 0;
-  width: 10%;
-  /* vertical-align: top; */
-}
-span.amount_ {
-  font-weight: 600;
-  color: #34393d;
-}
-
-span.time {
-  font-size: 13px;
-}
-
-img {
+.txDirection {
   width: 16px;
   vertical-align: 6px;
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    display: none;
+  }
 }
-#list_title {
-  padding: 0px 10px;
-}
-#list_title span {
+
+.txAction {
   font-size: 14px;
-  color: #828383 !important;
-  font-weight: 400;
-  opacity: 0.8;
-}
-.scroll {
-  overflow: auto;
-  height: 100%;
-  -webkit-overflow-scrolling: touch;
-}
-.mobileLabel {
-  display: none;
-}
-@media (max-width: 560px) {
-  ul.tabResults.main {
-    width: 100%;
-  }
-  ul.tabResults.main li {
-    width: 100%;
-    display: block;
-  }
-  .main li {
-    display: block;
-    position: relative;
-    opacity: 1;
-    background: #fff;
-    margin-left: 0px;
-    width: 610px;
-    width: 100vw;
-    margin-bottom: 10px;
-    padding-bottom: 45px;
-    border-bottom: 2px solid #f0f0f0;
-    border-radius: 0px !important;
-  }
-  li.failed {
-    background-color: #fff;
-  }
-  li.placeholder.failed,
-  li.failed {
-    background-color: #fae6eb;
-  }
-  li {
-    width: 100vw;
-    overflow: hidden;
-  }
-
-  li span {
-    text-align: left;
-    margin: 0px;
-  }
-
-  .txID.transaction {
-    display: block;
-    width: 75%;
-    text-overflow: ellipsis;
-
-    font-size: 14px;
-    padding-left: 80px;
-  }
-  .amount,
-  time {
-    width: 50%;
-    padding-left: 60px;
-  }
-  .address {
-    width: 550px;
-    width: 80%;
-    text-overflow: ellipsis;
-    font-size: 14px;
-    line-height: 14px;
-    padding-left: 86px;
-  }
-  li img {
-    transform: rotate(90deg) scale(0.9);
-    display: none;
-  }
-  .tabResults.labels {
-    display: none;
-  }
-
-  #transactions_wrapper li:last-child {
-    padding-bottom: 50px;
-  }
-
-  li span.time,
-  li span.amount_ {
-    display: block;
-    position: absolute;
-    width: 600px;
-    text-align: left;
-    padding-left: 80px;
-  }
-  li span.amount_ {
-    font-size: 14px;
-  }
-  li span.time {
-    padding-top: 17px;
-    padding-left: 80px;
-    opacity: 0.5;
-  }
-  .mobileLabel.timestamp {
-    margin-top: 17px;
-  }
-  a:hover {
-    box-shadow: none;
-  }
-  body {
-    -webkit-text-size-adjust: 100%;
-  }
-  .mobileLabel {
-    display: block;
-    width: 70px;
-    font-size: 13px;
-    position: absolute;
-    left: 0px;
-    padding-left: 10px !important;
-    margin-bottom: 10px;
-    background: #fff;
-  }
-
-  .failed .mobileLabel {
-    background-color: #fae6eb;
-  }
+  font-weight: 700;
 }
 </style>

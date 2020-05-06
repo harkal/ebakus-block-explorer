@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <g fill="none" fill-rule="evenodd">
+        <text fill="#112F42" font-family="DINCondensed-Bold, DIN Condensed" font-size="14" font-style="condensed" font-weight="bold" transform="translate(4 4)">
+            <tspan x=".741" y="10">ABI</tspan>
+        </text>
+        <g stroke="#84949F" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2.452.5L2.491 9.594M0 7.938L2.491 9.594 4.984 7.938" transform="translate(4 4) rotate(-90 10.824 7.676)"/>
+        </g>
+    </g>
+</svg>

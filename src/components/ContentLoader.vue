@@ -47,12 +47,12 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style scoped lang="scss">
+@import '../assets/css/variables';
 @media (max-width: 560px) {
   .loader {
     width: 90%;
-    padding: 0 10% 0 0 !important;
+    padding: 0 $spacer-1 0 0 !important;
     box-sizing: border-box;
   }
 }

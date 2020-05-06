@@ -1,5 +1,5 @@
 <template>
-  <div id="producers_wrapper">
+  <div id="producers-wrapper" class="tab-wrapper">
     <small>
       There are
       <strong>{{ witnesses.length >= 21 ? 21 : witnesses.length }}</strong>
@@ -7,10 +7,10 @@
       <strong>{{ witnesses.length }}</strong> witnesses.
     </small>
 
-    <ul class="tabResults labels">
-      <li id="list_title">
-        <span class="delegateID">#</span>
-        <span class="producer">
+    <ul class="tab-results labels">
+      <li class="list-title">
+        <span class="col id">#</span>
+        <span class="col address producer">
           <input
             ref="filterField"
             v-model="filterAddressQuery"
@@ -19,36 +19,36 @@
             @keyup="filterByAddress()"
           />
         </span>
-        <span class="stake">Stake</span>
-        <span class="vote"></span>
+        <span class="col amount">Stake</span>
+        <span class="col vote"></span>
       </li>
     </ul>
     <div class="scroll inner">
-      <ul class="tabResults main">
+      <ul class="tab-results main">
         <li
           v-for="(witness, idx) in displayedWitnesses"
           :key="`${witness.Id}-${idx}`"
           :class="{ changed: isChanged(witness.Id) }"
         >
           <span class="mobileLabel">#</span>
-          <span class="delegateID">{{ idx + 1 }}</span>
+          <span class="col id">{{ idx + 1 }}</span>
           <span class="mobileLabel">Address</span>
-          <span class="producer address">
+          <span class="col address producer">
             <router-link
               :to="{ path: '/search/' + witness.Id }"
               :title="witness.Id"
+              >{{ witness | toENS('Id') }}</router-link
             >
-              {{ witness | toENS('Id') }}
-            </router-link>
           </span>
           <span class="mobileLabel">Stake</span>
-          <span class="stake"
-            >{{ (witness.Stake / 10000).toFixed(4) }} <small>EBK</small></span
-          >
+          <span class="col amount">
+            {{ (witness.Stake / 10000).toFixed(4) }}
+            <small> EBK</small>
+          </span>
           <span class="mobileLabel">Vote</span>
-          <span class="vote">
+          <span class="col vote">
             <button
-              v-if="!isMyVotesLoading && isMyVotesLoaded"
+              v-if="!isMyVotesLoading && isMyVotesLoaded && walletAddress"
               @click="toggleVote(witness.Id)"
             >
               {{ isVoted(witness.Id) ? 'Unvote' : 'Vote' }}
@@ -57,23 +57,26 @@
         </li>
         <li
           v-for="index in displayedWitnesses.length == 0 || isWitnessesLoading
-            ? 4
+            ? 3
             : 0"
           :key="index"
           class="placeholder"
         >
           <span class="mobileLabel">#</span>
-          <span class="delegateID"><ContentLoader :width="14"/></span>
+          <span class="col id">
+            <ContentLoader :width="14" />
+          </span>
           <span class="mobileLabel">Address</span>
-          <span class="producer address">
+          <span class="col address producer">
             <ContentLoader :width="400" />
           </span>
           <span class="mobileLabel">Stake</span>
-          <span class="stake">
-            <ContentLoader :width="60" /> <small>EBK</small>
+          <span class="col amount">
+            <ContentLoader :width="60" />
+            <small> EBK</small>
           </span>
           <span class="mobileLabel">Vote</span>
-          <span class="vote">
+          <span class="col vote">
             <ContentLoader :width="50" :height="22" />
           </span>
         </li>
@@ -89,26 +92,28 @@
       </ul>
     </div>
 
-    <div class="actions_area">
-      <span v-if="ebakusWalletAllowed && isMyVotesLoaded">
-        You have used {{ newVoting.length }} out of {{ MaxVotes }} votes.
-      </span>
+    <div class="actions-area">
+      <span v-if="isEbakusWalletAllowed && isMyVotesLoaded"
+        >You have used {{ newVoting.length }} out of {{ MaxVotes }} votes.</span
+      >
       <span
-        v-else-if="hasUserConsented && !ebakusWalletAllowed"
-        class="warning"
+        v-else-if="hasUserConsented && !isEbakusWalletAllowed"
+        class="txt-warning"
       >
         In order to vote, you have to allow ebakus wallet to store browser
         cookies.
         <button class="allowCookies" @click="allowEbakusWallet">Allow</button>
       </span>
 
-      <span v-if="hasReachedMaxVotes && error === ''" class="danger">
-        Maximum number of votes reached.
-      </span>
+      <span v-if="hasReachedMaxVotes && error === ''" class="txt-danger"
+        >Maximum number of votes reached.</span
+      >
 
-      <span v-if="error !== ''" class="danger">
-        {{ error }}
-      </span>
+      <span v-if="error !== ''" class="txt-danger">{{ error }}</span>
+
+      <span v-if="walletError !== ''" class="txt-danger">{{
+        walletError
+      }}</span>
 
       <button v-if="hasChangedVotes" @click="submitVotes()">
         Submit changes
@@ -123,20 +128,25 @@ import { debounce } from 'lodash'
 
 import { RouteNames } from '@/router'
 import { web3, setProvider, checkConnectionError } from '@/utils/web3ebakus'
-import { getEnsNameForAddress, resetContract } from '@/utils/ens'
+import { getEnsNameForAddress, resetEnsContract } from '@/utils/ens'
+import {
+  SystemContractAddress,
+  resetSystemContract,
+  getSystemContract,
+} from '@/utils/systemContract'
 import { store, mutations } from '@/store'
+
+import SharedWalletMixin from '@/mixins/SharedWalletMixin'
 
 import ContentLoader from './ContentLoader'
 
 const MAX_VOTES = 20
-const DEBOUNCE_DELAY = 1000
-
-const SystemContractAddress = '0x0000000000000000000000000000000000000101'
 
 export default {
   components: {
     ContentLoader,
   },
+  mixins: [SharedWalletMixin],
   data() {
     return {
       witnesses: [],
@@ -144,15 +154,10 @@ export default {
       currentlyVoted: [],
       newVoting: [],
       filterAddressQuery: '',
-      myAddress: null,
       showTitle: false,
 
-      web3Endpoint: process.env.WEB3JS_NODE_ENDPOINT,
-      web3Connecting: false,
-      isWalletConnected: false,
-      contractInstance: null,
+      systemContractInstance: null,
 
-      isEbakusWalletLoaded: false,
       isWitnessesLoaded: false,
       isWitnessesLoading: false,
       isMyVotesLoading: false,
@@ -161,10 +166,8 @@ export default {
     }
   },
   computed: {
-    RouteNames: () => RouteNames,
     MaxVotes: () => MAX_VOTES,
     hasUserConsented: () => store.hasUserConsented,
-    ebakusWalletAllowed: () => store.ebakusWalletAllowed,
     hasChangedVotes: function() {
       return (
         !this.newVoting.every(address =>
@@ -177,183 +180,73 @@ export default {
       return this.newVoting.length >= MAX_VOTES
     },
   },
-  watch: {
-    $route: async function(to, from) {
-      if (to.name !== from.name && to.name === RouteNames.PRODUCERS) {
-        if (this.contractInstance !== null) {
-          try {
-            await web3.eth.net.getId()
-            await this.fetchAccount()
-            this.loadWitnesses()
-            this.loadCurrentlyVoted()
-          } catch (err) {
-            if (!(await this.checkWeb3ConnectionError(err))) {
-              this.connect()
-            }
-          }
-        } else {
-          this.connect()
-        }
-      }
-    },
-    ebakusWalletAllowed: function(val, oldVal) {
-      if (val && val !== oldVal) {
-        this.initEbakusWallet()
-      }
-    },
-  },
-  mounted: function() {
-    if (this.ebakusWalletAllowed) {
-      this.initEbakusWallet()
-    } else {
-      this.connect()
-    }
-  },
+  // watch: {
+  //   $route: async function(to, from) {
+  //     if (to.name !== from.name && to.name === RouteNames.PRODUCERS) {
+  //       if (this.systemContractInstance !== null) {
+  //         try {
+  //           await web3.eth.net.getId()
+  //           await this.fetchAccount()
+  //           this.loadWitnesses()
+  //           this.loadCurrentlyVoted()
+  //         } catch (err) {
+  //           if (!(await this.ebakusWalletCheckConnectionError(err))) {
+  //             this.ebakusWalletConnect()
+  //           }
+  //         }
+  //       } else {
+  //         this.ebakusWalletConnect()
+  //       }
+  //     }
+  //   },
+  // },
   methods: {
-    allowEbakusWallet: function() {
-      mutations.setAllowEbakusWallet(true)
+    /* Start Ebakus wallet mixin overrides */
+    ebakusWalletCurrentProviderEndpointChanged: function(endpoint) {
+      this.displayedWitnesses = []
     },
-    initEbakusWallet: function() {
-      if (this.isEbakusWalletLoaded || !this.ebakusWalletAllowed) return
-      this.isEbakusWalletLoaded = true
 
-      const self = this
-
-      window.addEventListener('ebakusCurrentProviderEndpoint', function({
-        detail: endpoint,
-      }) {
-        self.resetWeb3Connection()
-        self.displayedWitnesses = []
-        self.connect()
-      })
-
-      window.addEventListener('ebakusConnectionStatus', function({
-        detail: status,
-      }) {
-        self.resetWeb3Connection()
-
-        if (status == 'connected') {
-          self.connect()
-        }
-      })
-
-      window.addEventListener('ebakusAccount', ({ detail: address }) => {
-        self.resetWeb3Connection()
-        self.connect()
-      })
-
-      window.addEventListener('ebakusStaked', function({ detail: staked }) {
-        if (!web3) {
-          return
-        }
-        self.loadWitnesses()
-        self.loadCurrentlyVoted()
-      })
-
-      const opts = {}
-      if (process.env.WALLET_ENDPOINT) {
-        opts.walletEndpoint = process.env.WALLET_ENDPOINT
-      }
-
-      ebakusWallet.init(opts)
+    ebakusWalletAccountChanged: function(address) {
+      this.ebakusWalletOnConnectSuccess()
     },
-    checkWeb3ConnectionError: async function(err) {
-      const self = this
-      return await checkConnectionError(err, {
-        getProviderEndpoint: async () => {
-          if (this.ebakusWalletAllowed) {
-            const endpoint = await ebakusWallet.getCurrentProviderEndpoint()
 
-            if (endpoint) return endpoint
-          }
-          return process.env.WEB3JS_NODE_ENDPOINT
-        },
-        preInit: async () => {
-          self.resetWeb3Connection()
-        },
-        postInit: async () => {
-          self.error = ''
-          self.connect()
-        },
-      })
-    },
-    resetWeb3Connection: function() {
-      this.$set(this, 'isWalletConnected', false)
-      this.$set(this, 'contractInstance', null)
-    },
-    connect: debounce(async function() {
-      if (this.web3Connecting || this.$route.name !== RouteNames.PRODUCERS) {
+    ebakusWalletStakedChanged: function(staked) {
+      if (!web3) {
         return
       }
 
-      this.web3Connecting = true
-      try {
-        if (this.ebakusWalletAllowed) {
-          const endpoint = await ebakusWallet.getCurrentProviderEndpoint()
-
-          if (endpoint !== this.web3Endpoint) {
-            this.web3Endpoint = endpoint
-            setProvider(this.web3Endpoint)
-            resetContract()
-
-            this.error = null
-          }
-        }
-
-        await this.fetchAccount()
-        await this.getWeb3ContractInstance()
-
-        this.loadWitnesses()
-        this.loadCurrentlyVoted()
-
-        this.$set(this, 'isWalletConnected', true)
-
-        this.web3Connecting = false
-      } catch (err) {
-        console.error('Failed to retrieve provider endpoint from wallet', err)
-
-        this.web3Connecting = false
-
-        this.error = 'Failed to connect, retrying...'
-
-        this.resetWeb3Connection()
-      }
-    }, DEBOUNCE_DELAY),
-    fetchAccount: async function() {
-      if (!this.ebakusWalletAllowed) return
-
-      try {
-        const address = await ebakusWallet.getAccount()
-        this.myAddress = address
-
-        this.loadCurrentlyVoted()
-      } catch (err) {
-        console.error('Failed to retrieve user address from wallet', err)
-        ebakusWallet.unlockWallet()
-      }
+      this.loadWitnesses()
+      this.loadCurrentlyVoted()
     },
-    getWeb3ContractInstance: async function() {
-      if (this.contractInstance !== null) {
-        return this.contractInstance
-      }
 
-      let systemContractABI = await web3.eth.getAbiForAddress(
-        SystemContractAddress
-      )
-      systemContractABI = JSON.parse(systemContractABI)
+    ebakusWalletOnResetConnection: function() {
+      resetSystemContract()
+      resetEnsContract()
 
-      const systemContract = new web3.eth.Contract(
-        systemContractABI,
-        SystemContractAddress
-      )
+      this.systemContractInstance = null
+    },
 
-      this.$set(this, 'contractInstance', systemContract)
+    ebakusWalletCheckRouteAllowed: function() {
+      return this.$route.name === RouteNames.PRODUCERS
+    },
 
-      return systemContract
+    ebakusWalletOnConnectSuccess: async function() {
+      await this.fetchAccount()
+      this.systemContractInstance = await getSystemContract()
+
+      this.loadWitnesses()
+      this.loadCurrentlyVoted()
+    },
+    /* End Ebakus wallet mixin overrides */
+
+    fetchAccount: async function() {
+      await this.ebakusWalletFetchAccount()
+      this.loadCurrentlyVoted()
     },
 
     loadWitnesses: async function() {
-      if (this.isWitnessesLoading || this.contractInstance === null) return
+      if (this.isWitnessesLoading || this.systemContractInstance === null)
+        return
 
       try {
         this.isWitnessesLoading = true
@@ -389,7 +282,7 @@ export default {
         this.isWitnessesLoaded = false
         this.showTitle = false
 
-        if (!(await this.checkWeb3ConnectionError(err))) {
+        if (!(await this.ebakusWalletCheckConnectionError(err))) {
           console.error('Failed to fetch witnesses', err)
         }
       }
@@ -400,8 +293,8 @@ export default {
     loadCurrentlyVoted: async function() {
       if (
         this.isMyVotesLoading ||
-        this.contractInstance === null ||
-        !this.ebakusWalletAllowed
+        this.systemContractInstance === null ||
+        !this.isEbakusWalletAllowed
       )
         return
 
@@ -414,7 +307,7 @@ export default {
         const iter = await web3.db.select(
           SystemContractAddress,
           'Delegations',
-          'Id LIKE ' + this.myAddress,
+          'Id LIKE ' + this.walletAddress,
           '',
           'latest'
         )
@@ -434,7 +327,7 @@ export default {
       } catch (err) {
         this.isMyVotesLoaded = false
 
-        if (!(await this.checkWeb3ConnectionError(err))) {
+        if (!(await this.ebakusWalletCheckConnectionError(err))) {
           console.error('Failed to fetch voted witnesses', err)
         }
       }
@@ -466,7 +359,7 @@ export default {
       }
     },
     submitVotes: async function() {
-      if (this.contractInstance === null) {
+      if (this.systemContractInstance === null) {
         this.error = 'Please check that wallet is connected.'
         return
       }
@@ -477,9 +370,9 @@ export default {
         let cmd,
           isVoting = this.newVoting.length > 0
         if (isVoting) {
-          cmd = this.contractInstance.methods.vote(this.newVoting)
+          cmd = this.systemContractInstance.methods.vote(this.newVoting)
         } else {
-          cmd = this.contractInstance.methods.unvote()
+          cmd = this.systemContractInstance.methods.unvote()
         }
 
         const tx = {
@@ -490,7 +383,7 @@ export default {
         const staked = await ebakusWallet.getStaked()
         if (staked > 0) {
           const estimatedGas = await cmd.estimateGas({
-            from: this.myAddress,
+            from: this.walletAddress,
           })
           tx.gas = estimatedGas + 10000
         }
@@ -504,7 +397,7 @@ export default {
         console.error('Voting failed', err)
         this.error = 'Something went wrong. Please try again.'
 
-        await this.checkWeb3ConnectionError(err)
+        await this.ebakusWalletCheckConnectionError(err)
       }
     },
     filterByAddress: function() {
@@ -523,28 +416,22 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-#producers_wrapper {
-  display: none;
-  height: 50px;
-  height: 100%;
-  /* padding-right: 200px; */
-}
-#producers_wrapper.active {
-  opacity: 1;
-  display: block;
-}
-.container {
-  margin: 0 auto;
+<style scoped lang="scss">
+@import '../assets/css/variables';
+#tabbar.active .scroll.inner {
+  height: calc(100% - 227px) !important;
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    height: calc(100% - 121px) !important;
+    overflow-x: hidden !important;
+  }
 }
 
-.actions_area {
+.actions-area {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  /* right: 200px; */
   min-height: 22px;
   padding: 24px;
   border-top: 1px solid #c6c6c6;
@@ -552,246 +439,123 @@ export default {
 
   opacity: 0;
   animation: fadeIn 0.3s ease-in forwards;
-}
 
-.actions_area span {
-  float: left;
-}
-.actions_area .danger {
-  margin-left: 4px;
-}
-
-.actions_area button {
-  float: right;
-  display: block;
-  padding: 12px 18px;
-  margin: -10px 0;
-  border-radius: 10px;
-  color: white;
-  background: #fe4184;
-  font-size: 16px;
-  font-weight: 600;
-  transition: 0.5s all ease;
-  transform: scale(1);
-  border: 0;
-  cursor: pointer;
-  outline: none;
-}
-
-.actions_area .allowCookies {
-  margin-left: 12px;
-  border-radius: 4px;
-  border: solid 1px #acb4c9;
-  background-color: #f8f9fb;
-  color: #112f42;
-}
-
-#tabbar .scroll.inner {
-  height: calc(100% - 150px - 110px) !important;
-}
-
-li {
-  animation: fadeIn 0.2s ease-in;
-}
-
-li.placeholder,
-li a {
-  padding: 22px 1%;
-}
-
-li a {
-  display: block;
-  padding: 22px 1%;
-  transition: 0.1s all ease-in-out;
-  text-decoration: none;
-  color: #31baf3;
-  opacity: 0.85;
-}
-li a:visited {
-  color: #31baf3;
-}
-li a:hover {
-  box-shadow: 0 2px 33px 0 rgba(17, 47, 66, 0.1);
-  opacity: 1;
-}
-li span {
-  display: inline-block;
-  width: 10%;
-  margin: 0 1%;
-  text-align: center;
-  vertical-align: middle;
-}
-li button {
-  min-width: 70px;
-  padding: 6px 12px;
-  border-radius: 4px;
-  background: #f8f8f8;
-  font-size: 12px;
-  outline: none;
-}
-li.changed {
-  background-color: #e6ffeb;
-}
-.delegateID {
-  width: 6%;
-  text-align: left;
-  margin: 0;
-}
-span.delegateID {
-  font-weight: 600;
-}
-span.producer {
-  width: 50%;
-  margin: 0;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
-.labels span.producer {
-  text-align: left;
-}
-.labels span.producer input {
-  width: 100%;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  box-sizing: border-box;
-  font-size: 14px;
-  font-weight: 400;
-  color: #828383 !important;
-  opacity: 0.8;
-}
-.missedBlocks small,
-.density small {
-  display: none;
-}
-.missedBlocks p,
-.density p {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-#list_title {
-  padding: 0px 1%;
-}
-#list_title span {
-  font-size: 14px;
-  color: #828383 !important;
-  font-weight: 400;
-  opacity: 0.8;
-}
-.scroll {
-  overflow: auto;
-  height: 100%;
-  -webkit-overflow-scrolling: touch;
-}
-.mobileLabel {
-  display: none;
-}
-.warning {
-  color: #ff9800;
-}
-.danger {
-  color: #f44336;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@media (max-width: 560px) {
-  #tabbar .scroll.inner {
-    height: calc(100% - 57px - 93px) !important;
-    overflow-x: hidden !important;
+  span {
+    float: left;
   }
 
-  li {
-    position: relative;
-    width: 100vw;
-    overflow: hidden;
-    padding-top: 10px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #f0f0f0;
+  .danger {
+    margin-left: 4px;
   }
-  li span {
+
+  button {
+    float: right;
     display: block;
-    width: 100vw;
-    margin: 0px;
+    padding: 12px 18px;
+    margin: -10px 0;
+    border-radius: 10px;
+    color: white;
+    background: #fe4184;
+    font-size: 16px;
+    font-weight: 700;
+    transition: 0.5s all ease;
+    transform: scale(1);
+    border: 0;
+    cursor: pointer;
+    outline: none;
   }
-  li span:first-child {
-    margin: 0px;
-  }
-  li a {
-    display: initial;
-    padding: 0;
-  }
-  span.producer {
-    width: calc(100% - 80px);
-  }
-  li.placeholder,
-  a {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
 
-    border-bottom: 2px solid #f0f0f0;
-  }
-  li span {
-    font-size: 14px;
-    text-align: left;
-    padding-left: 80px;
-    font-weight: 600;
-  }
-  .mobileLabel {
-    display: block;
-    width: 70px;
-    font-size: 13px;
-    margin-bottom: 10px !important;
-    position: absolute;
-    left: 0px;
-    padding-left: 10px !important;
-    background: #fff;
-    font-weight: 400;
-  }
-  li.changed .mobileLabel {
-    background-color: #e6ffeb;
-  }
-  .missedBlocks small,
-  .density small {
-    display: inline-block;
+  .allowCookies {
+    margin-left: 12px;
+    border-radius: 4px;
+    border: solid 1px #acb4c9;
+    background-color: #f8f9fb;
     color: #112f42;
   }
-  .time {
-    display: none;
-  }
-  li button {
-    min-width: 70px;
-    padding: 4px 8px;
-    font-size: 10px;
-  }
-  .actions_area {
+
+  @media (max-width: $mobile-grid-breakpoint) {
     padding: 8px;
     text-align: center;
+
+    span {
+      float: none;
+      font-size: 14px;
+    }
+
+    button {
+      float: none;
+      margin: 6px auto 0;
+      padding: 8px 14px;
+      font-size: 14px;
+    }
   }
-  .actions_area span {
-    float: none;
-    font-size: 14px;
-  }
-  .actions_area button {
-    float: none;
-    margin: 6px auto 0;
-    padding: 8px 14px;
-    font-size: 14px;
+
+  @media (max-width: 670px) {
+    .allowCookies {
+      display: block;
+      float: none;
+      margin: 12px auto 0;
+    }
   }
 }
-@media (max-width: 670px) {
-  .actions_area .allowCookies {
-    display: block;
-    float: none;
-    margin: 12px auto 0;
+
+.main li {
+  animation: fadeIn 0.2s ease-in;
+
+  &.changed {
+    background-color: #e6ffeb !important;
+
+    @media (max-width: $mobile-grid-breakpoint) {
+      .mobileLabel {
+        background-color: #e6ffeb;
+      }
+    }
+  }
+
+  button {
+    min-width: 70px;
+    font-size: 12px;
+
+    @media (max-width: $mobile-grid-breakpoint) {
+      min-width: 70px;
+      padding: 4px 8px;
+      font-size: 10px;
+    }
+  }
+}
+
+.labels .producer {
+  text-align: left;
+
+  input {
+    width: 100%;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+    font-weight: 400;
+    color: #828383 !important;
+    opacity: 0.8;
+  }
+}
+
+.main .amount {
+  text-align: right;
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    text-align: left;
+  }
+}
+
+.producer {
+  text-align: left;
+}
+
+.vote {
+  max-width: 90px;
+
+  button {
+    font-weight: 700;
   }
 }
 </style>

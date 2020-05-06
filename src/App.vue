@@ -1,24 +1,38 @@
 <template>
-  <div id="app" class="container">
-    <Search :search-query="searchQuery" :tabbar-active="contentActive" />
-    <!-- <router-view></router-view> -->
-    <Tabbar :search-query="searchQuery" :tabbar-active="contentActive" />
+  <div id="app">
+    <header ref="header" class="header">
+      <div class="container">
+        <Header />
+        <Search :on-update="updateInnerHeight" />
+      </div>
+    </header>
+
+    <div class="container content">
+      <router-view></router-view>
+    </div>
+
+    <Tabbar :tabbar-active="contentActive" />
+
     <CookiePolicy />
   </div>
 </template>
 
 <script>
+import debounce from 'lodash/debounce'
+
 import { RouteNames } from '@/router'
 import { store } from '@/store'
 import { fetchUSDConversionRate } from '@/utils/api'
 import { initWeb3 } from '@/utils/web3ebakus'
 
+import Header from '@/components/Header'
 import Search from '@/components/Search'
 import Tabbar from '@/components/Tabbar'
 import CookiePolicy from '@/components/CookiePolicy'
 
 export default {
   components: {
+    Header,
     Search,
     Tabbar,
     CookiePolicy,
@@ -30,6 +44,10 @@ export default {
   created() {
     initWeb3()
 
+    this.updateInnerHeight()
+
+    window.addEventListener('resize', debounce(this.updateInnerHeight, 150))
+
     // fetch USD rate every 5 minutes
     if (process.env.SHOW_PRICE_IN_USD) {
       setInterval(() => {
@@ -38,213 +56,19 @@ export default {
       fetchUSDConversionRate()
     }
   },
+  updated() {
+    this.updateInnerHeight()
+  },
+  methods: {
+    updateInnerHeight: function() {
+      const self = this
+      this.$nextTick(() => {
+        if (!self.$refs.header) return
+
+        const height = self.$refs.header.clientHeight * 0.01
+        document.documentElement.style.setProperty('--header-vh', `${height}px`)
+      })
+    },
+  },
 }
 </script>
-
-<style>
-* {
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-body {
-  background: #f8f9fb;
-  margin: 0px;
-  padding: 0px;
-  width: 100%;
-  height: 100%;
-  overflow-x: hidden;
-  -webkit-text-size-adjust: none;
-}
-
-#app {
-  position: relative;
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #34393d;
-  margin: 30px auto;
-  height: 90vh;
-}
-.container {
-  width: 960px;
-  height: 100%;
-}
-.account,
-.account a {
-  color: #31baf3 !important;
-  font-weight: 600;
-}
-
-.transaction,
-.transaction a {
-  color: #615fee !important;
-  font-weight: 600;
-}
-.address {
-  font-weight: 600;
-  color: #31baf3;
-}
-.address a {
-  color: inherit;
-}
-h1 {
-  font-size: 22px;
-}
-h2,
-h3 {
-  margin-bottom: 15px;
-  line-height: 18px;
-}
-h3 {
-  font-size: 18px;
-}
-p {
-  margin: 8px 0px;
-}
-#block_wrapper {
-  text-align: left;
-  margin-top: 60px;
-  transition: 0.3s all ease;
-  padding: 0px 5px;
-  display: none;
-}
-
-.blockMeta {
-  background: #fff;
-  padding: 10px;
-  margin: 20px 0px 60px;
-}
-a {
-  text-decoration: none;
-}
-img.title_img {
-  width: 17px;
-}
-
-.panel {
-  padding: 30px;
-  background: #fff;
-  /* Rectangle 4: */
-  box-shadow: 0 5px 5px 0 rgba(172, 180, 201, 0.15);
-  border-radius: 4px;
-  margin: 20px 0px;
-}
-
-div.panel h2 {
-  margin: 0px 6px 20px 6px;
-  color: #acb4c9;
-  font-size: 18px;
-}
-
-th,
-td {
-  padding: 4px 6px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-td:nth-child(2) {
-  font-weight: 500;
-}
-
-td.headcol {
-  vertical-align: top;
-  white-space: nowrap;
-}
-td.long {
-  word-break: break-all;
-}
-.tabResults {
-  list-style: none;
-  margin: 30px 0;
-  padding: 0;
-}
-.tabResults.main {
-  margin-top: 0px;
-  margin-bottom: 20px;
-}
-
-#tabbar div.scroll.inner {
-  height: calc(100% - 150px) !important;
-}
-
-ul.unstyled {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-ul.unstyled li {
-  margin-bottom: 8px;
-}
-ul.unstyled li:last-child {
-  margin-bottom: 0;
-}
-
-[aria-label][data-balloon-pos]:after {
-  text-align: center;
-}
-
-@media (max-width: 960px) {
-  .container {
-    width: 100vw;
-  }
-  #tabbar div.scroll.inner {
-    height: calc(100% - 142px) !important;
-  }
-}
-@media (max-width: 560px) {
-  #app {
-    top: 0px;
-    padding: 0px;
-    margin: 0px;
-    height: 80vh;
-  }
-  #block_wrapper {
-    margin-top: 30px;
-  }
-  #block_wrapper h1 {
-    font-size: 18px;
-  }
-  #block_wrapper > h1 > img {
-    width: 14px;
-  }
-
-  .panel {
-    padding: 15px;
-  }
-  .tablewrapper {
-    overflow-x: auto;
-  }
-
-  td.headcol {
-    position: absolute;
-    background: #fff;
-    width: 75px;
-    left: 12px;
-    padding-left: 15px;
-    top: auto;
-    border-top-width: 1px;
-    /*only relevant for first row*/
-    margin-top: -1px;
-    /*compensate for top border*/
-    line-height: 20px;
-    font-size: 13px;
-  }
-  td.long {
-    padding-left: 90px;
-    font-size: 14px;
-    line-height: 18px;
-  }
-  .tabResults.labels {
-    display: none;
-  }
-  .tabResults.main {
-    margin-top: 0px;
-  }
-  #tabbar div.scroll.inner {
-    height: calc(100% - 57px) !important;
-  }
-}
-</style>

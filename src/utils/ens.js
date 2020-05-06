@@ -2,6 +2,7 @@ import Vue from 'vue'
 import memoize from 'lodash/memoize'
 import debounce from 'lodash/debounce'
 import namehash from 'eth-ens-namehash'
+import ebakusWallet from 'ebakus-web-wallet-loader'
 
 import { web3, checkConnectionError } from '@/utils/web3ebakus'
 import { isZeroHash } from '.'
@@ -14,11 +15,15 @@ const getEnsContract = async () => {
   if (!ContractAddress) return
   if (_contract) return _contract
 
-  let contractABI = await web3.eth.getAbiForAddress(ContractAddress)
-  contractABI = JSON.parse(contractABI)
+  try {
+    let contractABI = await web3.eth.getAbiForAddress(ContractAddress)
+    contractABI = JSON.parse(contractABI)
 
-  _contract = new web3.eth.Contract(contractABI, ContractAddress)
-  return _contract
+    _contract = new web3.eth.Contract(contractABI, ContractAddress)
+    return _contract
+  } catch (err) {
+    await checkEnsConnectionError(err)
+  }
 }
 
 const resetContract = async () => {
@@ -31,7 +36,7 @@ const checkEnsConnectionError = async err => {
       resetContract()
     },
     postInit: async () => {
-      await getEnsContract()()
+      await getEnsContract()
     },
   })
 }
@@ -60,6 +65,37 @@ const getAddressForEns = async name => {
 
     cleanAddressCache(hash)
     return false
+  }
+}
+
+const registerNameForAddress = async (name, address) => {
+  const hash = namehash.hash(name)
+
+  try {
+    const contract = await getEnsContract()
+    if (!contract) throw new Error("ENS contract can't be loaded")
+
+    const registrationAmount = await contract.methods
+      .getRegistrationAmount()
+      .call()
+
+    const cmd = contract.methods.register(hash, address)
+
+    const tx = {
+      to: ContractAddress,
+      value: registrationAmount,
+      data: cmd.encodeABI(),
+    }
+
+    const res = await ebakusWallet.sendTransaction(tx)
+
+    return res && res.status
+  } catch (err) {
+    if (await checkEnsConnectionError(err)) {
+      return await registerNameForAddress(name, address)
+    }
+
+    throw err
   }
 }
 
@@ -104,8 +140,9 @@ const storeEnsNameForAddress = async (name, address) => {
 }
 
 export {
-  getEnsNameForAddress,
+  registerNameForAddress,
   getAddressForEns,
-  resetContract,
+  getEnsNameForAddress,
+  resetContract as resetEnsContract,
   storeEnsNameForAddress,
 }

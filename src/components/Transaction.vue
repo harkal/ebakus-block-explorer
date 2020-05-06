@@ -1,128 +1,107 @@
 <template>
-  <div id="block_wrapper">
+  <div class="page-wrapper">
     <h1>
-      <img src="../assets/ic_transactions.png" class="title_img" alt />
+      <img src="@/assets/img/ic-transaction.svg" alt />
       <span v-if="isContractCreation">Contract Creation</span>
       <span v-else>Transaction</span>
     </h1>
-    <div class="panel">
-      <div class="widget_wrapper">
-        <div class="tablewrapper">
-          <table>
-            <tr>
-              <td class="absolute">
-                <h3>FROM</h3>
-              </td>
-              <td class>
-                <router-link
-                  v-if="hasData"
-                  class="address lon"
-                  :to="{
-                    name: RouteNames.SEARCH,
-                    params: { query: transactionData.from },
-                  }"
-                  >{{ transactionData.from }}</router-link
-                >
-                <ContentLoader v-else :width="400" />
-              </td>
-            </tr>
-            <tr>
-              <td class></td>
-              <td>
-                <img
-                  class="ic_to absolute"
-                  src="../assets/ic_from_to.png"
-                  alt
-                />
-              </td>
-            </tr>
-            <tr v-if="!isContractCreation">
-              <td class="absolute">
-                <h3>TO</h3>
-              </td>
-              <td class>
-                <router-link
-                  v-if="hasData"
-                  class="address lon"
-                  :to="{
-                    name: RouteNames.SEARCH,
-                    params: { query: transactionData.to },
-                  }"
-                  >{{ transactionData.to }}</router-link
-                >
-                <ContentLoader v-else :width="400" />
-              </td>
-            </tr>
-            <tr v-if="isContractCreation">
-              <td class="absolute">
-                <h3>CONTRACT ADDRESS</h3>
-              </td>
-              <td>
-                <router-link
-                  v-if="hasData"
-                  class="address lon"
-                  :to="{
-                    name: RouteNames.SEARCH,
-                    params: { query: transactionData.contractAddress },
-                  }"
-                  >{{ transactionData.contractAddress }}</router-link
-                >
-                <ContentLoader v-else :width="300" />
-              </td>
-            </tr>
-          </table>
-        </div>
-        <ul
-          class="status"
-          :class="{
-            success: hasData && transactionData.status,
-            failed: hasData && transactionData.status === 0,
-          }"
-        >
-          <li>
-            <h3>AMOUNT</h3>
-          </li>
-          <li>
-            <h1 v-if="hasData">{{ transactionData.value | toEtherFixed }}</h1>
-            <ContentLoader v-else :width="25" :height="22" />
-          </li>
-          <li>
-            <small>EBK</small>
-          </li>
-          <li>
-            <img
-              v-if="hasData && transactionData.status"
-              class="ic_check"
-              src="../assets/ic_check.png"
-              alt="Successfull transaction"
-            />
-            <img
-              v-else
-              class="ic_check"
-              src="../assets/ic_error.svg"
-              alt="Failed transaction"
-            />
-          </li>
-        </ul>
+    <div class="panel info-wrapper">
+      <div class="table-wrapper">
+        <table>
+          <tr>
+            <td>
+              <h3>FROM</h3>
+            </td>
+            <td class>
+              <router-link
+                v-if="hasData"
+                class="address lon"
+                :to="{
+                  name: RouteNames.ADDRESS,
+                  params: { query: transaction.from },
+                }"
+                >{{ transaction.from }}</router-link
+              >
+              <ContentLoader v-else :width="400" />
+            </td>
+          </tr>
+          <tr v-if="!isContractCreation">
+            <td>
+              <h3>TO</h3>
+            </td>
+            <td class>
+              <router-link
+                v-if="hasData"
+                class="address lon"
+                :to="{
+                  name: RouteNames.ADDRESS,
+                  params: { query: transaction.to },
+                }"
+                >{{ transaction.to }}</router-link
+              >
+              <ContentLoader v-else :width="400" />
+            </td>
+          </tr>
+          <tr v-if="isContractCreation">
+            <td>
+              <h3>CONTRACT ADDRESS</h3>
+            </td>
+            <td>
+              <router-link
+                v-if="hasData"
+                class="address lon"
+                :to="{
+                  name: RouteNames.ADDRESS,
+                  params: { query: transaction.contractAddress },
+                }"
+                >{{ transaction.contractAddress }}</router-link
+              >
+              <ContentLoader v-else :width="300" />
+            </td>
+          </tr>
+          <tr
+            class="status"
+            :class="{
+              success: hasData && transaction.status,
+              failed: hasData && transaction.status === 0,
+            }"
+          >
+            <td>
+              <h3>AMOUNT</h3>
+            </td>
+            <td>
+              <h1 v-if="hasData">
+                {{ transaction.value | toEtherFixed }} <small>EBK</small>
+              </h1>
+              <ContentLoader v-else :width="25" :height="22" />
+            </td>
+            <td>
+              <img
+                v-if="hasData && transaction.status"
+                class="ic_check"
+                src="@/assets/img/ic_check.png"
+                alt="Successfull transaction"
+              />
+              <img
+                v-else-if="hasData && !transaction.status"
+                class="ic_check"
+                src="@/assets/img/ic_error.svg"
+                alt="Failed transaction"
+              />
+            </td>
+          </tr>
+        </table>
       </div>
     </div>
 
     <div class="panel">
       <h2>Details</h2>
-      <div class="tablewrapper">
+      <div class="table-wrapper">
         <table>
           <tr>
             <td class="headcol">TxHash</td>
             <td class="long">
-              <router-link
-                v-if="hasData"
-                class="transaction"
-                :to="{
-                  name: RouteNames.SEARCH,
-                  params: { query: transactionData.hash },
-                }"
-                >{{ transactionData.hash }}</router-link
-              >
+              <span v-if="hasData">{{ transaction.hash }}</span>
               <ContentLoader v-else :width="600" />
             </td>
           </tr>
@@ -130,7 +109,7 @@
             <td class="headcol">Timestamp</td>
             <td class="long">
               <span v-if="hasData">
-                {{ timeConverter(transactionData.timestamp) }}
+                {{ timeConverter(transaction.timestamp) }}
               </span>
               <ContentLoader v-else :width="150" />
             </td>
@@ -138,15 +117,7 @@
           <tr>
             <td class="headcol">Block hash</td>
             <td class="long">
-              <router-link
-                v-if="hasData"
-                class="account"
-                :to="{
-                  name: RouteNames.SEARCH,
-                  params: { query: transactionData.blockHash },
-                }"
-                >{{ transactionData.blockHash }}</router-link
-              >
+              <span v-if="hasData">{{ transaction.blockHash }}</span>
               <ContentLoader v-else :width="600" />
             </td>
           </tr>
@@ -157,35 +128,21 @@
                 <router-link
                   class="block"
                   :to="{
-                    name: RouteNames.SEARCH,
-                    params: { query: transactionData.blockNumber },
+                    name: RouteNames.BLOCK,
+                    params: { query: transaction.blockNumber },
                   }"
-                  >{{ transactionData.blockNumber }}</router-link
                 >
+                  {{ transaction.blockNumber }}
+                </router-link>
               </strong>
               <ContentLoader v-else />
-            </td>
-          </tr>
-          <tr>
-            <td class="headcol">Produced by</td>
-            <td class="long">
-              <router-link
-                v-if="hasData"
-                class="account"
-                :to="{
-                  name: RouteNames.SEARCH,
-                  params: { query: transactionData.producer },
-                }"
-                >{{ transactionData.producer }}</router-link
-              >
-              <ContentLoader v-else :width="350" />
             </td>
           </tr>
           <tr>
             <td class="headcol">Gas limit</td>
             <td class="long">
               <span v-if="hasData">
-                {{ transactionData.gasLimit }}
+                {{ transaction.gasLimit }}
               </span>
               <ContentLoader v-else />
             </td>
@@ -194,7 +151,7 @@
             <td class="headcol">Gas used</td>
             <td class="long">
               <span v-if="hasData">
-                {{ transactionData.gasUsed }}
+                {{ transaction.gasUsed }}
               </span>
               <ContentLoader v-else />
             </td>
@@ -203,7 +160,7 @@
             <td class="headcol">Cumulative gas used</td>
             <td class="long">
               <span v-if="hasData">
-                {{ transactionData.cumulativeGasUsed }}
+                {{ transaction.cumulativeGasUsed }}
               </span>
               <ContentLoader v-else />
             </td>
@@ -212,7 +169,7 @@
             <td class="headcol">Nonce</td>
             <td class="long">
               <span v-if="hasData">
-                {{ transactionData.nonce }}
+                {{ transaction.nonce }}
               </span>
               <ContentLoader v-else />
             </td>
@@ -221,7 +178,7 @@
             <td class="headcol">Work nonce</td>
             <td class="long">
               <span v-if="hasData">
-                {{ transactionData.workNonce }}
+                {{ transaction.workNonce }}
               </span>
               <ContentLoader v-else />
             </td>
@@ -230,7 +187,7 @@
             <td class="headcol">Transaction index</td>
             <td class="long">
               <span v-if="hasData">
-                {{ transactionData.transactionIndex }}
+                {{ transaction.transactionIndex }}
               </span>
               <ContentLoader v-else />
             </td>
@@ -238,7 +195,7 @@
           <tr>
             <td class="headcol">Status</td>
             <td class="long">
-              <span v-if="hasData">{{ transactionData.status }} </span>
+              <span v-if="hasData">{{ transaction.status }} </span>
               <ContentLoader v-else />
             </td>
           </tr>
@@ -249,18 +206,19 @@
               <ContentLoader v-else />
             </td>
           </tr>
-          <tr v-if="transactionData.abi">
+          <tr v-if="transaction.abi">
             <td class="headcol">Input</td>
             <td class="long">
               <strong>{{ decodedInput.name }}(</strong>
               {{ decodedInput.args }}
               <strong>)</strong>
               <a
-                id="downloadAbi"
+                class="downloadAbi"
                 :href="downloadAbiContent.data"
                 :download="downloadAbiContent.filename"
-                >Get ABI</a
               >
+                Get ABI
+              </a>
             </td>
           </tr>
           <tr
@@ -275,11 +233,11 @@
               {{ param.value }}
             </td>
           </tr>
-          <tr v-if="!transactionData.abi">
+          <tr v-if="!transaction.abi">
             <td class="headcol">Input</td>
             <td class="long">
               <span v-if="hasData">
-                {{ transactionData.input }}
+                {{ transaction.input }}
               </span>
               <ContentLoader v-else :width="600" :height="48" />
             </td>
@@ -292,39 +250,38 @@
 
 <script>
 import { RouteNames } from '@/router'
-import { store } from '@/store'
+import { store, mutations } from '@/store'
 import { timeConverter, isZeroHash } from '@/utils'
-import { decodeDataUsingAbi } from '@/utils/abi'
+import { getAbi as getAbiFunc, decodeDataUsingAbi } from '@/utils/abi'
+
 import ContentLoader from './ContentLoader'
 
 export default {
   components: {
     ContentLoader,
   },
-  props: {
-    transactionData: {
-      type: Object,
-      default: () => ({}),
-    },
-  },
   data() {
     return {
+      transaction: {},
       confirmationsCount: 0,
     }
   },
   computed: {
     RouteNames: () => RouteNames,
+
+    searchQuery: () => store.searchQuery,
+
     hasData() {
-      return !!this.transactionData.from
+      return !!this.transaction.from
     },
     globalBlockHeight: () => store.blockHeight,
     isContractCreation: function() {
-      return this.hasData && !isZeroHash(this.transactionData.contractAddress)
+      return this.hasData && !isZeroHash(this.transaction.contractAddress)
     },
     decodedInput: function() {
       const data = decodeDataUsingAbi(
-        this.transactionData.abi,
-        this.transactionData.input
+        this.transaction.abi,
+        this.transaction.input
       )
 
       if (typeof data === 'object' && data.name) {
@@ -342,173 +299,162 @@ export default {
       return {
         data:
           'data:text/json;charset=utf-8,' +
-          encodeURIComponent(JSON.stringify(this.transactionData.abi, 0, 2)),
-        filename: `${this.transactionData.to}-abi.json`,
+          encodeURIComponent(JSON.stringify(this.transaction.abi, 0, 2)),
+        filename: `${this.transaction.to}-abi.json`,
       }
     },
   },
   watch: {
-    transactionData: function() {
-      if (this.globalBlockHeight > this.transactionData.blockNumber) {
+    searchQuery: function(val, oldVal) {
+      if (val !== oldVal) {
+        this.search()
+      }
+    },
+    transaction: function() {
+      if (this.globalBlockHeight > this.transaction.blockNumber) {
         this.$set(
           this,
           'confirmationsCount',
-          this.globalBlockHeight - this.transactionData.blockNumber
+          this.globalBlockHeight - this.transaction.blockNumber
         )
       }
     },
   },
-  created: function() {},
+  created: function() {
+    this.search()
+  },
   methods: {
     timeConverter: timeConverter,
     decodeDataUsingAbi: decodeDataUsingAbi,
+
+    search: function() {
+      if (typeof this.searchQuery !== 'undefined' && this.searchQuery) {
+        const txHash = this.searchQuery.replace(/ /g, '')
+        this.getTransaction(txHash)
+      }
+    },
+    getTransaction: function(txHash) {
+      return new Promise((resolve, reject) => {
+        this.$http.get(process.env.API_ENDPOINT + '/block/-1?range=1').then(
+          function(response) {
+            mutations.setBlockHeight(response.data[0].number)
+            this.$http
+              .get(process.env.API_ENDPOINT + '/transaction/' + txHash)
+              .then(
+                function(response) {
+                  this.transaction = response.data
+
+                  if (!['', '0x', null].includes(this.transaction.input)) {
+                    this.getABI(this.transaction.to)
+                  }
+                },
+                function(err) {
+                  console.error(
+                    `Failed to fetch transaction "${txHash}": `,
+                    err
+                  )
+                  this.error = 'Failed to get transaction.'
+                  reject(err)
+                }
+              )
+          },
+          function(err) {
+            console.error('Failed to fetch latest block:', err)
+            reject(err)
+          }
+        )
+      })
+    },
+    getABI: async function(contractAddress) {
+      try {
+        const abi = await getAbiFunc(contractAddress)
+        this.$set(this.transaction, 'abi', abi)
+      } catch (err) {
+        console.error(`Failed to fetch ABI for "${contractAddress}": `, err)
+      }
+    },
   },
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-table {
-  text-align: left;
-}
-tr:nth-child(odd) {
-  background: #fff;
-}
+<style scoped lang="scss">
+@import '../assets/css/variables';
 
-#block_wrapper {
-  opacity: 0;
-}
-#block_wrapper.active {
-  opacity: 1;
-  display: block;
-}
-.block {
-  color: #000000;
-}
-th,
-td {
-  padding: 4px 6p x;
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-td {
-  color: #5b5b5b;
-}
-td:last-child {
-  font-weight: 500;
-}
-strong {
-  color: #000;
-}
-
-span.txstatus_badge {
-  font-size: 16px;
-  font-weight: 500;
-  background: #fff;
-  border-radius: 6px;
-  padding: 4px 30px 4px 12px;
-  box-shadow: 0 2px 33px 0 rgba(17, 47, 66, 0.1);
-  vertical-align: 4px;
-  margin-left: 4px;
-}
-span.txstatus_badge.success {
-  background: url('../assets/ic_check.png') no-repeat #fff;
-  background-size: 16px;
-  background-position: right 6px center;
-}
-span.txstatus_badge.pending {
-  color: #6f6f6f;
-}
-
-.panel {
+.info-wrapper {
   position: relative;
+  padding: 0;
+
+  h1,
+  h3 {
+    margin-bottom: auto;
+    margin-top: auto;
+  }
+
+  h3 {
+    font-size: 12px;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  tr:nth-child(1) td {
+    padding-top: 40px;
+  }
+
+  tr:nth-child(2) td {
+    padding-bottom: 40px;
+  }
+
+  td {
+    padding: $spacer-3 0;
+
+    &:first-child {
+      width: 60px;
+      padding-left: $spacer-4;
+      padding-right: $spacer-4;
+    }
+  }
+
+  .status {
+    border-radius: 0px 0px 4px 4px;
+
+    td {
+      vertical-align: middle;
+    }
+
+    &.success {
+      background: #e6faf4;
+    }
+    &.failed {
+      background: #f7dbdb;
+    }
+  }
+
+  img.ic_check {
+    width: 34px;
+  }
 }
 
-.widget_wrapper h3 {
-  font-size: 12px;
-}
-.widget_wrapper img.ic_to {
-  width: 18px;
-  transform: rotate(90deg);
-}
-.widget_wrapper tr {
-  position: relative;
-  line-height: 42px;
-  padding: 2px 10px;
-}
-.widget_wrapper table {
-  margin-bottom: 55px;
-}
-.widget_wrapper ul {
-  position: absolute;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  align-content: space-between;
-  height: 50px;
-  bottom: 0px;
-  left: 0px;
-  padding: 0px;
-  padding-top: 14px;
-  padding-bottom: 10px;
-  align-items: center;
-  background: #fafafa;
-  width: 100%;
-  margin: 0px;
-  border-radius: 0px 0px 4px 4px;
-  transition: all 0.5s ease-out;
-}
-.widget_wrapper li:first-child {
-  margin-left: 40px;
-}
-.widget_wrapper li {
-  margin-right: 10px;
-}
-.widget_wrapper li:last-child {
-  margin-left: auto;
-  margin-right: 30px;
-}
-
-.widget_wrapper img.ic_check {
-  width: 34px;
-}
-li h3 {
-  margin-top: 20px;
-}
-li span {
-  display: block;
-  margin-top: 5px;
-}
-ul.status.success {
-  background: #e6faf4;
-}
-ul.status.failed {
-  background: #f7dbdb;
-}
-
-.absolute {
-  position: absolute;
-  background: #fff;
-  top: auto;
-  width: 66px;
-}
-td.absolute + td {
-  padding-left: 66px;
-}
-img.ic_to.absolute {
-  display: none;
-}
 .lon {
   display: inline-block;
   word-break: break-all;
 }
-.input-data td {
-  font-size: 0.85em;
-}
-.input-data td:last-child {
+
+.input-data {
   background-color: #f3f3f3;
+
+  td {
+    font-size: 0.85em;
+
+    &.headcol {
+      padding-left: $spacer-2;
+      background-color: transparent;
+    }
+  }
 }
-#downloadAbi {
+
+.downloadAbi {
   float: right;
   padding: 1px 8px;
   border-radius: 4px;
@@ -516,33 +462,9 @@ img.ic_to.absolute {
   color: #34393d;
   background: #f8f9fb;
   font-size: 0.8em;
-}
-#downloadAbi:hover {
-  box-shadow: 0 2px 43px 0 rgba(0, 0, 0, 0.1);
-}
-@media (max-width: 560px) {
-  .absolute {
-    position: absolute;
-    background: #fff;
-    top: auto;
-    left: 15px;
-  }
-  img.ic_to.absolute {
-    display: none;
-  }
-  .widget_wrapper li:first-child {
-    margin-left: 20px;
-  }
-  .widget_wrapper a {
-    font-size: 13.5px;
-    line-height: 20px;
-  }
-  .widget_wrapper table {
-    margin-bottom: 70px;
-  }
-  .input-data td:first-child {
-    background-color: transparent;
-    white-space: inherit;
+
+  &:hover {
+    box-shadow: 0 2px 43px 0 rgba(0, 0, 0, 0.1);
   }
 }
 </style>

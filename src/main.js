@@ -4,11 +4,13 @@ import floor from 'lodash/floor'
 import vueResource from 'vue-resource'
 import VueGtag from 'vue-gtag'
 
-import router from '@/router'
+import router, { RouteNames } from '@/router'
 import App from '@/App'
 import VPureTooltip from '@/directives/v-pure-tooltip'
 import Transactions from '@/components/Transactions'
 import { store } from './store'
+
+import '@/assets/css/main.scss'
 
 Vue.use(vueResource)
 Vue.use(VPureTooltip)
@@ -95,6 +97,17 @@ Vue.filter('weiToUSDString', function(wei, symbol = 'USD') {
   const ether = toEther(wei)
   return toUSDString(ether, symbol)
 })
+
+const isTabbarNavigation = function(routeName = router.app.$route.name) {
+  return [
+    RouteNames.BLOCKS,
+    RouteNames.TRANSACTIONS,
+    RouteNames.PRODUCERS,
+  ].includes(routeName)
+}
+
+Vue.$isTabbarNavigation = isTabbarNavigation
+Vue.prototype.$isTabbarNavigation = isTabbarNavigation
 
 new Vue({
   router,
