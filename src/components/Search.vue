@@ -118,9 +118,12 @@ input[type='text'] {
   @media (max-width: $tablet-grid-breakpoint) {
     height: 40px;
 
-    text-align: left;
     text-overflow: ellipsis;
     font-size: 16px;
+  }
+
+  @media (max-width: $mobile-grid-breakpoint) {
+    text-align: left;
   }
 }
 

@@ -12,7 +12,6 @@
 
       <span class="hamburger"></span>
       <span class="hamburger"></span>
-      <!-- <span class="hamburger"></span> -->
 
       <span class="text"></span>
 
@@ -304,6 +303,7 @@ nav {
 
       transform-origin: 0% 0%;
       transform: translate(-100%, 0);
+      opacity: 0;
 
       transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1);
 
@@ -336,6 +336,7 @@ nav {
     // And let's slide it in from the left
     .toggle:checked ~ ul {
       transform: none;
+      opacity: 1;
     }
   }
 }

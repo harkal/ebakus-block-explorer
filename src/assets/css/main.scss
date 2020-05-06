@@ -153,6 +153,8 @@ button,
 .button {
   display: inline-block;
   padding: 10px $spacer-3;
+
+  color: $elephant;
   border-radius: 4px;
   border: solid 1px #acb4c9;
   background-color: #f8f9fb;
@@ -354,8 +356,8 @@ td {
 
   h1 {
     img {
-      width: 28px;
-      margin-bottom: -5px;
+      width: 29px;
+      margin-bottom: -6px;
       margin-right: $spacer-2;
 
       object-fit: contain;
@@ -646,6 +648,7 @@ td {
   position: relative;
 
   flex-grow: 1;
+  min-width: 200px;
 
   margin: 10px;
   padding: $spacer-3 0;
