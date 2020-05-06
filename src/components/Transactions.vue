@@ -179,11 +179,10 @@ export default {
     RouteNames: () => RouteNames,
 
     txs_: function() {
-      var txs = this.txs
+      let txs = this.txs
       if (typeof this.address !== 'undefined' && this.address != '') {
-        var i
-        var address = this.address.toLowerCase()
-        for (i = 0; i < txs.length; i++) {
+        const address = this.address.toLowerCase()
+        for (let i = 0; i < txs.length; i++) {
           if (txs[i].from == address) txs[i].from = 'this'
           if (txs[i].to == address) txs[i].to = 'this'
         }
@@ -269,7 +268,10 @@ export default {
                     if (typeof data === 'object' && data.name) {
                       tx.inputAction = `${data.name}(...)`
                     } else {
-                      tx.inputAction = tx.input.substring(0, 10)
+                      tx.inputAction =
+                        tx.input.length > 10
+                          ? tx.input.substring(0, 10) + '...'
+                          : tx.input
                     }
                   }
                   return tx

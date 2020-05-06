@@ -40,6 +40,10 @@ const isZeroHash = hash => {
   return /^(0x)?0*$/.test(hash)
 }
 
+function asyncTimeout(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 const waitUntil = function(
   checkSuccess = () => false,
   checkError = () => false,
@@ -58,4 +62,4 @@ const waitUntil = function(
   })
 }
 
-export { timeConverter, isZeroHash, waitUntil }
+export { timeConverter, isZeroHash, waitUntil, asyncTimeout }

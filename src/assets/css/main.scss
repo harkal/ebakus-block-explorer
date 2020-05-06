@@ -233,9 +233,7 @@ td {
   padding-bottom: 76px;
 
   @media (max-width: $mobile-grid-breakpoint) {
-    top: 0;
     margin: 0;
-    padding: 0;
     padding-bottom: 60px;
   }
 }
@@ -247,9 +245,15 @@ td {
   right: 0;
 
   padding: 12px $spacer-3 12px;
-  background-color: #fbfbfc; //rgba(255, 255, 255, 0.62);
+  background-color: #fafbfb;
 
   z-index: 10;
+
+  transition: 0.15s box-shadow ease;
+
+  &.scrolled {
+    box-shadow: 0 2px 14px 0 rgba(200, 208, 225, 0.52);
+  }
 
   @media (max-width: $mobile-grid-breakpoint) {
     padding-top: $spacer-3;
@@ -718,7 +722,7 @@ td {
   position: relative;
   display: block;
 
-  width: 100%;
+  width: calc(100% - #{$spacer-3 * 2});
   margin: 0 auto 20px;
   padding: 15px 25px;
 

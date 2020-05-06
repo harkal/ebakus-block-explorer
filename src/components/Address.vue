@@ -14,7 +14,7 @@
 
     <div
       class="panel panel-collapsable actions"
-      :class="{ collapsed: !address.isContract || abi.length === 0 }"
+      :class="{ collapsed: !address.isContract || (abi && abi.length === 0) }"
     >
       <h2>Actions</h2>
 

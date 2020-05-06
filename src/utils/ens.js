@@ -5,7 +5,7 @@ import namehash from 'eth-ens-namehash'
 import ebakusWallet from 'ebakus-web-wallet-loader'
 
 import { web3, checkConnectionError } from '@/utils/web3ebakus'
-import { isZeroHash } from '.'
+import { isZeroHash, asyncTimeout } from '.'
 
 const ContractAddress = process.env.ENS_CONTRACT_ADDRESS
 
@@ -23,7 +23,10 @@ const getEnsContract = async () => {
     _contract = new web3.eth.Contract(contractABI, ContractAddress)
     return _contract
   } catch (err) {
-    await checkEnsConnectionError(err)
+    if (await checkEnsConnectionError(err)) {
+      await asyncTimeout(1000)
+      return await getEnsContract()
+    }
   }
 }
 

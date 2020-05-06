@@ -1,6 +1,7 @@
 import namehash from 'eth-ens-namehash'
 
 import { web3, checkConnectionError } from '@/utils/web3ebakus'
+import { asyncTimeout } from '.'
 
 const ContractAddress = '0x0000000000000000000000000000000000000101'
 
@@ -16,7 +17,10 @@ const getContract = async () => {
     _contract = new web3.eth.Contract(contractABI, ContractAddress)
     return _contract
   } catch (err) {
-    await checkContractConnectionError(err)
+    if (await checkContractConnectionError(err)) {
+      await asyncTimeout(1000)
+      return await getContract()
+    }
   }
 }
 

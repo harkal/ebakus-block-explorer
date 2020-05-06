@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <header ref="header" class="header">
+    <header ref="header" class="header" :class="{ scrolled: isUserScrolling }">
       <div class="container">
         <Header />
         <Search :on-update="updateInnerHeight" />
@@ -37,6 +37,11 @@ export default {
     Tabbar,
     CookiePolicy,
   },
+  data() {
+    return {
+      isUserScrolling: false,
+    }
+  },
   computed: {
     contentActive: () => store.contentActive,
     searchQuery: () => store.searchQuery,
@@ -47,6 +52,7 @@ export default {
     this.updateInnerHeight()
 
     window.addEventListener('resize', debounce(this.updateInnerHeight, 150))
+    window.addEventListener('scroll', debounce(this.handleScroll, 100))
 
     // fetch USD rate every 5 minutes
     if (process.env.SHOW_PRICE_IN_USD) {
@@ -68,6 +74,10 @@ export default {
         const height = self.$refs.header.clientHeight * 0.01
         document.documentElement.style.setProperty('--header-vh', `${height}px`)
       })
+    },
+
+    handleScroll(event) {
+      this.isUserScrolling = window.scrollY > 0
     },
   },
 }

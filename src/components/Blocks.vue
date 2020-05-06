@@ -32,7 +32,7 @@
           <span class="col time"><ContentLoader :width="80"/></span>
         </li>
         <li v-if="blocks.length > 0" class="load-more" @click="getNewer()">
-          Show newer
+          Show Newer
         </li>
         <li v-for="block in blocks" :key="block.number">
           <span class="mobileLabel">Block #</span>
@@ -77,7 +77,7 @@
           class="load-more"
           @click="getOlder()"
         >
-          Show older
+          Show Older
         </li>
       </ul>
     </div>
