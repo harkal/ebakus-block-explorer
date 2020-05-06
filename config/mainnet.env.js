@@ -3,7 +3,7 @@ module.exports = {
   API_ENDPOINT: '"https://explorer-api.ebakus.com"',
   WEB3JS_NODE_ENDPOINT: '"wss://ws.ebakus.com"',
 
-  // ENS_CONTRACT_ADDRESS: '"0x1Ad8F8c747F5E87FD81c658165A134C374bE2e17"',
+  ENS_CONTRACT_ADDRESS: '"0xf4a5D866eb8c997dCB221Cc6485025B03204977B"',
 
   SHOW_PRICE_IN_USD: false,
 
