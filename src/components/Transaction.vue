@@ -20,8 +20,12 @@
                   name: RouteNames.ADDRESS,
                   params: { query: transaction.from },
                 }"
-                >{{ transaction.from }}</router-link
               >
+                {{ transaction.from }}
+                <span v-if="!!transaction.fromEns">
+                  ({{ transaction.fromEns }})
+                </span>
+              </router-link>
               <ContentLoader v-else :width="400" />
             </td>
           </tr>
@@ -37,8 +41,12 @@
                   name: RouteNames.ADDRESS,
                   params: { query: transaction.to },
                 }"
-                >{{ transaction.to }}</router-link
               >
+                {{ transaction.to }}
+                <span v-if="!!transaction.toEns">
+                  ({{ transaction.toEns }})
+                </span>
+              </router-link>
               <ContentLoader v-else :width="400" />
             </td>
           </tr>
