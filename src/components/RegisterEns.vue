@@ -21,7 +21,11 @@
       </div>
 
       <div v-if="isEbakusWalletAllowed" class="row buttons">
-        <button class="registerButton" @click="registerEns">
+        <button
+          class="registerButton"
+          :disabled="error !== ''"
+          @click="registerEns"
+        >
           Register
           <transition name="fade" appear>
             <span v-if="registrationAmount > 0">
@@ -65,6 +69,8 @@
 </template>
 
 <script>
+import namehash from 'eth-ens-namehash'
+
 import SharedWalletMixin from '@/mixins/SharedWalletMixin'
 import { store } from '@/store'
 import {
@@ -93,8 +99,13 @@ export default {
     hasUserConsented: () => store.hasUserConsented,
   },
   watch: {
-    name: function() {
-      this.error = ''
+    name: function(val) {
+      try {
+        const hash = namehash.hash(val)
+        this.error = ''
+      } catch (err) {
+        this.error = 'This name is not valid.'
+      }
     },
     address: function() {
       this.error = ''
@@ -245,6 +256,14 @@ button {
 
   span {
     color: rgba(17, 47, 66, 0.7);
+    transition: 0.2s color ease-in;
+  }
+
+  &:disabled,
+  &[disabled] {
+    span {
+      color: rgba(17, 47, 66, 0.35);
+    }
   }
 }
 </style>
