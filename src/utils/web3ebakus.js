@@ -1,7 +1,7 @@
 import Web3 from 'web3'
 import Web3Ebakus from 'web3-ebakus'
 
-var asyncNoop = async () => {}
+const asyncNoop = async () => {}
 
 let web3
 
@@ -19,8 +19,8 @@ const checkConnectionError = async (err, opts) => {
       ? opts.getProviderEndpoint
       : async () => process.env.WEB3JS_NODE_ENDPOINT
 
-    const preInit = opts.preInit ? opts.preInit : noop
-    const postInit = opts.postInit ? opts.postInit : noop
+    const preInit = opts.preInit ? opts.preInit : asyncNoop
+    const postInit = opts.postInit ? opts.postInit : asyncNoop
 
     const providerEndpoint = await getProviderEndpoint()
 
