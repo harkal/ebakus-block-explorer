@@ -47,6 +47,31 @@ Vue.component('Transactions', Transactions)
 
 Vue.config.productionTip = process.env.NODE_ENV === 'production'
 
+const defaultLocale =
+  (navigator.languages && navigator.languages[0]) ||
+  navigator.language ||
+  navigator.userLanguage ||
+  'en-GB'
+
+const numberFormatter = window.Intl
+  ? new Intl.NumberFormat(defaultLocale)
+  : { format: num => num }
+
+Vue.filter('numberFormatter', function(num) {
+  return numberFormatter.format(num)
+})
+
+const numberFormatterFixed = window.Intl
+  ? new Intl.NumberFormat(defaultLocale, {
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4,
+    })
+  : { format: num => floor(parseFloat(num), 4).toFixed(4) }
+
+Vue.filter('numberFormatterFixed', function(num) {
+  return numberFormatterFixed.format(num)
+})
+
 Vue.filter('toFixed', function(price, limit = 4) {
   return price.toFixed(limit)
 })
@@ -60,7 +85,7 @@ const toEther = wei => {
     wei = '0x' + wei.toString(16)
   }
 
-  return Web3.utils.fromWei(wei)
+  return numberFormatter.format(Web3.utils.fromWei(wei))
 }
 Vue.filter('toEther', toEther)
 
@@ -69,7 +94,7 @@ Vue.filter('toEtherFixed', function(wei) {
     wei = '0x' + wei.toString(16)
   }
 
-  return floor(parseFloat(Web3.utils.fromWei(wei)), 4).toFixed(4)
+  return numberFormatterFixed.format(Web3.utils.fromWei(wei))
 })
 
 Vue.filter('toENS', function(obj, field) {
@@ -87,7 +112,7 @@ const toUSDString = (amount, symbol = 'USD') => {
   }
 
   const usd = amount * store.usdRate
-  let out = floor(parseFloat(usd), 4).toFixed(4)
+  let out = numberFormatterFixed.format(usd)
   if (symbol) out += ` ${symbol}`
   return `${out}`
 }

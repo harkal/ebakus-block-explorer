@@ -59,7 +59,7 @@
             v-if="hasData"
             v-pure-tooltip.down="stakeInUSD"
             class="balance"
-            >{{ (address.stake / 10000).toFixed(4) }}</span
+            >{{ (address.stake / 10000) | numberFormatterFixed }}</span
           >
           <ContentLoader v-else :width="84" :height="20" />
           <small> EBK</small>
@@ -248,9 +248,7 @@ export default {
     },
     stakeInUSD: function() {
       return !!this.address.stake
-        ? this.$options.filters.toUSDString(
-            (this.address.stake / 10000).toFixed(4)
-          )
+        ? this.$options.filters.toUSDString(this.address.stake / 10000)
         : {}
     },
     statsData: function() {

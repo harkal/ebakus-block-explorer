@@ -42,7 +42,7 @@
             </span>
             <span class="mobileLabel">Amount</span>
             <span class="col amount">
-              {{ data.amount.toFixed(4) }} <small>EBK</small>
+              {{ data.amount | numberFormatterFixed }} <small>EBK</small>
             </span>
           </li>
         </ul>
