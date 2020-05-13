@@ -27,9 +27,14 @@
           <img src="@/assets/img/ic-abi.svg" alt />
           Get ABI
         </a>
-        <!-- <a class="button">
-          <img src="@/assets/img/ic-remix.svg" alt />Interact with contract
-        </a> -->
+        <a
+          class="button"
+          :href="`${remixUrl}/#loadFromAbi=${address.address}`"
+          target="_blank"
+        >
+          <img src="@/assets/img/ic-remix.svg" alt />
+          Interact with contract
+        </a>
       </div>
     </div>
     <div class="panel">
@@ -173,6 +178,7 @@ export default {
     hasData() {
       return !!this.address.address
     },
+    remixUrl: () => process.env.REMIX_URL,
     balanceData: function() {
       const data = this.address
       if (!data || !data.address) return
