@@ -231,18 +231,17 @@ export default {
     },
 
     ebakusWalletOnConnectSuccess: async function() {
-      await this.fetchAccount()
+      if (this.isEbakusWalletAllowed && this._isWalletConnected) {
+        await this.ebakusWalletFetchAccount()
+        this.loadCurrentlyVoted()
+      }
+
       this.systemContractInstance = await getSystemContract()
 
       this.loadWitnesses()
       this.loadCurrentlyVoted()
     },
     /* End Ebakus wallet mixin overrides */
-
-    fetchAccount: async function() {
-      await this.ebakusWalletFetchAccount()
-      this.loadCurrentlyVoted()
-    },
 
     loadWitnesses: async function() {
       if (this.isWitnessesLoading || this.systemContractInstance === null)
