@@ -138,7 +138,7 @@ const getEnsNameForAddressWithCaching = memoize(async address => {
     const { data: { name } = {} } = res
     return name
   } catch (err) {
-    console.warn("ENS name for address doesn't exist", err)
+    console.warn("ENS name for address doesn't exist:", err.statusText)
   }
 })
 
