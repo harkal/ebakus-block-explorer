@@ -207,9 +207,11 @@ nav {
       position: relative;
       display: inline-block;
       margin-right: $spacer-3;
+      padding-bottom: 3px;
 
       &:hover {
         ul {
+          top: 28px;
           opacity: 1;
         }
       }
@@ -242,7 +244,7 @@ nav {
 
     ul {
       position: absolute;
-      top: 28px;
+      top: -600px;
       left: -12px;
       padding: $spacer-3 0;
       min-width: 160px;
