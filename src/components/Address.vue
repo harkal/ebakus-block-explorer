@@ -105,9 +105,9 @@
             <small> EBK</small>
           </td>
         </tr>
-        <!-- <tr>
-          <td colspan="2">
-            <table class="missedBlocks">
+        <tr>
+          <td colspan="2" class="missedBlocks">
+            <table>
               <tr>
                 <th>&nbsp;</th>
                 <th v-for="(label, idx) in statsData.labels" :key="idx">
@@ -115,24 +115,24 @@
                 </th>
               </tr>
               <tr>
-                <td>Missed blocks</td>
+                <td class="headcol">Missed blocks</td>
                 <td
                   v-for="(stats, idx) in statsData.data"
                   :key="idx"
-                  :class="{ txt-danger: stats.missedBlocks > 0 }"
+                  :class="{ 'txt-danger': stats.missedBlocks > 0 }"
                 >
                   {{ stats.missedBlocks }}
                 </td>
               </tr>
               <tr>
-                <td>Density</td>
+                <td class="headcol">Density</td>
                 <td v-for="(stats, idx) in statsData.data" :key="idx">
                   {{ stats.density.toFixed(2) }}%
                 </td>
               </tr>
             </table>
           </td>
-        </tr>-->
+        </tr>
       </table>
     </div>
 
@@ -496,10 +496,15 @@ export default {
 }
 
 .missedBlocks {
-  margin: -4px -6px;
+  margin: 0;
+  padding: 0;
+
+  table {
+    width: 100%;
+  }
 
   th:first-child {
-    min-width: 150px;
+    min-width: 106px;
 
     @media (max-width: $mobile-grid-breakpoint) {
       min-width: auto;
