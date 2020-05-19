@@ -72,7 +72,7 @@
       </div>
       <div
         v-if="!chartDataLoaded || address.block_rewards == 0"
-        class="chart-wrapper"
+        class="chartWrapper"
       >
         <Chart v-if="chartDataLoaded" :chart-data="balanceData" :height="300" />
         <ContentLoader v-else :width="1000" :height="300" />
@@ -144,6 +144,7 @@
         :is-contract-address="address.isContract"
         :abi="abi"
         :max-offset="address.tx_count"
+        :update-txs="setTxs"
         :class="{ active: txs.length > 0 }"
       />
     </div>
@@ -152,6 +153,7 @@
 
 <script>
 import Web3 from 'web3'
+import floor from 'lodash/floor'
 
 import { store } from '@/store'
 import { timeConverter } from '@/utils'
@@ -164,6 +166,16 @@ export default {
   components: {
     ContentLoader,
     Chart,
+  },
+  filters: {
+    toEtherFixedForChart: function(wei) {
+      if (typeof wei == 'number') {
+        wei = '0x' + wei.toString(16)
+      }
+      const ebk = Web3.utils.fromWei(wei)
+
+      return floor(parseFloat(ebk), 4).toFixed(4)
+    },
   },
   data() {
     return {
@@ -200,12 +212,12 @@ export default {
           [data.address, 'this'].includes(txs[i].from) &&
           txs[i].to != 'this'
         ) {
-          balance = balance.sub(new BN(String(txs[i].value)))
+          balance = balance.add(new BN(String(txs[i].value)))
         } else if (
           txs[i].from != 'this' &&
           [data.address, 'this'].includes(txs[i].to)
         ) {
-          balance = balance.add(new BN(String(txs[i].value)))
+          balance = balance.sub(new BN(String(txs[i].value)))
         }
 
         _data.push(balance)
@@ -229,7 +241,9 @@ export default {
       _data = _data.map(value => (value.lt(new BN('0')) ? new BN('0') : value))
 
       // now that we finished with number calcs, keep 4 decimals (converts to string)
-      _data = _data.map(value => this.$options.filters.toEtherFixed(value))
+      _data = _data.map(value =>
+        this.$options.filters.toEtherFixedForChart(value)
+      )
 
       _datasets = [
         {
@@ -365,25 +379,9 @@ export default {
           this.error = 'Failed to get address informations.'
         }
       )
-
-      this.$http
-        .get(
-          process.env.API_ENDPOINT +
-            '/transaction/all/' +
-            address +
-            '?offset=0&limit=20&order=desc'
-        )
-        .then(
-          function(response) {
-            this.$set(this, 'txs', response.data)
-          },
-          function(err) {
-            console.error(
-              `Failed to fetch transactions for address "${address}": `,
-              err
-            )
-          }
-        )
+    },
+    setTxs: function(txs) {
+      this.$set(this, 'txs', txs)
     },
   },
 }
@@ -486,7 +484,7 @@ export default {
   color: #acb4c9;
 }
 
-.chart-wrapper {
+.chartWrapper {
   position: relative;
   width: 100% !important;
   padding-top: 40px;

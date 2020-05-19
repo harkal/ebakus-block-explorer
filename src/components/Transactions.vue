@@ -165,6 +165,10 @@ export default {
       type: Number,
       default: 0,
     },
+    updateTxs: {
+      type: Function,
+      default: () => {},
+    },
   },
   data() {
     return {
@@ -280,6 +284,8 @@ export default {
 
               self.txs.push.apply(self.txs, newTxs)
               self.offset += limit
+
+              self.updateTxs(self.txs)
             },
             function(err) {
               console.error(
