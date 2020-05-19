@@ -27,10 +27,11 @@ export default {
     this.renderChart(this.chartData, {
       responsive: true,
       maintainAspectRatio: false,
-      legend: { display: false },
+      // legend: { display: false },
       scales: {
         yAxes: [
           {
+            stacked: true,
             ticks: {
               beginAtZero: true,
             },

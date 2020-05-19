@@ -157,10 +157,14 @@ import floor from 'lodash/floor'
 
 import { store } from '@/store'
 import { timeConverter } from '@/utils'
-import { getAbi } from '@/utils/abi'
+import { getAbi, getValueForParam } from '@/utils/abi'
 
 import Chart from './Chart'
 import ContentLoader from './ContentLoader'
+import {
+  decodeSystemContractData,
+  getSystemContractAbi,
+} from '../utils/systemContract'
 
 export default {
   components: {
@@ -197,13 +201,15 @@ export default {
 
       const BN = Web3.utils.BN
 
-      var i
-      var balance = new BN('0')
-      var balanceData = {}
-      var _data = []
-      var _datasets = []
-      var _labels = []
-      var txs = this.txs.slice().reverse()
+      const txs = this.txs.slice().reverse()
+      const _labels = []
+      let accBalance = new BN('0')
+      let balanceData = {}
+      let _liquidBalances = []
+      let _stakedBalances = []
+      let _datasets = []
+      let i
+      let accStaked = 0
 
       for (i = 0; i < txs.length; i++) {
         _labels.push(this.timeConverter(txs[i].timestamp))
@@ -212,45 +218,76 @@ export default {
           [data.address, 'this'].includes(txs[i].from) &&
           txs[i].to != 'this'
         ) {
-          balance = balance.add(new BN(String(txs[i].value)))
+          accBalance = accBalance.add(new BN(String(txs[i].value)))
         } else if (
           txs[i].from != 'this' &&
           [data.address, 'this'].includes(txs[i].to)
         ) {
-          balance = balance.sub(new BN(String(txs[i].value)))
+          accBalance = accBalance.sub(new BN(String(txs[i].value)))
         }
 
-        _data.push(balance)
+        if (
+          txs[i].to == '0x0000000000000000000000000000000000000101' &&
+          txs[i].input
+        ) {
+          const { name, params } = decodeSystemContractData(txs[i].input)
+
+          if (name === 'stake') {
+            const amount = getValueForParam('amount', params)
+            accStaked += amount / 10000
+          } else if (name === 'unstake') {
+            const amount = getValueForParam('amount', params)
+            accStaked -= amount / 10000
+          }
+        }
+
+        _liquidBalances.push(accBalance)
+        _stakedBalances.push(accStaked)
       }
 
       _labels.unshift('')
-      balance = new BN(String(data.balance)).add(
-        new BN(String(data.stake)).mul(new BN(100000000000000))
-      )
+
+      let _totalBalances = [..._liquidBalances]
+
+      const liquidBalance = new BN(String(data.balance))
+      let stakedBalance = data.stake / 10000
+
+      let cLiquidBalances = liquidBalance
 
       if (txs.length > 0) {
-        balance = balance.sub(_data[txs.length - 1])
+        cLiquidBalances = cLiquidBalances.sub(_liquidBalances[txs.length - 1])
+        stakedBalance -= _stakedBalances[txs.length - 1]
       }
 
       for (i = 0; i < txs.length; i++) {
-        _data[i] = _data[i].add(balance)
+        _liquidBalances[i] = _liquidBalances[i].add(cLiquidBalances)
+        _stakedBalances[i] += stakedBalance
       }
-      _data.unshift(balance)
+      _liquidBalances.unshift(cLiquidBalances)
+      _stakedBalances.unshift(stakedBalance)
 
       // TODO: remove this. cap lower value to 0
-      _data = _data.map(value => (value.lt(new BN('0')) ? new BN('0') : value))
+      _liquidBalances = _liquidBalances.map(value =>
+        value.lt(new BN('0')) ? new BN('0') : value
+      )
 
       // now that we finished with number calcs, keep 4 decimals (converts to string)
-      _data = _data.map(value =>
+      _liquidBalances = _liquidBalances.map(value =>
         this.$options.filters.toEtherFixedForChart(value)
       )
 
       _datasets = [
         {
-          label: 'Balance',
-          backgroundColor: '#E4F5FD',
-          borderColor: '#31BAF3',
-          data: _data,
+          label: 'Staked balance',
+          borderColor: '#eb7f95',
+          backgroundColor: '#ffc5d0',
+          data: _stakedBalances,
+        },
+        {
+          label: 'Liquid balance',
+          borderColor: '#a3d6ee',
+          backgroundColor: '#cfefff',
+          data: _liquidBalances,
         },
       ]
 
@@ -328,7 +365,9 @@ export default {
       this.chartDataLoaded = true
     },
   },
-  created: function() {
+  created: async function() {
+    await getSystemContractAbi() // preload system contract ABI
+
     this.search()
   },
   methods: {
