@@ -80,21 +80,23 @@ Vue.filter('floor', function(number) {
   return floor(number, 4)
 })
 
-const toEther = wei => {
+const toEther = (wei, withoutFormat = false) => {
   if (typeof wei == 'number') {
     wei = '0x' + wei.toString(16)
   }
 
-  return numberFormatter.format(Web3.utils.fromWei(wei))
+  const ether = Web3.utils.fromWei(wei)
+  return withoutFormat ? ether : numberFormatter.format(ether)
 }
 Vue.filter('toEther', toEther)
 
-Vue.filter('toEtherFixed', function(wei) {
+Vue.filter('toEtherFixed', function(wei, withoutFormat = false) {
   if (typeof wei == 'number') {
     wei = '0x' + wei.toString(16)
   }
 
-  return numberFormatterFixed.format(Web3.utils.fromWei(wei))
+  const ether = Web3.utils.fromWei(wei)
+  return withoutFormat ? ether : numberFormatterFixed.format(ether)
 })
 
 Vue.filter('toENS', function(obj, field) {
@@ -119,7 +121,7 @@ const toUSDString = (amount, symbol = 'USD') => {
 Vue.filter('toUSDString', toUSDString)
 
 Vue.filter('weiToUSDString', function(wei, symbol = 'USD') {
-  const ether = toEther(wei)
+  const ether = toEther(wei, true)
   return toUSDString(ether, symbol)
 })
 
