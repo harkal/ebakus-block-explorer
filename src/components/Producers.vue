@@ -19,7 +19,7 @@
             @keyup="filterByAddress()"
           />
         </span>
-        <span class="col amount">Stake</span>
+        <span class="col amount">Votes</span>
         <span class="col vote"></span>
       </li>
     </ul>
@@ -40,7 +40,7 @@
               >{{ witness | toENS('Id') }}</router-link
             >
           </span>
-          <span class="mobileLabel">Stake</span>
+          <span class="mobileLabel">Votes</span>
           <span class="col amount">
             {{ (witness.Stake / 10000) | numberFormatterFixed }}
             <small> EBK</small>
