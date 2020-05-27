@@ -99,7 +99,7 @@
           <td class="headcol">Votes</td>
           <td>
             <span v-if="statsData && statsData.stake">{{
-              statsData.stake / 10000
+              (statsData.stake / 10000) | numberFormatterFixed
             }}</span>
             <ContentLoader v-else :width="60" />
             <small> EBK</small>
@@ -212,18 +212,19 @@ export default {
       let accStaked = 0
 
       for (i = 0; i < txs.length; i++) {
-        _labels.push(this.timeConverter(txs[i].timestamp))
+        const date = new Date(txs[i].timestamp * 1000).toISOString()
+        _labels.push(date)
 
         if (
           [data.address, 'this'].includes(txs[i].from) &&
           txs[i].to != 'this'
         ) {
-          accBalance = accBalance.add(new BN(String(txs[i].value)))
+          accBalance = accBalance.sub(new BN(String(txs[i].value)))
         } else if (
           txs[i].from != 'this' &&
           [data.address, 'this'].includes(txs[i].to)
         ) {
-          accBalance = accBalance.sub(new BN(String(txs[i].value)))
+          accBalance = accBalance.add(new BN(String(txs[i].value)))
         }
 
         if (
@@ -245,8 +246,6 @@ export default {
         _stakedBalances.push(accStaked)
       }
 
-      _labels.unshift('')
-
       let _totalBalances = [..._liquidBalances]
 
       const liquidBalance = new BN(String(data.balance))
@@ -263,6 +262,9 @@ export default {
         _liquidBalances[i] = _liquidBalances[i].add(cLiquidBalances)
         _stakedBalances[i] += stakedBalance
       }
+
+      // add current values
+      _labels.push(new Date().toISOString())
       _liquidBalances.unshift(cLiquidBalances)
       _stakedBalances.unshift(stakedBalance)
 
