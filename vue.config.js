@@ -1,4 +1,5 @@
 const webpack = require('webpack')
+const CompressionPlugin = require('compression-webpack-plugin')
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 const env = IS_PRODUCTION
@@ -20,6 +21,27 @@ module.exports = {
       // }),
       new webpack.DefinePlugin({
         'process.env': env,
+      }),
+
+      new CompressionPlugin({
+        filename: '[path].gz[query]',
+        algorithm: 'gzip',
+        test: /\.(js|css|html|svg)$/,
+        threshold: 10240,
+        minRatio: 0.8,
+      }),
+
+      new CompressionPlugin({
+        filename: '[path].br[query]',
+        algorithm: 'brotliCompress',
+        test: /\.(js|css|html|svg)$/,
+        compressionOptions: {
+          // zlib’s `level` option matches Brotli’s `BROTLI_PARAM_QUALITY` option.
+          level: 11,
+        },
+        threshold: 10240,
+        minRatio: 0.8,
+        deleteOriginalAssets: false,
       }),
     ],
   },

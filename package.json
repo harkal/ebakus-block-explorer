@@ -33,6 +33,7 @@
     "abi-decoder": "https://github.com/ziogaschr/abi-decoder#feature/multiple-instances",
     "balloon-css": "^1.0.4",
     "chart.js": "^2.9.3",
+    "compression-webpack-plugin": "^4.0.0",
     "ebakus-web-wallet-loader": "^0.1.4",
     "eth-ens-namehash": "^2.0.8",
     "ethereumjs-util": "^6.2.0",
